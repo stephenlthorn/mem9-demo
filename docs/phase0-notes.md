@@ -33,3 +33,11 @@ Evidence:
 - There is no tenant-delete HTTP handler or service method in the codebase.
 
 ## 0.5 tenant metadata API
+
+No dedicated metadata endpoint. The "provisioned in Xms" tile uses wall-clock measurement from the seeder (MEM9_PROVISION_MS in .env).
+
+Evidence:
+- `server/internal/handler/tenant.go` defines `getTenantInfo` which calls `s.tenant.GetInfo(...)` and returns a `domain.TenantInfo` struct — but **this handler is never registered** in the router (`server/internal/handler/handler.go`). It is dead/unreachable code.
+- `domain.TenantInfo` (`server/internal/domain/types.go` line 155) has fields: `tenant_id`, `name`, `status`, `provider`, `memory_count`, `created_at`. There is no `provisioned_at` field.
+- No `provisioned_at` column exists in `server/schema.sql` or `server/schema_db9.sql`.
+- The `cluster_id` field exists in the tenants schema but is not included in the `TenantInfo` response.
