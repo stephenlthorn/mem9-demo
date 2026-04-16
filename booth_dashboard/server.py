@@ -11,6 +11,11 @@ from fastapi.staticfiles import StaticFiles
 
 STATIC_DIR = Path(__file__).parent / "static"
 
+try:
+    from .canned import CANNED as _CANNED
+except ImportError:
+    from canned import CANNED as _CANNED  # type: ignore[no-redef]
+
 
 def build_app(mem9_url: str, tenant_id: str | None) -> FastAPI:
     app = FastAPI(title="mem9-demo booth dashboard")
@@ -30,8 +35,7 @@ def build_app(mem9_url: str, tenant_id: str | None) -> FastAPI:
 
     @app.get("/canned")
     def canned() -> dict:
-        from booth_dashboard.canned import CANNED
-        return CANNED
+        return _CANNED
 
     @app.api_route(
         "/api/{path:path}",

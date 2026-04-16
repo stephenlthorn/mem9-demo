@@ -30,6 +30,7 @@ case "$MODE" in
     for svc in "http://localhost:8080/healthz" "http://localhost:7000/healthz"; do
       for i in $(seq 1 60); do
         curl -sf "$svc" > /dev/null && break
+        [ "$i" -eq 60 ] && { echo "ERROR: $svc never became healthy" >&2; exit 1; }
         sleep 1
       done
     done
