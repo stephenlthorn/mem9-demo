@@ -32,6 +32,8 @@ Evidence:
 - The only tenant-level DELETE found is in a test helper (`server/internal/repository/tidb/testutil_test.go`): `DELETE FROM tenants` (SQL row deletion only, no DB drop).
 - There is no tenant-delete HTTP handler or service method in the codebase.
 
+**Warning:** Fleet-timing cleanup is best-effort only. When `SEED_FLEET_TENANTS > 0`, the seeder provisions extra tenants to measure provisioning latency distribution, then attempts to DELETE each extra tenant. Because mnemo-server has no `DELETE /v1alpha1/mem9s/{id}` endpoint, these DELETE requests will receive 404/405 responses. The seeder catches and ignores these errors — fleet measurements are still captured correctly, but extra tenants are not cleaned up. Operators should keep `SEED_FLEET_TENANTS=0` (the default) to avoid accumulating orphaned tenants in production environments.
+
 ## 0.5 tenant metadata API
 
 No dedicated metadata endpoint. The "provisioned in Xms" tile uses wall-clock measurement from the seeder (MEM9_PROVISION_MS in .env).
