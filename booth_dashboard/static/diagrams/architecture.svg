@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" role="img"
+     aria-labelledby="arch-title arch-desc">
+  <title id="arch-title">mem9 unified engine</title>
+  <desc id="arch-desc">Agent to mnemo-server to TiDB with three parallel retrieval
+    paths (vector, full-text, metadata) merged into a single result.</desc>
+
+  <defs>
+    <style>
+      .node { fill: #1a2540; stroke: #4cc9f0; stroke-width: 1.5; }
+      .label { fill: #e8ecf4; font: 14px ui-sans-serif, system-ui, sans-serif; }
+      .sub { fill: #8c99b3; font: 12px ui-sans-serif, system-ui, sans-serif; }
+      .wire { stroke: #8c99b3; stroke-width: 2; fill: none; }
+      .ghost { opacity: 0.28; }
+      .fan { fill: #22304e; stroke: #4cc9f0; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <!-- Agent -->
+  <g id="agent-group">
+    <rect class="node" x="20" y="120" width="120" height="80" rx="10" ry="10"/>
+    <text class="label" x="80" y="155" text-anchor="middle">Claude Code</text>
+    <text class="sub"   x="80" y="175" text-anchor="middle">or booth UI</text>
+  </g>
+
+  <!-- mnemo-server -->
+  <g id="mnemo-group">
+    <rect class="node" x="230" y="120" width="170" height="80" rx="10" ry="10"/>
+    <text class="label" x="315" y="155" text-anchor="middle">mnemo-server</text>
+    <text class="sub"   x="315" y="175" text-anchor="middle">Go / REST</text>
+  </g>
+
+  <!-- TiDB outer box -->
+  <g id="tidb-group">
+    <rect class="node" x="490" y="60" width="360" height="200" rx="10" ry="10"/>
+    <text class="label" x="670" y="88" text-anchor="middle">TiDB (tenant DB)</text>
+
+    <rect id="fan-vector" class="fan" x="520" y="110" width="300" height="36" rx="6" ry="6"/>
+    <text class="label" x="540" y="133">vector column</text>
+
+    <rect id="fan-fts" class="fan" x="520" y="156" width="300" height="36" rx="6" ry="6"/>
+    <text class="label" x="540" y="179">FTS index</text>
+
+    <rect id="fan-meta" class="fan" x="520" y="202" width="300" height="36" rx="6" ry="6"/>
+    <text class="label" x="540" y="225">metadata / SQL</text>
+
+    <circle id="merge" cx="850" cy="160" r="10" fill="#2bd9a1"/>
+  </g>
+
+  <!-- Wires -->
+  <path class="wire" d="M140,160 L230,160"/>
+  <path class="wire" d="M400,160 L490,128"/>
+  <path class="wire" d="M400,160 L490,174"/>
+  <path class="wire" d="M400,160 L490,220"/>
+
+  <!-- Animated packets -->
+  <circle id="packet" cx="145" cy="160" r="7" fill="#4cc9f0"/>
+  <circle id="result-packet" cx="145" cy="270" r="7" fill="#f72585" opacity="0"/>
+
+  <!-- Ghosted alternative strip -->
+  <g class="ghost" aria-hidden="true">
+    <rect class="node" x="20"  y="290" width="120" height="36" rx="6" ry="6"/>
+    <text class="label" x="80"  y="313" text-anchor="middle">Pinecone</text>
+
+    <rect class="node" x="170" y="290" width="120" height="36" rx="6" ry="6"/>
+    <text class="label" x="230" y="313" text-anchor="middle">Postgres</text>
+
+    <rect class="node" x="320" y="290" width="120" height="36" rx="6" ry="6"/>
+    <text class="label" x="380" y="313" text-anchor="middle">Elastic</text>
+
+    <path class="wire" d="M140,308 L170,308"/>
+    <path class="wire" d="M290,308 L320,308"/>
+
+    <text class="sub" x="450" y="316">3 systems - ETL glue - sync lag</text>
+  </g>
+</svg>
