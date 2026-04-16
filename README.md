@@ -34,7 +34,7 @@ git clone https://github.com/stephenlthorn/mem9-demo && cd mem9-demo
 ```
 
 No config needed. The runner provisions a tenant via `api.mem9.ai`, seeds 50
-memories, and opens the booth dashboard at <http://localhost:7000>.
+memories, and opens the booth dashboard at <http://localhost:7001>.
 
 > **Want the full self-hosted demo** (mnemo-server + TiDB running locally)?
 > Set `MNEMO_DSN` in `.env` — the runner auto-detects it and switches to Docker mode:
@@ -86,7 +86,7 @@ git clone https://github.com/stephenlthorn/mem9-demo && cd mem9-demo
 
 1. Provisions a tenant via `api.mem9.ai` (~1 s)
 2. Seeds 50 memories about Sam Chen
-3. Starts the booth dashboard at <http://localhost:7000>
+3. Starts the booth dashboard at <http://localhost:7001>
 
 ### Self-hosted (TiDB visible)
 
@@ -100,7 +100,7 @@ cp .env.example .env          # then set MNEMO_DSN
 2. Builds Docker images for `mnemo-server` and `mem9-dashboard` (~90 s first run)
 3. Provisions a tenant, seeds 50 memories
 4. Opens two screens:
-   - <http://localhost:7000> — booth dashboard
+   - <http://localhost:7001> — booth dashboard
    - <http://localhost:3000> — mem9 upstream dashboard
 
 ### Optional: Claude Code as Screen 3
@@ -156,7 +156,7 @@ Claude Code (mem9 plugin)
         └── TiDB Cloud Zero (per-tenant DB, auto-provisioned)
 
 booth laptop
-└── localhost:7000  (booth-dashboard: FastAPI + static HTML)
+└── localhost:7001  (booth-dashboard: FastAPI + static HTML)
       └── /api/* → https://api.mem9.ai  (X-API-Key injected server-side)
 ```
 
@@ -164,7 +164,7 @@ booth laptop
 
 ```
 booth laptop
-├── localhost:7000  (booth-dashboard: FastAPI + static HTML)
+├── localhost:7001  (booth-dashboard: FastAPI + static HTML)
 │     └── /api/* → mnemo-server:8080  (X-API-Key injected server-side)
 ├── localhost:3000  (mem9-dashboard: upstream Vite/React SPA)
 └── localhost:8080  (mnemo-server: upstream Go binary)

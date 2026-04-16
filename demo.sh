@@ -44,20 +44,20 @@ case "$MODE" in
       set -a; . ./.env; set +a
 
       echo "==> starting booth dashboard"
-      lsof -ti :"${BOOTH_DASHBOARD_PORT:-7000}" | xargs kill -9 2>/dev/null || true
+      lsof -ti :"${BOOTH_DASHBOARD_PORT:-7001}" | xargs kill -9 2>/dev/null || true
       (cd booth_dashboard && \
         MEM9_API_URL=https://api.mem9.ai \
-        uvicorn server:app --host 0.0.0.0 --port "${BOOTH_DASHBOARD_PORT:-7000}") &
+        uvicorn server:app --host 0.0.0.0 --port "${BOOTH_DASHBOARD_PORT:-7001}") &
 
       for i in $(seq 1 30); do
-        curl -sf "http://localhost:${BOOTH_DASHBOARD_PORT:-7000}/healthz" > /dev/null && break
+        curl -sf "http://localhost:${BOOTH_DASHBOARD_PORT:-7001}/healthz" > /dev/null && break
         [ "$i" -eq 30 ] && { echo "ERROR: booth dashboard never became healthy" >&2; exit 1; }
         sleep 1
       done
 
       echo "==> opening booth dashboard"
-      (command -v open > /dev/null && open "http://localhost:${BOOTH_DASHBOARD_PORT:-7000}") || true
-      echo "Open: http://localhost:${BOOTH_DASHBOARD_PORT:-7000}   (booth dashboard)"
+      (command -v open > /dev/null && open "http://localhost:${BOOTH_DASHBOARD_PORT:-7001}") || true
+      echo "Open: http://localhost:${BOOTH_DASHBOARD_PORT:-7001}   (booth dashboard)"
 
     else
       # ── Self-hosted path: mnemo-server in Docker against TiDB ─────────────
@@ -65,7 +65,7 @@ case "$MODE" in
       echo "==> docker compose up"
       docker compose up -d --build
       echo "==> waiting for services"
-      for svc in "http://localhost:8080/healthz" "http://localhost:${BOOTH_DASHBOARD_PORT:-7000}/healthz"; do
+      for svc in "http://localhost:8080/healthz" "http://localhost:${BOOTH_DASHBOARD_PORT:-7001}/healthz"; do
         for i in $(seq 1 60); do
           curl -sf "$svc" > /dev/null && break
           [ "$i" -eq 60 ] && { echo "ERROR: $svc never became healthy" >&2; exit 1; }
@@ -76,9 +76,9 @@ case "$MODE" in
       install_python_deps
       python seed_memories.py
       echo "==> opening booth dashboard"
-      (command -v open > /dev/null && open "http://localhost:${BOOTH_DASHBOARD_PORT:-7000}") || true
+      (command -v open > /dev/null && open "http://localhost:${BOOTH_DASHBOARD_PORT:-7001}") || true
       echo "Screens to open:"
-      echo "  1) http://localhost:${BOOTH_DASHBOARD_PORT:-7000}   (booth dashboard)"
+      echo "  1) http://localhost:${BOOTH_DASHBOARD_PORT:-7001}   (booth dashboard)"
       echo "  2) http://localhost:3000   (mem9 dashboard)"
       echo "  3) Claude Code + mem9 plugin (see README step 8)"
     fi
@@ -107,11 +107,11 @@ case "$MODE" in
     load_env
     . .venv/bin/activate 2>/dev/null || python3 -m venv .venv && . .venv/bin/activate
     pip install -q -r booth_dashboard/requirements.txt
-    lsof -ti :"${BOOTH_DASHBOARD_PORT:-7000}" | xargs kill -9 2>/dev/null || true
+    lsof -ti :"${BOOTH_DASHBOARD_PORT:-7001}" | xargs kill -9 2>/dev/null || true
     (cd booth_dashboard && MEM9_TENANT_ID="${MEM9_TENANT_ID:-demo}" \
-      uvicorn server:app --host 0.0.0.0 --port "${BOOTH_DASHBOARD_PORT:-7000}") &
+      uvicorn server:app --host 0.0.0.0 --port "${BOOTH_DASHBOARD_PORT:-7001}") &
     sleep 2
-    open "http://localhost:${BOOTH_DASHBOARD_PORT:-7000}/?offline=1"
+    open "http://localhost:${BOOTH_DASHBOARD_PORT:-7001}/?offline=1"
     ;;
 
   *)

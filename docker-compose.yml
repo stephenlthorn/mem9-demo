@@ -38,6 +38,6 @@ services:
     environment:
       - MEM9_API_URL=${MEM9_API_URL_CONTAINER:-}
     ports:
-      - "${BOOTH_DASHBOARD_PORT:-7000}:7000"
+      - "${BOOTH_DASHBOARD_PORT:-7001}:7000"
     depends_on:
       - mnemo-server
