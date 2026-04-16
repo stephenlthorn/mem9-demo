@@ -1,0 +1,47 @@
+# Three services for the mem9-demo booth setup:
+#   mnemo-server   - upstream Go backend (uses server/Dockerfile from the cloned mem9 repo)
+#   mem9-dashboard - upstream Vite/React dashboard (our own Dockerfile since upstream has none)
+#   booth-dashboard - our Python FastAPI + static HTML dashboard
+#
+# ./mem9/ is cloned by demo.sh at first run and is gitignored.
+#
+# NOTE: server/Dockerfile in upstream copies a pre-built binary from server/bin/mnemo-server.
+# The binary must be present in the cloned repo (i.e. upstream ships it in the git tree or
+# demo.sh must download it separately).
+
+services:
+  mnemo-server:
+    build:
+      context: ./mem9
+      dockerfile: server/Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "8080:8080"
+
+  mem9-dashboard:
+    build:
+      context: .
+      dockerfile: docker/mem9-dashboard.Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - NEXT_PUBLIC_API_URL=http://mnemo-server:8080
+    ports:
+      - "3000:4173"
+    depends_on:
+      - mnemo-server
+
+  booth-dashboard:
+    build: ./booth_dashboard
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - MEM9_API_URL=${MEM9_API_URL_CONTAINER:-}
+    ports:
+      - "${BOOTH_DASHBOARD_PORT:-7000}:7000"
+    depends_on:
+      - mnemo-server
