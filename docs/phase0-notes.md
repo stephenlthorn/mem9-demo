@@ -24,4 +24,12 @@ The db9 schema (`server/schema_db9.sql`) uses the slightly different form `amazo
 
 ## 0.4 tenant DELETE semantics
 
+DELETE only tombstones the tenant row; underlying DB remains. Fleet-timing capture must be disabled by default (SEED_FLEET_TENANTS=0) until upstream is fixed.
+
+Evidence:
+- There is **no** `DELETE /v1alpha1/mem9s/{tenantID}` route registered in `server/internal/handler/handler.go`. The only DELETE routes are `DELETE /memories/{id}` (memory-level deletion).
+- A search across all of `server/` for `DropDatabase`, `DROP DATABASE`, `deleteDB`, `deleteDatabase` returns **zero results**.
+- The only tenant-level DELETE found is in a test helper (`server/internal/repository/tidb/testutil_test.go`): `DELETE FROM tenants` (SQL row deletion only, no DB drop).
+- There is no tenant-delete HTTP handler or service method in the codebase.
+
 ## 0.5 tenant metadata API
