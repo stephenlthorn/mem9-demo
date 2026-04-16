@@ -1,0 +1,77 @@
+"""Canned query results for offline mode.
+
+These payloads mirror what the live mnemo-server returns for the three
+scripted queries. Loaded by the /canned endpoint for demo.sh --offline.
+"""
+
+CANNED: dict[str, dict] = {
+    "q1": {
+        "label": "What does Sam think about TypeScript?",
+        "hits": [
+            {
+                "id": "mem_006",
+                "content": "Prefers Python for anything ML-related; dynamically typed languages keep iteration fast.",
+                "tags": ["fact", "preference"],
+                "scores": {"vector": 0.87, "fts": 0.00, "hybrid": 0.71},
+            },
+            {
+                "id": "mem_009",
+                "content": "Writes Rust occasionally when Python can't hit latency targets.",
+                "tags": ["fact", "stack"],
+                "scores": {"vector": 0.52, "fts": 0.00, "hybrid": 0.41},
+            },
+            {
+                "id": "mem_002",
+                "content": "Stack: Python 3.12, FastAPI, Postgres (migrating to TiDB), Pinecone (decommissioning).",
+                "tags": ["fact", "stack"],
+                "scores": {"vector": 0.48, "fts": 0.00, "hybrid": 0.38},
+            },
+        ],
+    },
+    "q2": {
+        "label": "Who does Sam report to?",
+        "hits": [
+            {
+                "id": "mem_026",
+                "content": "Reports to Priya Menon, Director of Platform at Lumos AI.",
+                "tags": ["relation", "manager"],
+                "scores": {"vector": 0.91, "fts": 0.88, "hybrid": 0.94},
+            },
+            {
+                "id": "mem_028",
+                "content": "Skip-level: Ana Ruiz, VP Engineering.",
+                "tags": ["relation", "skip-level"],
+                "scores": {"vector": 0.62, "fts": 0.21, "hybrid": 0.55},
+            },
+            {
+                "id": "mem_027",
+                "content": "Pairs most often with Jordan Vega, senior ML engineer on the same team.",
+                "tags": ["relation", "peer"],
+                "scores": {"vector": 0.51, "fts": 0.12, "hybrid": 0.44},
+            },
+        ],
+    },
+    "q3": {
+        "label": "What slowed down the research pipeline recently?",
+        "hits": [
+            {
+                "id": "mem_015",
+                "content": "Debugged a latency regression in the research pipeline on 2026-04-02 - traced to a missing vector index.",
+                "tags": ["event", "incident"],
+                "scores": {"vector": 0.83, "fts": 0.77, "hybrid": 0.89},
+            },
+            {
+                "id": "mem_047",
+                "content": "Pipeline latency work continues; p99 is 840 ms, target sub-500 ms by 2026-05-15.",
+                "tags": ["project", "latency"],
+                "scores": {"vector": 0.79, "fts": 0.81, "hybrid": 0.87},
+            },
+            {
+                "id": "mem_021",
+                "content": "Finished a Python performance audit on 2026-03-10 - shaved 40% off embedding latency.",
+                "tags": ["event", "perf"],
+                "scores": {"vector": 0.58, "fts": 0.34, "hybrid": 0.52},
+            },
+        ],
+    },
+}

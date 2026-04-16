@@ -43,3 +43,15 @@ def test_proxy_refuses_when_tenant_unset():
     r = client.get("/api/v1alpha2/mem9s/memories", params={"q": "x"})
     assert r.status_code == 503
     assert r.json()["error"].startswith("tenant not provisioned")
+
+
+def test_canned_returns_three_queries():
+    app = build_app(mem9_url="http://mnemo-server:8080", tenant_id="mnm_test")
+    client = TestClient(app)
+    r = client.get("/canned")
+    assert r.status_code == 200
+    data = r.json()
+    assert set(data.keys()) == {"q1", "q2", "q3"}
+    for key in ("q1", "q2", "q3"):
+        assert len(data[key]["hits"]) == 3
+        assert "label" in data[key]
