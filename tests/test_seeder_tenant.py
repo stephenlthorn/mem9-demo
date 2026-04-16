@@ -37,3 +37,31 @@ def test_create_memory_sets_api_key_header(httpx_mock: HTTPXMock):
     )
 
     assert mem_id == "mem_001"
+
+
+def test_search_returns_parsed_hits(httpx_mock: HTTPXMock):
+    httpx_mock.add_response(
+        method="GET",
+        url="http://localhost:8080/v1alpha2/mem9s/memories?q=TypeScript&limit=3",
+        match_headers={"X-API-Key": "mnm_abc123"},
+        json={
+            "hits": [
+                {
+                    "id": "mem_006",
+                    "content": "Prefers Python for anything ML-related.",
+                    "scores": {"vector": 0.87, "fts": 0.0, "hybrid": 0.71},
+                    "tags": ["fact", "preference"],
+                }
+            ]
+        },
+        status_code=200,
+    )
+
+    client = Mem9Client(base_url="http://localhost:8080")
+    hits = client.search(tenant_id="mnm_abc123", q="TypeScript", limit=3)
+
+    assert len(hits) == 1
+    assert hits[0].id == "mem_006"
+    assert hits[0].scores.vector == pytest.approx(0.87)
+    assert hits[0].scores.fts == pytest.approx(0.0)
+    assert hits[0].scores.hybrid == pytest.approx(0.71)
