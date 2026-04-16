@@ -48,7 +48,7 @@ class Mem9Client:
             headers={"X-API-Key": tenant_id},
         )
         r.raise_for_status()
-        return r.json()["id"]
+        return r.json().get("id", "")
 
     def search(self, tenant_id: str, q: str, limit: int = 3) -> list[Hit]:
         r = self._http.get(
