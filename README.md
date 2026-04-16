@@ -5,7 +5,25 @@ Persistent agent memory on **TiDB Cloud Zero**, wrapped around upstream
 in under three minutes. Built for the Google Cloud Next 2026 booth; any
 developer can use it to kick the tires on mem9.
 
-## What you see
+## Just want memory in Claude Code?
+
+You don't need this repo. Install the plugin and restart — it auto-provisions everything:
+
+```bash
+claude plugin marketplace add mem9-ai/mem9
+claude plugin install mem9@mem9
+# restart Claude Code — done, memory is live
+```
+
+mem9 connects to `api.mem9.ai`, which runs TiDB Cloud Zero under the hood.
+No TiDB account, no DSN, no config needed.
+
+**This repo** is the booth demo that makes the TiDB layer _visible_ — it runs
+mnemo-server locally so you can watch Cloud Zero provision a database live.
+
+---
+
+## What you see (booth demo)
 
 - **Screen 1 - Booth dashboard** (<http://localhost:7000>): live tenant
   metadata, 3 scripted queries, animated architecture diagram, fleet-scale
@@ -15,7 +33,7 @@ developer can use it to kick the tires on mem9.
 - **Screen 3 - Claude Code + mem9 plugin**: real agent talking to the same
   tenant (optional).
 
-## Quick start
+## Quick start (booth demo)
 
 ```bash
 # 1. clone
@@ -30,10 +48,10 @@ cp .env.example .env
 ./demo.sh
 ```
 
-That's it. The runner clones upstream mem9, builds three Docker images, installs
+The runner clones upstream mem9, builds three Docker images, installs
 Python deps, and seeds 50 memories. About 90 seconds on good wifi.
 
-## Prerequisites
+## Prerequisites (booth demo)
 
 | Tool | Why |
 |---|---|
@@ -41,11 +59,16 @@ Python deps, and seeds 50 memories. About 90 seconds on good wifi.
 | Python 3.11+ | seeder script (`seed_memories.py`) |
 | `git` | clones upstream mem9 on first run |
 | Chrome or Safari | booth dashboard |
-| TiDB Cloud Starter cluster | paste the DSN into `.env` — free tier works |
+| TiDB Cloud Serverless cluster | root connection string for mnemo-server |
 
-Get a free TiDB Cloud cluster at <https://tidbcloud.com>. Copy the connection
-string from **Connect → Python** and paste it into `MNEMO_DSN` in `.env`.
-Everything else in `.env` is pre-configured for the demo.
+The TiDB cluster is the one manual step: create a free Serverless cluster at
+<https://tidbcloud.com>, copy the connection string from **Connect → General**,
+and paste it into `MNEMO_DSN` in `.env`. Everything else is pre-configured.
+
+> **Why is this step manual?** TiDB Cloud Zero auto-provisions _per-tenant_
+> databases (that's what the demo shows), but the root cluster still needs a
+> one-time setup. In production you'd have one cluster per deployment; at the
+> booth you create it once and reuse it across resets.
 
 ## 10-step runbook
 
@@ -73,9 +96,12 @@ Everything else in `.env` is pre-configured for the demo.
    [`queries.md`](queries.md).
 8. **(Optional) Claude Code screen:**
    ```bash
-   # in Claude Code:
-   /plugin install mem9@mem9
-   # set MEM9_TENANT_ID to the value from .env
+   # one-time plugin install (if not already installed):
+   claude plugin marketplace add mem9-ai/mem9
+   claude plugin install mem9@mem9
+   # restart Claude Code, then set the tenant:
+   export MEM9_API_URL=http://localhost:8080
+   export MEM9_TENANT_ID=<value from .env>
    ```
    Ask it: *"Who does Sam report to?"* It should answer from memory.
 9. **Record a fallback:**
