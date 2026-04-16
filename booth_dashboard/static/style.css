@@ -1,0 +1,83 @@
+:root {
+  --bg: #0b1220;
+  --panel: #121a2d;
+  --panel-2: #1a2540;
+  --fg: #e8ecf4;
+  --muted: #8c99b3;
+  --accent: #4cc9f0;
+  --accent-2: #f72585;
+  --ok: #2bd9a1;
+  --warn: #f8961e;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+  font: 16px/1.4 ui-sans-serif, system-ui, sans-serif; }
+.top-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: 12px; background: var(--panel); border-bottom: 1px solid #22304e; }
+.tile { padding: 12px 16px; background: var(--panel-2); border-radius: 10px; }
+.tile-label { color: var(--muted); text-transform: uppercase; font-size: 11px;
+  letter-spacing: 0.1em; }
+.tile-value { font-size: 28px; font-weight: 600; color: var(--fg); }
+.tile-sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+.tabs { display: flex; gap: 4px; padding: 8px 12px; background: var(--panel); }
+.tab { background: transparent; color: var(--muted); border: 1px solid #22304e;
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.tab.active { background: var(--panel-2); color: var(--fg); border-color: var(--accent); }
+
+.stage { padding: 12px; min-height: 70vh; }
+.tab-panel { display: none; }
+.tab-panel.active { display: grid; grid-template-columns: 220px 1fr;
+  grid-template-rows: auto auto; gap: 12px; }
+.tab-panel[data-tab-panel="fleet"].active { grid-template-columns: 1fr; }
+
+.query-rail { display: flex; flex-direction: column; gap: 8px; }
+.query { background: var(--panel-2); color: var(--fg); border: 1px solid #22304e;
+  padding: 12px; border-radius: 10px; cursor: pointer; text-align: left; }
+.query:hover { border-color: var(--accent); }
+.query.active { border-color: var(--accent); background: #1b2a4a; }
+
+.diagram-wrap { background: var(--panel); border-radius: 12px; padding: 12px;
+  min-height: 340px; display: flex; align-items: center; justify-content: center; }
+#architecture-svg { width: 100%; max-width: 900px; height: 340px; }
+
+.results { grid-column: 1 / span 2; background: var(--panel); border-radius: 12px;
+  padding: 16px; }
+.results-placeholder { color: var(--muted); margin: 0; }
+.result-label { font-size: 13px; color: var(--muted); margin-bottom: 8px;
+  text-transform: uppercase; letter-spacing: 0.08em; }
+.hit { display: grid; grid-template-columns: 1fr 220px;
+  gap: 12px; padding: 10px 0; border-bottom: 1px solid #22304e; }
+.hit:last-child { border-bottom: 0; }
+.hit-content { font-size: 15px; }
+.score-bars { display: grid; grid-template-rows: repeat(3, auto); gap: 4px; }
+.score-row { display: grid; grid-template-columns: 56px 1fr 48px; gap: 6px;
+  font-size: 12px; color: var(--muted); align-items: center; }
+.bar-track { background: #22304e; height: 8px; border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); }
+.bar-fill.fts { background: var(--warn); }
+.bar-fill.hybrid { background: var(--ok); }
+.annotation { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #22304e;
+  color: var(--muted); font-style: italic; }
+
+.fleet-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 12px; }
+.fleet-btn { background: var(--panel-2); color: var(--fg); border: 1px solid var(--accent);
+  padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.fleet-note { color: var(--muted); font-size: 13px; }
+.fleet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(12px, 1fr));
+  gap: 3px; background: var(--panel); padding: 12px; border-radius: 12px;
+  min-height: 400px; }
+.fleet-tile { background: var(--accent); border-radius: 2px; height: 12px;
+  opacity: 0.85; }
+.fleet-tile.sim { background: var(--accent-2); opacity: 0.55; }
+.fleet-band { text-align: center; padding: 10px; color: var(--muted);
+  background: var(--panel-2); margin-top: 8px; border-radius: 8px; }
+
+.scale-strip { position: sticky; bottom: 0; background: #05090f;
+  color: var(--muted); text-align: center; padding: 10px; font-size: 13px;
+  border-top: 1px solid #22304e; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

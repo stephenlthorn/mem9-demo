@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>mem9 on TiDB Cloud Zero - live</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="top-strip">
+    <div class="tile" id="tile-tenant">
+      <div class="tile-label">tenant</div>
+      <div class="tile-value" id="tenant-value">loading...</div>
+    </div>
+    <div class="tile" id="tile-memories">
+      <div class="tile-label">memories</div>
+      <div class="tile-value" id="memories-value">-</div>
+      <div class="tile-sub">one TiDB DB - vector + FTS + SQL</div>
+    </div>
+    <div class="tile" id="tile-provision">
+      <div class="tile-label">provisioned</div>
+      <div class="tile-value" id="provision-value">-</div>
+      <div class="tile-sub">(live-measured)</div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="queryflow">Query Flow</button>
+    <button class="tab" data-tab="fleet">Fleet</button>
+  </nav>
+
+  <main class="stage">
+    <section class="tab-panel active" data-tab-panel="queryflow">
+      <aside class="query-rail">
+        <button class="query" data-q="q1">Q1 - TypeScript?</button>
+        <button class="query" data-q="q2">Q2 - reports to?</button>
+        <button class="query" data-q="q3">Q3 - pipeline slow?</button>
+      </aside>
+
+      <div class="diagram-wrap">
+        <object id="architecture-svg" type="image/svg+xml"
+                data="/static/diagrams/architecture.svg"
+                aria-label="mem9 unified engine architecture diagram"></object>
+      </div>
+
+      <section class="results" id="results" aria-live="polite">
+        <p class="results-placeholder">Click a query on the left to run it.</p>
+      </section>
+    </section>
+
+    <section class="tab-panel" data-tab-panel="fleet">
+      <div class="fleet-controls">
+        <button id="spawn-100" class="fleet-btn">Spawn 100</button>
+        <button id="spawn-10000" class="fleet-btn">Simulate 10K</button>
+        <button id="spawn-10m" class="fleet-btn">Simulate Manus-scale (10M)</button>
+        <span class="fleet-note" id="fleet-note">
+          Measured <span id="fleet-measured-count">0</span> real tenants;
+          remaining tiles extrapolated from that distribution.
+        </span>
+      </div>
+      <div class="fleet-grid" id="fleet-grid"></div>
+      <div class="fleet-band">one TiDB cluster underneath</div>
+    </section>
+  </main>
+
+  <footer class="scale-strip">
+    Manus 10M+ DBs &middot; Pinterest 1.3M QPS &middot; Flipkart 700 to 1 &middot; Dify.AI 500K to 1
+  </footer>
+
+  <script src="/static/vendor/anime.min.js"></script>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
