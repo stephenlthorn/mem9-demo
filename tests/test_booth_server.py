@@ -19,3 +19,27 @@ def test_meta_returns_tenant_fields():
     body = r.json()
     assert body["tenant_id"] == "mnm_test"
     assert "provision_ms" in body
+
+
+def test_proxy_get_injects_api_key_and_forwards(httpx_mock):
+    httpx_mock.add_response(
+        method="GET",
+        url="http://mnemo-server:8080/v1alpha2/mem9s/memories?q=pipeline&limit=3",
+        match_headers={"X-API-Key": "mnm_test"},
+        json={"hits": []},
+    )
+
+    app = build_app(mem9_url="http://mnemo-server:8080", tenant_id="mnm_test")
+    client = TestClient(app)
+    r = client.get("/api/v1alpha2/mem9s/memories", params={"q": "pipeline", "limit": 3})
+
+    assert r.status_code == 200
+    assert r.json() == {"hits": []}
+
+
+def test_proxy_refuses_when_tenant_unset():
+    app = build_app(mem9_url="http://mnemo-server:8080", tenant_id=None)
+    client = TestClient(app)
+    r = client.get("/api/v1alpha2/mem9s/memories", params={"q": "x"})
+    assert r.status_code == 503
+    assert r.json()["error"].startswith("tenant not provisioned")
