@@ -36,60 +36,55 @@ mnemo-server locally so you can watch Cloud Zero provision a database live.
 ## Quick start (booth demo)
 
 ```bash
-# 1. clone
 git clone https://github.com/stephenlthorn/mem9-demo && cd mem9-demo
-
-# 2. configure (only MNEMO_DSN needs to change)
-cp .env.example .env
-#   open .env, replace the placeholder with your TiDB Cloud DSN:
-#   MNEMO_DSN="user:pass@tcp(gateway01.us-west-2.prod.aws.tidbcloud.com:4000)/test?parseTime=true&tls=true"
-
-# 3. run
 ./demo.sh
 ```
 
-The runner clones upstream mem9, builds three Docker images, installs
-Python deps, and seeds 50 memories. About 90 seconds on good wifi.
+That's it. No config needed. The runner provisions a tenant via `api.mem9.ai`,
+seeds 50 memories, and opens the booth dashboard.
+
+> **Want the full self-hosted demo** (mnemo-server + TiDB running on your laptop)?
+> Add a TiDB DSN to `.env` — the runner detects it and switches to Docker mode automatically:
+> ```bash
+> cp .env.example .env
+> # edit .env: set MNEMO_DSN="user:pass@tcp(host:4000)/dbname?parseTime=true&tls=true"
+> ./demo.sh
+> ```
 
 ## Prerequisites (booth demo)
 
-| Tool | Why |
-|---|---|
-| Docker Desktop (running) | builds and runs mnemo-server + dashboards |
-| Python 3.11+ | seeder script (`seed_memories.py`) |
-| `git` | clones upstream mem9 on first run |
-| Chrome or Safari | booth dashboard |
-| TiDB Cloud Serverless cluster | root connection string for mnemo-server |
+| Tool | Hosted path | Self-hosted path |
+|---|---|---|
+| Python 3.11+ | ✓ required | ✓ required |
+| `git` | ✓ required | ✓ required |
+| Chrome or Safari | ✓ required | ✓ required |
+| Docker Desktop (running) | not needed | ✓ required |
+| TiDB Cloud Serverless cluster | not needed | ✓ required |
 
-The TiDB cluster is the one manual step: create a free Serverless cluster at
-<https://tidbcloud.com>, copy the connection string from **Connect → General**,
-and paste it into `MNEMO_DSN` in `.env`. Everything else is pre-configured.
-
-> **Why is this step manual?** TiDB Cloud Zero auto-provisions _per-tenant_
-> databases (that's what the demo shows), but the root cluster still needs a
-> one-time setup. In production you'd have one cluster per deployment; at the
-> booth you create it once and reuse it across resets.
+Hosted path uses `api.mem9.ai` (which runs TiDB Cloud Zero internally).
+Self-hosted path runs `mnemo-server` locally so you can see the TiDB layer
+directly — useful when TiDB Cloud is the point of the demo.
 
 ## 10-step runbook
 
-1. **Prereqs:** Docker Desktop running, Python 3.11+, `git`, Chrome or Safari.
+1. **Prereqs:** Python 3.11+, `git`, Chrome or Safari.
+   _(Docker Desktop only needed for self-hosted TiDB path)_
 2. **Clone:**
    ```bash
    git clone https://github.com/stephenlthorn/mem9-demo && cd mem9-demo
    ```
-3. **Create a TiDB Cloud Starter cluster:** <https://tidbcloud.com> — copy the DSN.
-4. **Configure:**
+3. **(Self-hosted only) Create a TiDB Cloud Serverless cluster:** <https://tidbcloud.com> — copy the DSN.
+4. **(Self-hosted only) Configure:**
    ```bash
    cp .env.example .env
    ```
-   Open `.env` and replace the `MNEMO_DSN` placeholder with your real DSN.
-   Everything else is pre-filled — no other changes needed.
+   Open `.env` and replace `MNEMO_DSN` with your DSN. Everything else is pre-filled.
 5. **Run:**
    ```bash
    ./demo.sh
    ```
-   First run: clones upstream mem9, builds three Docker images, installs Python
-   deps, provisions a tenant, seeds 50 memories. ~90 seconds on good wifi.
+   Hosted: provisions via `api.mem9.ai`, seeds 50 memories, opens dashboard (~30 s).
+   Self-hosted: clones upstream mem9, builds Docker images, seeds memories (~90 s on good wifi).
 6. **Open the tabs** the runner prints. Screen 1 should show a tenant
    ID, memory counter at 50, and three query pills.
 7. **Rehearse** with [`talk_track.md`](talk_track.md). Queries are in
@@ -117,10 +112,10 @@ and paste it into `MNEMO_DSN` in `.env`. Everything else is pre-configured.
 
 | Command | When to use |
 |---|---|
-| `./demo.sh` | Normal live run — needs Docker + TiDB cluster |
-| `./demo.sh --offline` | No cluster or Docker required; serves canned query results |
+| `./demo.sh` | Live run. No config → uses `api.mem9.ai`. `MNEMO_DSN` set → Docker + TiDB. |
+| `./demo.sh --offline` | No network required; serves canned query results |
 | `./demo.sh --replay` | Plays `recordings/demo.mp4` (record a session first) |
-| `./demo.sh --reset` | Tears down Docker, clears tenant from `.env` |
+| `./demo.sh --reset` | Shuts down Docker (if running), clears tenant from `.env` |
 | `./demo.sh --record` | Prints the macOS screen-recording hint |
 
 ## Architecture
