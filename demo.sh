@@ -44,6 +44,7 @@ case "$MODE" in
       set -a; . ./.env; set +a
 
       echo "==> starting booth dashboard"
+      lsof -ti :"${BOOTH_DASHBOARD_PORT:-7000}" | xargs kill -9 2>/dev/null || true
       (cd booth_dashboard && \
         MEM9_API_URL=https://api.mem9.ai \
         uvicorn server:app --host 0.0.0.0 --port "${BOOTH_DASHBOARD_PORT:-7000}") &
@@ -106,6 +107,7 @@ case "$MODE" in
     load_env
     . .venv/bin/activate 2>/dev/null || python3 -m venv .venv && . .venv/bin/activate
     pip install -q -r booth_dashboard/requirements.txt
+    lsof -ti :"${BOOTH_DASHBOARD_PORT:-7000}" | xargs kill -9 2>/dev/null || true
     (cd booth_dashboard && MEM9_TENANT_ID="${MEM9_TENANT_ID:-demo}" \
       uvicorn server:app --host 0.0.0.0 --port "${BOOTH_DASHBOARD_PORT:-7000}") &
     sleep 2
