@@ -7,12 +7,23 @@ raise LlmUnavailable and the /chat route falls back to retrieval-only.
 from __future__ import annotations
 
 import os
+import re
 from typing import Sequence
 
 import httpx
 
 DEFAULT_BASE_URL = "https://api.minimax.io/v1"
 DEFAULT_MODEL = "MiniMax-M2.7"
+
+# MiniMax-M2.7 (and other reasoning models) can emit <think>...</think>
+# blocks before the actual answer. Strip them before returning so the UI
+# shows only the user-facing response.
+_THINK_BLOCK = re.compile(r"<think>.*?</think>\s*", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_reasoning(text: str) -> str:
+    """Remove <think>...</think> blocks and trim surrounding whitespace."""
+    return _THINK_BLOCK.sub("", text).strip()
 
 
 class LlmUnavailable(RuntimeError):
@@ -72,4 +83,7 @@ async def complete(
     if not content:
         raise LlmUnavailable(f"MiniMax response missing content: {body}")
 
-    return content
+    cleaned = _strip_reasoning(content)
+    if not cleaned:
+        raise LlmUnavailable("MiniMax response was entirely reasoning with no answer")
+    return cleaned

@@ -110,6 +110,9 @@ def build_app(mem9_url: str, tenant_id: str | None) -> FastAPI:
             })
 
         # 1. Retrieve memories from mem9.
+        # Param name is "q" (confirmed from upstream mem9 Claude Code plugin
+        # hooks/user-prompt-submit.sh). "query" is silently ignored and
+        # degrades to an unranked list.
         memories: list[dict] = []
         retrieval_error: str | None = None
         try:
@@ -120,7 +123,10 @@ def build_app(mem9_url: str, tenant_id: str | None) -> FastAPI:
                     headers={"X-API-Key": tenant_id},
                 )
             if r.status_code == 200:
-                memories = r.json().get("hits", [])
+                body = r.json() or {}
+                # api.mem9.ai returns {"memories": [...]} for search.
+                # Self-hosted mnemo-server returns {"hits": [...]}.
+                memories = body.get("hits") or body.get("memories") or []
             else:
                 retrieval_error = f"mem9 returned {r.status_code}"
         except httpx.HTTPError as exc:

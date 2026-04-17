@@ -104,6 +104,27 @@ def test_chat_retrieval_only_when_llm_unavailable(httpx_mock, monkeypatch):
 # ---------------------------------------------------------------------------
 
 
+def test_chat_accepts_memories_key_from_api_mem9_ai(httpx_mock, monkeypatch):
+    """api.mem9.ai returns {"memories": [...]} rather than {"hits": [...]}."""
+    monkeypatch.delenv("MINIMAX_API_KEY", raising=False)
+
+    httpx_mock.add_response(
+        method="GET",
+        url=f"{MEM9_URL}/v1alpha2/mem9s/memories?q=who+does+sam+report+to&limit=5",
+        match_headers={"X-API-Key": TENANT},
+        json={"memories": SAMPLE_HITS, "total": 2, "limit": 5, "offset": 0},
+    )
+
+    app = build_app(mem9_url=MEM9_URL, tenant_id=TENANT)
+    client = TestClient(app)
+
+    r = client.post("/chat", json={"message": "who does sam report to"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["mode"] == "retrieval-only"
+    assert body["memories"] == SAMPLE_HITS
+
+
 def test_chat_live_mode_wires_retrieval_and_llm(httpx_mock, monkeypatch):
     """Retrieval + LLM both succeed → mode=live with answer from MiniMax."""
     monkeypatch.setenv("MINIMAX_API_KEY", "fake-key-for-test")

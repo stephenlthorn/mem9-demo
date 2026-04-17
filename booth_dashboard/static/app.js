@@ -329,7 +329,10 @@ function pickTiming(i) {
 
 // ----- Ask the Agent (chat) -----
 
-const CITE_REGEX = /\[(mem_[A-Za-z0-9_\-]+)\]/g;
+// Matches either the canned short-id style ([mem_XXX]) or a UUID-shaped
+// memory id ([d5fe1787-efd0-414f-9359-ade34a45e1fd]). Real mem9 tenants
+// return UUIDs; the canned fixture uses short ids.
+const CITE_REGEX = /\[(mem_[A-Za-z0-9_\-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\]/g;
 const MODE_LABELS = {
   live: "Live - MiniMax answering with memories from TiDB",
   "retrieval-only": "Retrieval-only - LLM unavailable, showing memories",
