@@ -29,7 +29,7 @@ class Hit:
 
 
 class Mem9Client:
-    def __init__(self, base_url: str, timeout: float = 10.0) -> None:
+    def __init__(self, base_url: str, timeout: float = 60.0) -> None:
         self._base_url = base_url.rstrip("/")
         self._http = httpx.Client(base_url=self._base_url, timeout=timeout)
 
