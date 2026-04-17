@@ -122,19 +122,59 @@ function renderResults(qKey, payload) {
   const host = document.getElementById("results");
   clearChildren(host);
 
-  const label = document.createElement("div");
-  label.className = "result-label";
-  label.textContent = `Top ${payload.hits.length} for "${QUERIES[qKey]}"`;
-  host.appendChild(label);
+  // Query header
+  const qHeader = document.createElement("div");
+  qHeader.className = "result-query";
+  qHeader.textContent = `"${QUERIES[qKey]}"`;
+  host.appendChild(qHeader);
+
+  const meta = document.createElement("div");
+  meta.className = "result-meta";
+  meta.textContent = `Top ${payload.hits.length} memories retrieved`;
+  host.appendChild(meta);
+
+  // Score legend
+  host.appendChild(buildScoreLegend());
 
   for (const hit of payload.hits) {
     host.appendChild(buildHitElement(hit));
   }
 
-  const note = document.createElement("div");
-  note.className = "annotation";
-  note.textContent = ANNOTATIONS[qKey] || "";
-  host.appendChild(note);
+  // Annotation
+  if (ANNOTATIONS[qKey]) {
+    const noteWrap = document.createElement("div");
+    noteWrap.className = "annotation";
+    const noteLabel = document.createElement("div");
+    noteLabel.className = "annotation-label";
+    noteLabel.textContent = "Why this result is interesting";
+    noteWrap.appendChild(noteLabel);
+    const noteText = document.createElement("div");
+    noteText.textContent = ANNOTATIONS[qKey];
+    noteWrap.appendChild(noteText);
+    host.appendChild(noteWrap);
+  }
+}
+
+function buildScoreLegend() {
+  const legend = document.createElement("div");
+  legend.className = "score-legend";
+  const items = [
+    { cls: "v", label: "Vector — semantic similarity (meaning, not keywords)" },
+    { cls: "f", label: "FTS — full-text search (exact keyword match)" },
+    { cls: "h", label: "Hybrid — mem9 blends both signals" },
+  ];
+  for (const { cls, label } of items) {
+    const item = document.createElement("div");
+    item.className = "score-legend-item";
+    const bar = document.createElement("span");
+    bar.className = `score-legend-bar ${cls}`;
+    const text = document.createElement("span");
+    text.textContent = label;
+    item.appendChild(bar);
+    item.appendChild(text);
+    legend.appendChild(item);
+  }
+  return legend;
 }
 
 function buildHitElement(hit) {

@@ -3,69 +3,171 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>mem9 on TiDB Cloud Zero - live</title>
+  <title>mem9 · Persistent Agent Memory on TiDB Cloud Zero</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <header class="top-strip">
-    <div class="tile" id="tile-tenant">
-      <div class="tile-label">tenant</div>
-      <div class="tile-value" id="tenant-value">loading...</div>
-    </div>
-    <div class="tile" id="tile-memories">
-      <div class="tile-label">memories</div>
-      <div class="tile-value" id="memories-value">-</div>
-      <div class="tile-sub">one TiDB DB - vector + FTS + SQL</div>
-    </div>
-    <div class="tile" id="tile-provision">
-      <div class="tile-label">provisioned</div>
-      <div class="tile-value" id="provision-value">-</div>
-      <div class="tile-sub">(live-measured)</div>
+
+  <!-- ── Hero ── -->
+  <header class="hero">
+    <div class="hero-headline">mem9 · Persistent Agent Memory on TiDB Cloud Zero</div>
+    <div class="hero-sub">
+      Each AI agent gets its own private database — provisioned in milliseconds, never shared, never lost.
+      This session's agent already has <strong>50 memories</strong> seeded.
+      Ask the questions on the left to watch it recall them.
     </div>
   </header>
 
+  <!-- ── Stat strip ── -->
+  <div class="stat-strip">
+
+    <div class="stat-card">
+      <div class="stat-label">This agent's ID</div>
+      <div class="stat-value" id="tenant-value">loading…</div>
+      <div class="stat-caption">
+        Every agent gets a unique tenant. One TiDB Cloud Zero database,
+        isolated from all others.
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Memories stored</div>
+      <div class="stat-value" id="memories-value">—</div>
+      <div class="stat-caption">
+        50 facts, events, and preferences about a fictional engineer —
+        all in one TiDB table with vector + full-text indexes.
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Database provisioned in</div>
+      <div class="stat-value" id="provision-value">—</div>
+      <div class="stat-caption">
+        TiDB Cloud Zero auto-created this database from cold.
+        No pre-warming. No shared pool. Just instant isolation.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Tab bar ── -->
   <nav class="tabs">
-    <button class="tab active" data-tab="queryflow">Query Flow</button>
-    <button class="tab" data-tab="fleet">Fleet</button>
+    <button class="tab active" data-tab="queryflow">
+      🔍 Live Memory Recall
+    </button>
+    <button class="tab" data-tab="fleet">
+      🌐 Scale: Many Agents
+    </button>
   </nav>
 
+  <!-- ── Query Flow tab ── -->
   <main class="stage">
     <section class="tab-panel active" data-tab-panel="queryflow">
+
+      <!-- Left: query buttons -->
       <aside class="query-rail">
-        <button class="query" data-q="q1">Q1 - TypeScript?</button>
-        <button class="query" data-q="q2">Q2 - reports to?</button>
-        <button class="query" data-q="q3">Q3 - pipeline slow?</button>
+        <div class="rail-heading">Ask the agent a question</div>
+        <div class="rail-subheading">
+          Each query hits <em>all three</em> search engines simultaneously —
+          vector, full-text, and hybrid — and the best result wins.
+        </div>
+
+        <button class="query" data-q="q1">
+          <span class="q-text">"What does Sam think about TypeScript?"</span>
+          <span class="q-hint">
+            The word "TypeScript" never appears in any memory.
+            Watch vector similarity surface the answer anyway.
+          </span>
+        </button>
+
+        <button class="query" data-q="q2">
+          <span class="q-text">"Who does Sam report to?"</span>
+          <span class="q-hint">
+            Baseline test. Both keyword search and semantic search
+            agree — the answer is unambiguous.
+          </span>
+        </button>
+
+        <button class="query" data-q="q3">
+          <span class="q-text">"What slowed down the research pipeline recently?"</span>
+          <span class="q-hint">
+            Hybrid wins here. FTS finds "pipeline"; vector pulls
+            "latency regression". Neither alone gets the full picture.
+          </span>
+        </button>
       </aside>
 
-      <div class="diagram-wrap">
-        <object id="architecture-svg" type="image/svg+xml"
-                data="/static/diagrams/architecture.svg"
-                aria-label="mem9 unified engine architecture diagram"></object>
+      <!-- Centre: architecture diagram -->
+      <div class="diagram-col">
+        <div class="diagram-label">
+          How a query flows through mem9's unified search engine
+        </div>
+        <div class="diagram-wrap">
+          <object id="architecture-svg" type="image/svg+xml"
+                  data="/static/diagrams/architecture.svg"
+                  aria-label="mem9 unified engine architecture diagram"></object>
+        </div>
+        <div class="diagram-legend">
+          <span class="legend-dot vector"></span> Vector (semantic meaning) &nbsp;
+          <span class="legend-dot fts"></span> Full-text (exact keywords) &nbsp;
+          <span class="legend-dot hybrid"></span> Hybrid (mem9 blends both)
+        </div>
       </div>
 
+      <!-- Bottom: results -->
       <section class="results" id="results" aria-live="polite">
-        <p class="results-placeholder">Click a query on the left to run it.</p>
+        <p class="results-placeholder">
+          ← Click any question to run it against the agent's memory store.
+        </p>
       </section>
+
     </section>
 
+    <!-- ── Fleet tab ── -->
     <section class="tab-panel" data-tab-panel="fleet">
+      <div class="fleet-intro">
+        <h2 class="fleet-title">One cluster. Unlimited agents.</h2>
+        <p class="fleet-body">
+          TiDB Cloud Zero carves out a fully isolated database for every agent —
+          no manual provisioning, no shared tables, no cross-tenant leakage.
+          Each tile below represents one agent with its own memory store.
+          Hover a tile to see how long its database took to provision.
+        </p>
+        <p class="fleet-body">
+          Real timings were captured during setup. Simulated tiles
+          use the same distribution with jitter.
+        </p>
+      </div>
+
       <div class="fleet-controls">
-        <button id="spawn-100" class="fleet-btn">Spawn 100</button>
-        <button id="spawn-10000" class="fleet-btn">Simulate 10K</button>
-        <button id="spawn-10m" class="fleet-btn">Simulate Manus-scale (10M)</button>
+        <button id="spawn-100" class="fleet-btn">Show 100 agents</button>
+        <button id="spawn-10000" class="fleet-btn">Show 10K agents</button>
+        <button id="spawn-10m" class="fleet-btn">Simulate 10M agents (Manus scale)</button>
         <span class="fleet-note" id="fleet-note">
-          Measured <span id="fleet-measured-count">0</span> real tenants;
-          remaining tiles extrapolated from that distribution.
+          <span id="fleet-measured-count">0</span> real tenants measured.
         </span>
       </div>
+
+      <div class="fleet-legend">
+        <span class="legend-dot vector"></span> Real measurement &nbsp;
+        <span class="legend-dot sim"></span> Simulated (same timing distribution)
+      </div>
+
       <div class="fleet-grid" id="fleet-grid"></div>
-      <div class="fleet-band">one TiDB cluster underneath</div>
+
+      <div class="fleet-band">
+        All tiles share <strong>one TiDB cluster</strong> underneath —
+        that's TiDB Cloud Zero's superpower.
+      </div>
+
+      <div class="fleet-scale-refs">
+        <div class="scale-ref">Manus: 10M+ agent DBs</div>
+        <div class="scale-ref">Pinterest: 1.3M QPS</div>
+        <div class="scale-ref">Flipkart: 700× compression</div>
+        <div class="scale-ref">Dify.AI: 500K → 1 cluster</div>
+      </div>
     </section>
   </main>
-
-  <footer class="scale-strip">
-    Manus 10M+ DBs &middot; Pinterest 1.3M QPS &middot; Flipkart 700 to 1 &middot; Dify.AI 500K to 1
-  </footer>
 
   <script src="/static/vendor/anime.min.js"></script>
   <script src="/static/app.js" defer></script>
