@@ -55,6 +55,7 @@
   <!-- ── Tab bar ── -->
   <nav class="tabs">
     <button class="tab active" data-tab="queryflow">🔍 Live Recall</button>
+    <button class="tab" data-tab="chat">💬 Ask the Agent</button>
     <button class="tab" data-tab="lifecycle">🧠 5 Memory Duties</button>
     <button class="tab" data-tab="unified">🏛️ One Cluster</button>
     <button class="tab" data-tab="proof">🔬 Cross-Session Proof</button>
@@ -120,6 +121,67 @@
         </p>
       </section>
 
+    </section>
+
+    <!-- ── Tab: Ask the Agent (chat with MiniMax + mem9) ── -->
+    <section class="tab-panel" data-tab-panel="chat">
+      <div class="panel-hero">
+        <div class="panel-title">Ask the agent anything</div>
+        <div class="panel-sub">
+          Each message triggers a live hybrid search against TiDB, then the
+          agent (MiniMax-M2.7) answers using only the memories it retrieved.
+          Watch the sidebar — that's the <strong>context plane</strong> being
+          assembled in real time, pre-agent. The model is stateless; every
+          fact it cites comes from mem9.
+        </div>
+      </div>
+
+      <div class="chat-layout">
+        <div class="chat-pane">
+          <div class="chat-suggestions">
+            <div class="suggestion-label">Try one of these — or type your own:</div>
+            <button class="chat-suggestion">What does Sam think about TypeScript?</button>
+            <button class="chat-suggestion">Who does Sam report to?</button>
+            <button class="chat-suggestion">What slowed down the research pipeline recently?</button>
+          </div>
+
+          <div class="chat-messages" id="chat-messages" aria-live="polite">
+            <div class="chat-empty">
+              Ask a question — watch the agent retrieve memories and answer.
+            </div>
+          </div>
+
+          <form class="chat-form" id="chat-form" autocomplete="off">
+            <input
+              class="chat-input"
+              id="chat-input"
+              type="text"
+              placeholder="Ask the agent a question…"
+              aria-label="Chat message"
+            />
+            <button class="chat-send" type="submit" id="chat-send">Send</button>
+          </form>
+
+          <div class="chat-mode-strip" id="chat-mode-strip" hidden>
+            <span class="chat-mode-dot"></span>
+            <span class="chat-mode-text">idle</span>
+          </div>
+        </div>
+
+        <aside class="memory-pane">
+          <div class="memory-pane-header">
+            <div class="memory-pane-title">Memories retrieved</div>
+            <div class="memory-pane-sub">
+              Top 5 from mem9 hybrid search — the context plane for this turn.
+            </div>
+          </div>
+          <div class="memory-pane-list" id="memory-pane-list">
+            <div class="memory-empty">
+              Memories the agent uses will appear here the moment you ask a question.
+            </div>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <!-- ── Tab 2: 5 Memory Duties ── -->

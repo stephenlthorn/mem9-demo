@@ -2,3 +2,5 @@ fastapi==0.115.4
 uvicorn[standard]==0.32.0
 httpx==0.27.2
 python-dotenv==1.0.1
+# python-dotenv is used at startup to auto-load repo-root .env so
+# MINIMAX_API_KEY and MEM9_* vars are picked up regardless of launch method.

@@ -1,7 +1,7 @@
 // booth_dashboard/static/app.js
 // Safe DOM only: createElement + textContent. No unsafe property assignments.
 
-const PATHS = { meta: "/meta", canned: "/canned", api: "/api" };
+const PATHS = { meta: "/meta", canned: "/canned", api: "/api", chat: "/chat" };
 const QUERIES = { q1: "What does Sam think about TypeScript?",
                   q2: "Who does Sam report to?",
                   q3: "What slowed down the research pipeline recently?" };
@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindTabs();
   bindQueryRail();
   bindFleetControls();
+  bindChatControls();
   bootstrap();
 });
 
@@ -324,4 +325,190 @@ function pickTiming(i) {
   const base = FLEET_MEASUREMENTS[i % FLEET_MEASUREMENTS.length];
   const jitter = Math.round((Math.random() - 0.5) * 120);
   return Math.max(200, base + jitter);
+}
+
+// ----- Ask the Agent (chat) -----
+
+const CITE_REGEX = /\[(mem_[A-Za-z0-9_\-]+)\]/g;
+const MODE_LABELS = {
+  live: "Live - MiniMax answering with memories from TiDB",
+  "retrieval-only": "Retrieval-only - LLM unavailable, showing memories",
+  canned: "Offline - using pre-recorded demo turn",
+  error: "Something went wrong - check console",
+};
+
+function bindChatControls() {
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  if (!form || !input) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+    sendChat(text);
+  });
+
+  document.querySelectorAll(".chat-suggestion").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const text = btn.textContent.trim();
+      input.value = "";
+      sendChat(text);
+    });
+  });
+}
+
+async function sendChat(userText) {
+  const sendBtn = document.getElementById("chat-send");
+  const empty = document.querySelector("#chat-messages .chat-empty");
+  if (empty) empty.remove();
+
+  appendBubble("user", userText);
+  const thinkingEl = appendBubble("agent", "thinking...", { thinking: true });
+  if (sendBtn) sendBtn.disabled = true;
+
+  try {
+    const r = await fetch(PATHS.chat, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ message: userText }),
+    });
+    const payload = await r.json();
+
+    thinkingEl.remove();
+
+    const mode = payload.mode || "error";
+    renderMemoryPane(payload.memories || [], mode);
+    setChatMode(mode, payload.error);
+
+    const answer = payload.answer ||
+      (mode === "retrieval-only"
+        ? "(LLM unavailable - memories shown on the right are what would have been passed to the agent.)"
+        : "(No answer returned.)");
+    appendBubble("agent", answer, { mode });
+  } catch (e) {
+    thinkingEl.remove();
+    appendBubble("agent", "Network error - check the console.", { mode: "error" });
+    setChatMode("error", String(e));
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
+
+function appendBubble(role, text, opts = {}) {
+  const host = document.getElementById("chat-messages");
+  const bubble = document.createElement("div");
+  bubble.className = "chat-bubble " + role;
+  if (opts.thinking) bubble.classList.add("thinking");
+  if (opts.mode) bubble.classList.add(opts.mode);
+
+  if (role === "agent" && !opts.thinking) {
+    appendTextWithCitations(bubble, text);
+  } else {
+    bubble.textContent = text;
+  }
+
+  host.appendChild(bubble);
+  host.scrollTop = host.scrollHeight;
+  return bubble;
+}
+
+/**
+ * Split agent text on [mem_XYZ] citations and render each as a highlighted
+ * span. Pure safe-DOM: only createElement + textContent, no raw HTML.
+ * Uses String.matchAll for clarity.
+ */
+function appendTextWithCitations(container, text) {
+  let cursor = 0;
+  for (const match of text.matchAll(CITE_REGEX)) {
+    const start = match.index;
+    if (start > cursor) {
+      container.appendChild(document.createTextNode(text.slice(cursor, start)));
+    }
+    const pill = document.createElement("span");
+    pill.className = "mem-cite";
+    pill.textContent = match[1];
+    pill.dataset.memId = match[1];
+    pill.addEventListener("click", () => highlightMemory(match[1]));
+    pill.title = "Click to highlight the source memory";
+    container.appendChild(pill);
+    cursor = start + match[0].length;
+  }
+  if (cursor < text.length) {
+    container.appendChild(document.createTextNode(text.slice(cursor)));
+  }
+}
+
+function renderMemoryPane(memories, mode) {
+  const host = document.getElementById("memory-pane-list");
+  clearChildren(host);
+
+  if (!memories.length) {
+    const empty = document.createElement("div");
+    empty.className = "memory-empty";
+    empty.textContent = "No memories retrieved for this turn.";
+    host.appendChild(empty);
+    return;
+  }
+
+  for (const m of memories) {
+    const card = document.createElement("div");
+    card.className = "memory-card";
+    card.dataset.memId = m.id || "";
+
+    const idRow = document.createElement("div");
+    idRow.className = "memory-card-id";
+    idRow.textContent = `[${m.id || "?"}]`;
+    card.appendChild(idRow);
+
+    const body = document.createElement("div");
+    body.className = "memory-card-body";
+    body.textContent = m.content || "";
+    card.appendChild(body);
+
+    const s = m.scores;
+    if (s && (s.vector != null || s.fts != null || s.hybrid != null)) {
+      const scores = document.createElement("div");
+      scores.className = "memory-card-scores";
+      scores.appendChild(scoreSpan("v", s.vector));
+      scores.appendChild(scoreSpan("f", s.fts));
+      scores.appendChild(scoreSpan("h", s.hybrid));
+      card.appendChild(scores);
+    }
+
+    host.appendChild(card);
+  }
+}
+
+function scoreSpan(label, value) {
+  const span = document.createElement("span");
+  const strong = document.createElement("strong");
+  strong.textContent = label + ":";
+  span.appendChild(strong);
+  span.appendChild(
+    document.createTextNode(" " + (value != null ? Number(value).toFixed(2) : "-"))
+  );
+  return span;
+}
+
+function highlightMemory(memId) {
+  document.querySelectorAll(".memory-card").forEach((card) => {
+    card.classList.toggle("highlight", card.dataset.memId === memId);
+  });
+  const target = document.querySelector(`.memory-card[data-mem-id="${memId}"]`);
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function setChatMode(mode, error) {
+  const strip = document.getElementById("chat-mode-strip");
+  if (!strip) return;
+  strip.hidden = false;
+  const modeClass = mode === "retrieval-only" ? "retrieval" : mode;
+  strip.className = "chat-mode-strip " + modeClass;
+  const text = strip.querySelector(".chat-mode-text");
+  if (text) {
+    text.textContent = MODE_LABELS[mode] || mode;
+    if (error && mode !== "live") text.textContent += ` (${error})`;
+  }
 }

@@ -2,6 +2,9 @@
 
 These payloads mirror what the live mnemo-server returns for the three
 scripted queries. Loaded by the /canned endpoint for demo.sh --offline.
+
+CANNED_CHAT at the bottom provides pre-scripted agent turns for the
+Ask-the-Agent tab when the LLM or mem9 are unreachable.
 """
 
 CANNED: dict[str, dict] = {
@@ -73,5 +76,41 @@ CANNED: dict[str, dict] = {
                 "scores": {"vector": 0.58, "fts": 0.34, "hybrid": 0.52},
             },
         ],
+    },
+}
+
+
+# Pre-scripted agent responses for the Ask-the-Agent tab when running
+# offline or when the LLM is unreachable. Keys are matched via fuzzy
+# substring against the incoming message.
+CANNED_CHAT: dict[str, dict] = {
+    "What does Sam think about TypeScript?": {
+        "answer": (
+            "Sam hasn't recorded a direct TypeScript preference, but his "
+            "language choices suggest he'd skip it: he reaches for [mem_008] "
+            "Rust when latency or memory safety matters, and [mem_006] Python "
+            "for anything ML-related because dynamic typing keeps iteration "
+            "fast. TypeScript doesn't fit either bucket for the work he does."
+        ),
+        "memories": CANNED["q1"]["hits"],
+    },
+    "Who does Sam report to?": {
+        "answer": (
+            "Sam reports to [mem_026] Priya Menon, Director of Platform at "
+            "Lumos AI. His skip-level is [mem_028] Ana Ruiz, VP of Engineering, "
+            "who he meets with quarterly. [mem_027] Jordan Vega is his closest "
+            "peer on the data infrastructure team."
+        ),
+        "memories": CANNED["q2"]["hits"],
+    },
+    "What slowed down the research pipeline recently?": {
+        "answer": (
+            "On [mem_015] 2026-04-02 Sam debugged a latency regression in the "
+            "research pipeline and traced it to a missing vector index. "
+            "Follow-up is ongoing — [mem_047] p99 is still 840 ms with a "
+            "target of sub-500 ms by 2026-05-15. An earlier [mem_021] Python "
+            "perf audit in March already cut wall-clock time by 18%."
+        ),
+        "memories": CANNED["q3"]["hits"],
     },
 }
