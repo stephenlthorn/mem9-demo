@@ -107,6 +107,7 @@
     <button class="tab" data-tab="lifecycle">🧠 5 Memory Duties</button>
     <button class="tab" data-tab="unified">🏛️ One Cluster</button>
     <button class="tab" data-tab="proof">🔬 Cross-Session Proof</button>
+    <button class="tab" data-tab="whytidb">⚡ Why TiDB</button>
     <button class="tab" data-tab="fleet">🌐 Scale: 10M Agents</button>
   </nav>
 
@@ -504,6 +505,170 @@
         <div class="generic-caption">
           Streaming data + anomaly detection + agents that learn =
           the same memory wall, every time.
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tab: Why TiDB ── -->
+    <section class="tab-panel" data-tab-panel="whytidb">
+      <div class="panel-hero">
+        <div class="panel-title">TiDB for AI — built for all five memory duties</div>
+        <div class="panel-sub">
+          Every AI team hits the same four infrastructure walls. Here is why TiDB is the
+          only database that tears them down — and the four patterns that become possible
+          once it does.
+        </div>
+      </div>
+
+      <!-- ── Four AI Pain Points ── -->
+      <div class="pain-section">
+        <div class="pain-section-heading">The four walls AI teams hit</div>
+        <div class="pain-grid">
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">01</div>
+              <div class="pain-title">Memory fragmentation</div>
+            </div>
+            <div class="pain-problem">
+              Agent memory scattered across a vector DB, a KV cache, an OLTP database,
+              and an analytics warehouse. Every write hits four systems.
+              Sync lag means the agent sees yesterday's facts today.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                One unified engine. SQL + Vector + FTS + JSON + analytics in a single cluster.
+                Zero sync code, zero lag, one consistency model.
+              </div>
+            </div>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">02</div>
+              <div class="pain-title">Vector + SQL can't join</div>
+            </div>
+            <div class="pain-problem">
+              Semantic search lives in Pinecone. Structured data lives in Postgres.
+              You can't JOIN embeddings against transactions — so agents can't correlate
+              what they remember with what actually happened.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                <code>VEC_COSINE_DISTANCE()</code> is a SQL function.
+                Join embeddings against any table in a single statement.
+              </div>
+            </div>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">03</div>
+              <div class="pain-title">Multi-tenant isolation is expensive</div>
+            </div>
+            <div class="pain-problem">
+              Separate databases per agent: ops nightmare and idle capacity everywhere.
+              Shared tables: cross-tenant leakage risk. Neither scales past a few
+              hundred agents without someone writing a lot of plumbing.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                Data Branching — millisecond copy-on-write isolation, per agent, pay-per-RU.
+                Manus runs 10M+ agent databases this way.
+              </div>
+            </div>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">04</div>
+              <div class="pain-title">Schema migrations block production</div>
+            </div>
+            <div class="pain-problem">
+              Adding a confidence column to the memories table means a maintenance window.
+              ALTER TABLE locks the entire dataset for hours while your agents sit idle
+              and your on-call engineer watches a progress bar.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                Online DDL — add columns, change indexes, alter schemas without blocking
+                a single query in production.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Four AI Scenarios ── -->
+      <div class="scenarios-section">
+        <div class="scenarios-heading">Four patterns that become possible</div>
+        <div class="scenarios-grid">
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 1</div>
+            <div class="scenario-title">Agent Long-Term Memory</div>
+            <div class="scenario-desc">
+              Persistent memory across sessions. Hybrid search (vector + BM25) for
+              precise recall. Confidence decay ensures stale facts expire automatically.
+              Write control prevents hallucination persistence.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Manus · DeepSeek · Plaud · Kimi</div>
+            </div>
+            <div class="scenario-outcome">10M+ agent databases · 80% infrastructure cost reduction</div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 2</div>
+            <div class="scenario-title">RAG Unified Storage</div>
+            <div class="scenario-desc">
+              Documents and embeddings in the same table.
+              BM25 + vector search in one query. No external vector database to
+              sync, scale, or pay for separately.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Dify.AI · Pinterest</div>
+            </div>
+            <div class="scenario-outcome">500K containers → 1 cluster · 90% ops overhead eliminated</div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 3</div>
+            <div class="scenario-title">AI SaaS Multi-Tenancy</div>
+            <div class="scenario-desc">
+              Database branching gives each customer their own isolated environment
+              in milliseconds. Pay-per-RU means idle tenants cost nothing.
+              Full ACID isolation with zero cross-tenant leakage.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Manus · Dify.AI</div>
+            </div>
+            <div class="scenario-outcome">Millisecond isolation · zero cross-tenant leakage · scale-to-zero cost</div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 4</div>
+            <div class="scenario-title">Real-time Feature Library</div>
+            <div class="scenario-desc">
+              Streaming telemetry + vector similarity + SQL aggregation in one query.
+              Agents reason over real-time data without a separate feature store
+              or batch pipeline.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Flipkart · Pinterest</div>
+            </div>
+            <div class="scenario-outcome">1.3M QPS · &lt;5ms P95 · 6 systems → 1</div>
+          </div>
+
         </div>
       </div>
     </section>

@@ -44,3 +44,17 @@ def test_lifecycle_tab_has_why_tidb_strip():
     assert "VEC_COSINE_DISTANCE" in HTML
     assert "MCP integration" in HTML
     assert "Zero-ETL" in HTML
+
+
+def test_why_tidb_tab_exists():
+    """Task 4: New Why TiDB tab should contain pain points and AI scenarios."""
+    assert 'data-tab="whytidb"' in HTML
+    assert 'data-tab-panel="whytidb"' in HTML
+    assert "Memory fragmentation" in HTML
+    assert "Vector + SQL" in HTML
+    assert "Multi-tenant isolation" in HTML
+    assert "Schema migrations" in HTML
+    assert "Agent Long-Term Memory" in HTML
+    assert "RAG Unified Storage" in HTML
+    assert "AI SaaS Multi-Tenancy" in HTML
+    assert "Real-time Feature Library" in HTML

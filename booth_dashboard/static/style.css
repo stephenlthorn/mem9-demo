@@ -1106,6 +1106,159 @@ html, body {
   border-radius: 3px;
 }
 
+/* ── Why TiDB tab — pain points ── */
+.pain-section {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.pain-section-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.pain-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.pain-card {
+  background: var(--panel-2);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--border);
+}
+.pain-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.pain-number {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent-2);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.pain-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.pain-problem {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.pain-solution {
+  background: var(--panel-3);
+  border-left: 3px solid var(--ok);
+  border-radius: 0 6px 6px 0;
+  padding: 8px 12px;
+  margin-top: auto;
+}
+.solution-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ok);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.solution-text {
+  font-size: 12.5px;
+  color: var(--fg);
+  line-height: 1.5;
+}
+.solution-text code {
+  color: var(--ok);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  background: var(--panel-2);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* ── Why TiDB tab — AI scenarios ── */
+.scenarios-section {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.scenarios-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.scenario-card {
+  background: var(--panel-2);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+}
+.scenario-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 700;
+}
+.scenario-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.scenario-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  flex: 1;
+}
+.scenario-customers {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.scenario-customer-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.scenario-customer-list {
+  font-size: 12px;
+  color: var(--fg);
+  font-weight: 600;
+}
+.scenario-outcome {
+  font-size: 11.5px;
+  color: var(--ok);
+  font-style: italic;
+}
+
 /* ── Responsive: stack on narrow screens ── */
 @media (max-width: 1100px) {
   .duty-grid  { grid-template-columns: repeat(2, 1fr); }
@@ -1118,6 +1271,8 @@ html, body {
   .memory-pane-list { max-height: 280px; }
   .tabs { flex-wrap: wrap; }
   .failure-modes-grid { grid-template-columns: 1fr; }
+  .pain-grid       { grid-template-columns: 1fr; }
+  .scenarios-grid  { grid-template-columns: 1fr; }
 }
 @media (max-width: 700px) {
   .stat-strip { grid-template-columns: 1fr; }
