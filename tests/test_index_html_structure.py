@@ -27,3 +27,11 @@ def test_all_customers_present():
     """Task 1: All customer names must appear in the HTML."""
     for name in ["Manus", "Pinterest", "DeepSeek", "Plaud", "Kimi", "Dify", "Flipkart"]:
         assert name in HTML, f"Missing customer: {name}"
+
+
+def test_lifecycle_tab_has_failure_modes():
+    """Task 2: Lifecycle tab should have the three failure modes panel."""
+    assert "failure-modes-section" in HTML
+    assert "Token Debt" in HTML
+    assert "Context Amnesia" in HTML
+    assert "Memory Decay" in HTML

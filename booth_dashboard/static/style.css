@@ -999,6 +999,63 @@ html, body {
   color: var(--muted);
 }
 
+/* ── Failure Modes panel (lifecycle tab) ── */
+.failure-modes-section {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.failure-modes-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.failure-modes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.failure-mode-card {
+  background: var(--panel-2);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 3px solid var(--accent-2);
+}
+.failure-icon { font-size: 26px; }
+.failure-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.failure-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+  flex: 1;
+}
+.failure-signal {
+  font-size: 11px;
+  color: var(--accent-2);
+  font-style: italic;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.failure-to-solution-bridge {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 8px;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
 /* ── Responsive: stack on narrow screens ── */
 @media (max-width: 1100px) {
   .duty-grid  { grid-template-columns: repeat(2, 1fr); }
@@ -1009,6 +1066,7 @@ html, body {
   .chat-layout { grid-template-columns: 1fr; }
   .memory-pane-list { max-height: 280px; }
   .tabs { flex-wrap: wrap; }
+  .failure-modes-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 700px) {
   .stat-strip { grid-template-columns: 1fr; }

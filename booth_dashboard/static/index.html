@@ -243,6 +243,45 @@
         </div>
       </div>
 
+      <!-- ── Three Failure Modes ── -->
+      <div class="failure-modes-section">
+        <div class="failure-modes-heading">Three ways agent memory fails in production:</div>
+        <div class="failure-modes-grid">
+          <div class="failure-mode-card">
+            <div class="failure-icon">💸</div>
+            <div class="failure-name">Token Debt</div>
+            <div class="failure-desc">
+              Stuffing all memories into every prompt burns your context window.
+              At scale you are paying to remind the agent what it already knew,
+              every single message.
+            </div>
+            <div class="failure-signal">Signal: context window keeps hitting limits</div>
+          </div>
+          <div class="failure-mode-card">
+            <div class="failure-icon">🫥</div>
+            <div class="failure-name">Context Amnesia</div>
+            <div class="failure-desc">
+              Session ends. Agent forgets everything. The next user gets the same
+              wrong diagnosis the agent gave the last three users.
+              Cross-session learning simply does not exist.
+            </div>
+            <div class="failure-signal">Signal: agents repeat the same mistakes</div>
+          </div>
+          <div class="failure-mode-card">
+            <div class="failure-icon">📉</div>
+            <div class="failure-name">Memory Decay</div>
+            <div class="failure-desc">
+              Old facts do not expire. Contradicted conclusions sit beside newer truths.
+              The agent confidently cites a diagnosis it corrected six months ago.
+            </div>
+            <div class="failure-signal">Signal: agents hallucinate coherence from stale data</div>
+          </div>
+        </div>
+      </div>
+      <div class="failure-to-solution-bridge">
+        ↓ The five maintenance duties below run continuously inside TiDB to prevent all three.
+      </div>
+
       <div class="duty-grid">
         <div class="duty-card">
           <div class="duty-icon">🛡️</div>
