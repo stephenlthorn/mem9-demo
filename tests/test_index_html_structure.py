@@ -25,5 +25,5 @@ def test_customer_proof_strip_exists():
 
 def test_all_customers_present():
     """Task 1: All customer names must appear in the HTML."""
-    for name in ["Manus", "Pinterest", "DeepSeek", "Plaud", "Kimi", "Dify"]:
+    for name in ["Manus", "Pinterest", "DeepSeek", "Plaud", "Kimi", "Dify", "Flipkart"]:
         assert name in HTML, f"Missing customer: {name}"

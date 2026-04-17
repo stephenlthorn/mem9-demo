@@ -1020,6 +1020,8 @@ html, body {
   .duty-grid  { grid-template-columns: 1fr; }
   .stats-strip { grid-template-columns: repeat(2, 1fr); }
   .proof-band { grid-template-columns: 1fr; gap: 6px; }
+  .customer-proof-strip { flex-wrap: wrap; white-space: normal; }
+  .proof-items          { flex-wrap: wrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
