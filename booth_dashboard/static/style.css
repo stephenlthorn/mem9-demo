@@ -28,12 +28,50 @@ html, body {
   border-bottom: 1px solid var(--border);
   padding: 20px 24px 16px;
 }
-.hero-headline {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: 6px;
+.hero-eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 8px;
 }
+.hero-headline {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--fg);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.hero-tagline {
+  font-size: 15px;
+  color: var(--ok);
+  font-weight: 500;
+  margin-bottom: 14px;
+  max-width: 780px;
+  line-height: 1.5;
+}
+.hero-hook {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: rgba(247, 37, 133, 0.08);
+  border: 1px solid rgba(247, 37, 133, 0.25);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  max-width: 780px;
+}
+.hook-bang {
+  font-size: 18px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+.hook-body {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.hook-body strong { color: var(--fg); }
 .hero-sub {
   color: var(--muted);
   font-size: 14px;
@@ -41,6 +79,50 @@ html, body {
   line-height: 1.6;
 }
 .hero-sub strong { color: var(--fg); }
+
+/* ── Customer proof strip ── */
+.customer-proof-strip {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.proof-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.proof-items {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.proof-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.proof-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.proof-stat {
+  font-size: 11px;
+  color: var(--muted);
+}
+.proof-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
 
 /* ── Stat strip ── */
 .stat-strip {
