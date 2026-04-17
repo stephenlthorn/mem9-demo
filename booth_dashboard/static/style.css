@@ -911,68 +911,6 @@ html, body {
   font-style: italic;
 }
 
-/* ── Fleet tab ── */
-.fleet-intro {
-  background: var(--panel);
-  border-radius: var(--radius);
-  padding: 20px 24px;
-  margin-bottom: 12px;
-}
-.fleet-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--accent);
-  margin: 0 0 8px;
-}
-.fleet-body {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.7;
-  margin: 0 0 8px;
-  max-width: 720px;
-}
-.fleet-body:last-child { margin-bottom: 0; }
-
-.fleet-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-.fleet-btn {
-  background: var(--panel-2);
-  color: var(--fg);
-  border: 1px solid var(--accent);
-  padding: 9px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.15s;
-}
-.fleet-btn:hover { background: #1b2a4a; }
-.fleet-note { color: var(--muted); font-size: 13px; }
-
-.fleet-legend {
-  display: flex;
-  gap: 16px;
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.fleet-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12px, 1fr));
-  gap: 3px;
-  background: var(--panel);
-  padding: 12px;
-  border-radius: var(--radius);
-  min-height: 360px;
-}
-.fleet-tile { background: var(--accent); border-radius: 2px; height: 12px; opacity: 0.85; }
-.fleet-tile.sim { background: var(--accent-2); opacity: 0.55; }
-
 .fleet-band {
   text-align: center;
   padding: 10px;
