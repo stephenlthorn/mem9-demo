@@ -337,6 +337,46 @@
         All five duties run inside a <strong>single TiDB cluster</strong>.
         No external schedulers. No sync jobs. No Kafka, Redis, or Airflow.
       </div>
+
+      <!-- ── Why TiDB strip ── -->
+      <div class="why-tidb-strip">
+        <div class="why-tidb-heading">Why TiDB makes all five duties possible:</div>
+        <div class="why-tidb-grid">
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">⚡</div>
+            <div class="why-tidb-title">Unified HTAP + Vector</div>
+            <div class="why-tidb-desc">
+              SQL, analytics, and semantic search in one engine.
+              No ETL pipeline to maintain. No sync lag between systems.
+            </div>
+          </div>
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">🔗</div>
+            <div class="why-tidb-title">Vector + SQL in one query</div>
+            <div class="why-tidb-desc">
+              JOIN embeddings against transactions in a single statement.
+              <code>VEC_COSINE_DISTANCE()</code> is a SQL function.
+            </div>
+          </div>
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">🔌</div>
+            <div class="why-tidb-title">MCP integration</div>
+            <div class="why-tidb-desc">
+              Agents provision and query TiDB directly from Claude, Cursor,
+              and GitHub Copilot via the Model Context Protocol.
+            </div>
+          </div>
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">📡</div>
+            <div class="why-tidb-title">Zero-ETL real-time reasoning</div>
+            <div class="why-tidb-desc">
+              Write to one place. Reason across everything instantly.
+              No batch jobs, no Kafka topics, no Airflow DAGs.
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- ── Tab 3: One Cluster (Before / After) ── -->

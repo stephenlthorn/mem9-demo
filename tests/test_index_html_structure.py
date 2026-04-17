@@ -35,3 +35,12 @@ def test_lifecycle_tab_has_failure_modes():
     assert "Token Debt" in HTML
     assert "Context Amnesia" in HTML
     assert "Memory Decay" in HTML
+
+
+def test_lifecycle_tab_has_why_tidb_strip():
+    """Task 3: Lifecycle tab should have the Why TiDB 4-card strip."""
+    assert "why-tidb-strip" in HTML
+    assert "Unified HTAP" in HTML
+    assert "VEC_COSINE_DISTANCE" in HTML
+    assert "MCP integration" in HTML
+    assert "Zero-ETL" in HTML

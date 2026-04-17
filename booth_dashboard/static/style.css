@@ -1056,10 +1056,61 @@ html, body {
   font-style: italic;
 }
 
+/* ── Why TiDB strip (lifecycle tab) ── */
+.why-tidb-strip {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 14px;
+  border: 1px solid rgba(43, 217, 161, 0.35);
+}
+.why-tidb-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ok);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.why-tidb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.why-tidb-card {
+  background: var(--panel-2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 3px solid var(--ok);
+}
+.why-tidb-icon { font-size: 22px; }
+.why-tidb-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+}
+.why-tidb-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.why-tidb-desc code {
+  color: var(--ok);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  background: var(--panel-3);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
 /* ── Responsive: stack on narrow screens ── */
 @media (max-width: 1100px) {
   .duty-grid  { grid-template-columns: repeat(2, 1fr); }
   .stats-strip { grid-template-columns: repeat(3, 1fr); }
+  .why-tidb-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 900px) {
   .split { grid-template-columns: 1fr; }
@@ -1080,6 +1131,7 @@ html, body {
   .proof-band { grid-template-columns: 1fr; gap: 6px; }
   .customer-proof-strip { flex-wrap: wrap; white-space: normal; }
   .proof-items          { flex-wrap: wrap; }
+  .why-tidb-grid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
