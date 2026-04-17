@@ -17,7 +17,6 @@ let OFFLINE = new URLSearchParams(location.search).has("offline");
 document.addEventListener("DOMContentLoaded", () => {
   bindTabs();
   bindQueryRail();
-  bindFleetControls();
   bindChatControls();
   bootstrap();
 });
@@ -27,7 +26,6 @@ async function bootstrap() {
   CANNED_CACHE = canned;
   renderTopStrip(meta);
   pollMemoryCount();
-  await loadFleetMeasurements();
 }
 
 async function fetchMeta() {
@@ -259,72 +257,6 @@ function playDiagramAnimation(qKey) {
            opacity: [0.2, 1], fill: accent, duration: 200 }, "-=60")
     .add({ targets: targets.merge, scale: [0.8, 1.2, 1], duration: 200 })
     .add({ targets: targets.result, translateX: [320, 480], opacity: [0, 1], duration: 200 });
-}
-
-// ----- Fleet tab -----
-
-let FLEET_MEASUREMENTS = [];
-
-async function loadFleetMeasurements() {
-  try {
-    const r = await fetch("/static/fleet_measurements.json");
-    if (r.ok) {
-      const data = await r.json();
-      FLEET_MEASUREMENTS = data.measurements_ms || [];
-      setText("fleet-measured-count", FLEET_MEASUREMENTS.length);
-    }
-  } catch (e) { /* file may not exist yet */ }
-}
-
-function bindFleetControls() {
-  document.getElementById("spawn-100").addEventListener("click", () => spawnTiles(100));
-  document.getElementById("spawn-10000").addEventListener("click", () => spawnTiles(10000));
-  document.getElementById("spawn-10m").addEventListener("click", () => spawnTiles(10_000_000));
-}
-
-function spawnTiles(n) {
-  const host = document.getElementById("fleet-grid");
-  clearChildren(host);
-
-  const VISIBLE_CAP = 2500;
-  const shown = Math.min(n, VISIBLE_CAP);
-  const frag = document.createDocumentFragment();
-  for (let i = 0; i < shown; i++) {
-    const tile = document.createElement("div");
-    tile.className = "fleet-tile" + (i >= FLEET_MEASUREMENTS.length ? " sim" : "");
-    const ms = pickTiming(i);
-    tile.title = `${ms} ms`;
-    frag.appendChild(tile);
-  }
-  host.appendChild(frag);
-
-  const note = document.getElementById("fleet-note");
-  if (note) {
-    note.textContent =
-      n > VISIBLE_CAP
-        ? `Showing ${VISIBLE_CAP.toLocaleString()} of ${n.toLocaleString()} tiles ` +
-          `(measured ${FLEET_MEASUREMENTS.length}; rest extrapolated).`
-        : `Showing ${shown.toLocaleString()} tiles ` +
-          `(measured ${FLEET_MEASUREMENTS.length}; rest extrapolated).`;
-  }
-
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && window.anime) {
-    anime({
-      targets: host.children,
-      opacity: [0, 0.9],
-      duration: 600,
-      delay: anime.stagger(0.6, { from: "first" }),
-      easing: "easeOutQuad",
-    });
-  }
-}
-
-function pickTiming(i) {
-  if (i < FLEET_MEASUREMENTS.length) return FLEET_MEASUREMENTS[i];
-  if (!FLEET_MEASUREMENTS.length) return 900;
-  const base = FLEET_MEASUREMENTS[i % FLEET_MEASUREMENTS.length];
-  const jitter = Math.round((Math.random() - 0.5) * 120);
-  return Math.max(200, base + jitter);
 }
 
 // ----- Ask the Agent (chat) -----

@@ -1259,6 +1259,154 @@ html, body {
   font-style: italic;
 }
 
+/* ── Scale Proof Tiles (fleet tab) ── */
+.scale-proof-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.scale-proof-tile {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 4px solid var(--accent);
+}
+.manus-tile     { border-top-color: var(--ok);      }
+.pinterest-tile { border-top-color: var(--accent);  }
+.dify-tile      { border-top-color: var(--warn);    }
+.spt-customer {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.spt-stat {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+}
+.manus-tile     .spt-stat { color: var(--ok);     }
+.pinterest-tile .spt-stat { color: var(--accent); }
+.dify-tile      .spt-stat { color: var(--warn);   }
+.spt-unit {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.spt-detail {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-style: italic;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  line-height: 1.5;
+}
+
+/* ── Scale Ladder ── */
+.scale-ladder-section {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 14px;
+}
+.scale-ladder-heading {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.scale-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.scale-rung {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.scale-rung:last-child { border-bottom: none; }
+.highlight-rung {
+  background: rgba(43, 217, 161, 0.06);
+  border-radius: 8px;
+  padding: 12px 10px;
+  border: 1px solid rgba(43, 217, 161, 0.25) !important;
+  margin: 4px 0;
+}
+.rung-count {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding-top: 2px;
+}
+.highlight-rung .rung-count { color: var(--ok); font-size: 20px; }
+.rung-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.rung-track {
+  height: 8px;
+  background: var(--panel-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.rung-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+}
+.highlight-rung .rung-fill { background: var(--ok); }
+.rung-label {
+  font-size: 13px;
+  color: var(--fg);
+  line-height: 1.4;
+}
+.rung-tech {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── Fleet context strip ── */
+.fleet-context-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.fleet-context-item {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.fci-stat {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ok);
+  margin-bottom: 4px;
+}
+.fci-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
 /* ── Responsive: stack on narrow screens ── */
 @media (max-width: 1100px) {
   .duty-grid  { grid-template-columns: repeat(2, 1fr); }
@@ -1273,6 +1421,8 @@ html, body {
   .failure-modes-grid { grid-template-columns: 1fr; }
   .pain-grid       { grid-template-columns: 1fr; }
   .scenarios-grid  { grid-template-columns: 1fr; }
+  .scale-proof-tiles   { grid-template-columns: 1fr; }
+  .fleet-context-strip { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 700px) {
   .stat-strip { grid-template-columns: 1fr; }

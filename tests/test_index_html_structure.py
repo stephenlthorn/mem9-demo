@@ -58,3 +58,14 @@ def test_why_tidb_tab_exists():
     assert "RAG Unified Storage" in HTML
     assert "AI SaaS Multi-Tenancy" in HTML
     assert "Real-time Feature Library" in HTML
+
+
+def test_fleet_tab_has_scale_ladder():
+    """Task 5: Fleet tab should have scale ladder and proof tiles, not tile grid."""
+    assert "scale-ladder" in HTML
+    assert "scale-proof-tiles" in HTML
+    assert "10M+" in HTML
+    # Old tile grid elements should be gone
+    assert "spawn-100" not in HTML
+    assert "spawn-10000" not in HTML
+    assert "fleet-grid" not in HTML

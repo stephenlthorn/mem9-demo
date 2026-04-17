@@ -673,48 +673,125 @@
       </div>
     </section>
 
-    <!-- ── Tab 5: Fleet (10M Agents) ── -->
+    <!-- ── Tab: Scale ── -->
     <section class="tab-panel" data-tab-panel="fleet">
-      <div class="fleet-intro">
-        <h2 class="fleet-title">One cluster. Unlimited agents.</h2>
-        <p class="fleet-body">
-          TiDB Cloud Zero carves out a fully isolated database for every agent —
-          no manual provisioning, no shared tables, no cross-tenant leakage.
-          Each tile below represents one agent with its own memory store.
-          Hover a tile to see how long its database took to provision.
-        </p>
-        <p class="fleet-body">
-          Real timings were captured during setup. Simulated tiles
-          use the same distribution with jitter.
-        </p>
+      <div class="panel-hero">
+        <div class="panel-title">One cluster. Unlimited agents.</div>
+        <div class="panel-sub">
+          TiDB Cloud Zero provisions a fully isolated database for every agent in milliseconds
+          using copy-on-write branching — not spinning up new clusters. Manus runs 10M+ this way.
+          Each agent is isolated. None of them share a table. All of them share one TiDB cluster.
+        </div>
       </div>
 
-      <div class="fleet-controls">
-        <button id="spawn-100" class="fleet-btn">Show 100 agents</button>
-        <button id="spawn-10000" class="fleet-btn">Show 10K agents</button>
-        <button id="spawn-10m" class="fleet-btn">Simulate 10M agents (Manus scale)</button>
-        <span class="fleet-note" id="fleet-note">
-          <span id="fleet-measured-count">0</span> real tenants measured.
-        </span>
+      <!-- ── Three customer proof stat tiles ── -->
+      <div class="scale-proof-tiles">
+        <div class="scale-proof-tile manus-tile">
+          <div class="spt-customer">Manus</div>
+          <div class="spt-stat">10M+</div>
+          <div class="spt-unit">agent databases</div>
+          <div class="spt-detail">80% infrastructure cost reduction · 100% provisioned by AI agents · migrated in 2 weeks</div>
+        </div>
+        <div class="scale-proof-tile pinterest-tile">
+          <div class="spt-customer">Pinterest</div>
+          <div class="spt-stat">1.3M</div>
+          <div class="spt-unit">queries per second</div>
+          <div class="spt-detail">6 systems → 1 TiDB cluster · 80% cost reduction · 3–5× p99 improvement</div>
+        </div>
+        <div class="scale-proof-tile dify-tile">
+          <div class="spt-customer">Dify.AI</div>
+          <div class="spt-stat">500K</div>
+          <div class="spt-unit">containers → 1 cluster</div>
+          <div class="spt-detail">90% operations overhead eliminated · same performance, fraction of the cost</div>
+        </div>
       </div>
 
-      <div class="fleet-legend">
-        <span class="legend-dot vector"></span> Real measurement &nbsp;
-        <span class="legend-dot sim"></span> Simulated (same timing distribution)
+      <!-- ── Scale Ladder ── -->
+      <div class="scale-ladder-section">
+        <div class="scale-ladder-heading">From one agent to ten million — same cluster, same provisioning time</div>
+        <div class="scale-ladder">
+
+          <div class="scale-rung">
+            <div class="rung-count">1</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:3%"></div></div>
+              <div class="rung-label">One agent. One isolated database. Provisioned in milliseconds from cold.</div>
+              <div class="rung-tech">TiDB Cloud Zero · copy-on-write branch · ~900ms median</div>
+            </div>
+          </div>
+
+          <div class="scale-rung">
+            <div class="rung-count">100</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:8%"></div></div>
+              <div class="rung-label">A team of agents. Each isolated. Zero shared state between any of them.</div>
+              <div class="rung-tech">Pay-per-RU · idle agents cost nothing · scale to zero</div>
+            </div>
+          </div>
+
+          <div class="scale-rung">
+            <div class="rung-count">10K</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:22%"></div></div>
+              <div class="rung-label">Product launch. Every user gets their own agent memory store.</div>
+              <div class="rung-tech">Resource groups · no noisy neighbors · per-tenant RU caps</div>
+            </div>
+          </div>
+
+          <div class="scale-rung">
+            <div class="rung-count">1M</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:55%"></div></div>
+              <div class="rung-label">SaaS scale. Dify.AI runs this with 90% less ops overhead than before TiDB.</div>
+              <div class="rung-tech">Horizontal scale · TiDB X elastic compute/storage · HTAP on the same cluster</div>
+            </div>
+          </div>
+
+          <div class="scale-rung highlight-rung">
+            <div class="rung-count">10M+</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:100%"></div></div>
+              <div class="rung-label">Manus scale. 10M+ databases. Billions of events per day. One cluster.</div>
+              <div class="rung-tech">One TiDB cluster · 2-week migration · 80% cost reduction · 100% agent-provisioned</div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      <div class="fleet-grid" id="fleet-grid"></div>
+      <!-- ── Context stats row ── -->
+      <div class="fleet-context-strip">
+        <div class="fleet-context-item">
+          <div class="fci-stat">~900ms</div>
+          <div class="fci-label">median provision time</div>
+        </div>
+        <div class="fleet-context-item">
+          <div class="fci-stat">0</div>
+          <div class="fci-label">shared tables · zero cross-tenant leakage</div>
+        </div>
+        <div class="fleet-context-item">
+          <div class="fci-stat">$0</div>
+          <div class="fci-label">cost when idle · pay-per-RU serverless</div>
+        </div>
+        <div class="fleet-context-item">
+          <div class="fci-stat">ACID</div>
+          <div class="fci-label">everywhere · no eventual consistency</div>
+        </div>
+      </div>
 
       <div class="fleet-band">
-        All tiles share <strong>one TiDB cluster</strong> underneath —
-        that's TiDB Cloud Zero's superpower.
+        All agents share <strong>one TiDB cluster</strong> underneath —
+        full isolation, zero shared state, pay for what you use.
       </div>
 
       <div class="fleet-scale-refs">
         <div class="scale-ref">Manus: 10M+ agent DBs</div>
         <div class="scale-ref">Pinterest: 1.3M QPS</div>
-        <div class="scale-ref">Flipkart: 700× compression</div>
+        <div class="scale-ref">Flipkart: 700+ MySQL → 1</div>
         <div class="scale-ref">Dify.AI: 500K → 1 cluster</div>
+        <div class="scale-ref">DeepSeek: AI agents on TiDB</div>
+        <div class="scale-ref">Plaud: AI agents on TiDB</div>
+        <div class="scale-ref">Kimi: AI agents on TiDB</div>
       </div>
     </section>
   </main>
