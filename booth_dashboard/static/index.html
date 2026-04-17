@@ -12,9 +12,11 @@
   <header class="hero">
     <div class="hero-headline">mem9 · Persistent Agent Memory on TiDB Cloud Zero</div>
     <div class="hero-sub">
-      Each AI agent gets its own private database — provisioned in milliseconds, never shared, never lost.
-      This session's agent already has <strong>50 memories</strong> seeded.
-      Ask the questions on the left to watch it recall them.
+      <strong>Memory isn't stored. It's maintained.</strong>
+      Each AI agent gets its own private database — provisioned in milliseconds,
+      never shared, never lost. This session's agent already has
+      <strong>50 memories</strong> seeded. The five tabs below walk through why
+      agent memory is infrastructure, not a feature you bolt on.
     </div>
   </header>
 
@@ -52,19 +54,18 @@
 
   <!-- ── Tab bar ── -->
   <nav class="tabs">
-    <button class="tab active" data-tab="queryflow">
-      🔍 Live Memory Recall
-    </button>
-    <button class="tab" data-tab="fleet">
-      🌐 Scale: Many Agents
-    </button>
+    <button class="tab active" data-tab="queryflow">🔍 Live Recall</button>
+    <button class="tab" data-tab="lifecycle">🧠 5 Memory Duties</button>
+    <button class="tab" data-tab="unified">🏛️ One Cluster</button>
+    <button class="tab" data-tab="proof">🔬 Cross-Session Proof</button>
+    <button class="tab" data-tab="fleet">🌐 Scale: 10M Agents</button>
   </nav>
 
-  <!-- ── Query Flow tab ── -->
   <main class="stage">
+
+    <!-- ── Tab 1: Live Recall ── -->
     <section class="tab-panel active" data-tab-panel="queryflow">
 
-      <!-- Left: query buttons -->
       <aside class="query-rail">
         <div class="rail-heading">Ask the agent a question</div>
         <div class="rail-subheading">
@@ -97,7 +98,6 @@
         </button>
       </aside>
 
-      <!-- Centre: architecture diagram -->
       <div class="diagram-col">
         <div class="diagram-label">
           How a query flows through mem9's unified search engine
@@ -114,7 +114,6 @@
         </div>
       </div>
 
-      <!-- Bottom: results -->
       <section class="results" id="results" aria-live="polite">
         <p class="results-placeholder">
           ← Click any question to run it against the agent's memory store.
@@ -123,7 +122,204 @@
 
     </section>
 
-    <!-- ── Fleet tab ── -->
+    <!-- ── Tab 2: 5 Memory Duties ── -->
+    <section class="tab-panel" data-tab-panel="lifecycle">
+      <div class="panel-hero">
+        <div class="panel-title">Memory isn't stored. It's maintained.</div>
+        <div class="panel-sub">
+          Five maintenance duties run continuously inside your TiDB cluster.
+          If you're not running them, your memory is decaying into noise —
+          and your agent is confidently citing diagnoses contradicted months ago.
+        </div>
+      </div>
+
+      <div class="duty-grid">
+        <div class="duty-card">
+          <div class="duty-icon">🛡️</div>
+          <div class="duty-name">Write control</div>
+          <div class="duty-desc">
+            Only confirmed outcomes persist. Working reasoning stays ephemeral.
+          </div>
+          <div class="duty-rule"><code>status = 'committed'</code> required</div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">📚</div>
+          <div class="duty-name">Deduplication</div>
+          <div class="duty-desc">
+            Cosine distance &lt; 0.15 merges with existing memory.
+            One strong memory, not ten weak ones.
+          </div>
+          <div class="duty-rule"><code>cosine &lt; 0.15 ⇒ merge</code></div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">⚙️</div>
+          <div class="duty-name">Reconciliation</div>
+          <div class="duty-desc">
+            New evidence auto-supersedes contradicted conclusions.
+            Stale facts are linked, not lost.
+          </div>
+          <div class="duty-rule"><code>supersedes_id</code> column</div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">📉</div>
+          <div class="duty-name">Confidence decay</div>
+          <div class="duty-desc">
+            5% monthly decay without reinforcement.
+            Below 0.30 = auto-deprecated.
+          </div>
+          <div class="duty-rule"><code>confidence *= 0.95 / month</code></div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">🗜️</div>
+          <div class="duty-name">Compaction</div>
+          <div class="duty-desc">
+            Weekly re-clustering merges drifted memories.
+            Evidence counts consolidated.
+          </div>
+          <div class="duty-rule"><code>CLUSTER BY embedding</code></div>
+        </div>
+      </div>
+
+      <div class="panel-footer ok">
+        All five duties run inside a <strong>single TiDB cluster</strong>.
+        No external schedulers. No sync jobs. No Kafka, Redis, or Airflow.
+      </div>
+    </section>
+
+    <!-- ── Tab 3: One Cluster (Before / After) ── -->
+    <section class="tab-panel" data-tab-panel="unified">
+      <div class="panel-hero">
+        <div class="panel-title">One cluster. One consistency model.</div>
+        <div class="panel-sub">
+          Before mem9 on TiDB, agent memory meant stitching four systems
+          together with custom sync code. After: one query, one transaction
+          boundary, ACID everywhere.
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="split-col before-col">
+          <div class="split-label before">Before — the frankenstack</div>
+          <div class="stack-box">OLTP database</div>
+          <div class="stack-box">Vector database</div>
+          <div class="stack-box">Cache / KV store</div>
+          <div class="stack-box">Analytics warehouse</div>
+          <div class="split-caption before">
+            4 systems · 4 consistency models · custom sync code
+          </div>
+        </div>
+
+        <div class="split-col after-col">
+          <div class="split-label after">After — unified on TiDB</div>
+          <div class="agent-layer">
+            Agent layer
+            <div class="layer-hint">stateless · disposable · reaches in</div>
+          </div>
+          <div class="arrow">↓</div>
+          <div class="tidb-cluster">
+            <div class="tidb-header">TiDB Cloud cluster</div>
+            <div class="plane context-plane">
+              <div class="plane-name">Context plane</div>
+              <div class="plane-desc">Reasoning · fleet memory · session state</div>
+            </div>
+            <div class="plane data-plane">
+              <div class="plane-name">Data plane</div>
+              <div class="plane-desc">Telemetry · windows · outage catalog</div>
+            </div>
+            <div class="plane lifecycle-plane">
+              <div class="plane-name">Memory lifecycle</div>
+              <div class="plane-desc">write · dedup · reconcile · decay · compact</div>
+            </div>
+          </div>
+          <div class="split-caption after">
+            1 cluster · 1 consistency model · ACID everywhere
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-strip">
+        <div class="scale-stat"><div class="n">20,000</div><div class="l">charge points</div></div>
+        <div class="scale-stat"><div class="n">112M</div><div class="l">rows / day</div></div>
+        <div class="scale-stat"><div class="n">8</div><div class="l">tables</div></div>
+        <div class="scale-stat"><div class="n">9</div><div class="l">agent tools</div></div>
+        <div class="scale-stat"><div class="n">3,600</div><div class="l">token budget</div></div>
+      </div>
+      <div class="stats-caption">
+        Numbers from a real TiDB customer running this architecture in production today.
+      </div>
+    </section>
+
+    <!-- ── Tab 4: Cross-Session Proof ── -->
+    <section class="tab-panel" data-tab-panel="proof">
+      <div class="panel-hero">
+        <div class="panel-title">An agent that learns across sessions</div>
+        <div class="panel-sub">
+          Stateless model. Stateful platform. Real incident —
+          charger <code>CP-IE-TEST-00176</code> sustained anomaly scores
+          across <strong>4 consecutive windows</strong>.
+          Three layers, one investigation.
+        </div>
+      </div>
+
+      <div class="proof-layers">
+        <div class="proof-band data-band">
+          <div class="band-label">Data plane</div>
+          <div class="band-body">
+            Telemetry windows with anomaly scores fed the trigger.
+            4 consecutive windows flagged.
+          </div>
+        </div>
+        <div class="proof-band context-band">
+          <div class="band-label">Context plane</div>
+          <div class="band-body">
+            Fleet memory recalled <strong>7 prior E-002 diagnoses</strong>
+            from other sessions — written by other agents, months ago.
+          </div>
+        </div>
+        <div class="proof-band agent-band">
+          <div class="band-label">Agent layer</div>
+          <div class="band-body">
+            Stateless Claude matched E-002 and wrote a diagnosis at
+            <strong>0.90 confidence</strong>.
+            Never saw the fault before; didn't need to.
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-novel">
+        <div class="novel-label">Novel observation</div>
+        <div class="novel-body">
+          This charger's temperature (<strong>3.5°C</strong>) was the coldest
+          in the entire E-002 cluster — flagged as highest priority for
+          damp ingress. The agent wrote this conclusion back to the context
+          plane for future agents.
+        </div>
+      </div>
+
+      <div class="panel-footer ok">
+        Stateless model. Stateful platform. Cross-session learning.
+      </div>
+
+      <div class="generic-block">
+        <div class="generic-title">The pattern is generic — charger is a plugin</div>
+        <div class="domain-pills">
+          <div class="domain-pill">HVAC diagnostics</div>
+          <div class="domain-pill">Fleet GPS monitoring</div>
+          <div class="domain-pill">Industrial SCADA</div>
+          <div class="domain-pill">Payment fraud</div>
+        </div>
+        <div class="generic-caption">
+          Streaming data + anomaly detection + agents that learn =
+          the same memory wall, every time.
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tab 5: Fleet (10M Agents) ── -->
     <section class="tab-panel" data-tab-panel="fleet">
       <div class="fleet-intro">
         <h2 class="fleet-title">One cluster. Unlimited agents.</h2>
