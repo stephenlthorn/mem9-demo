@@ -75,5 +75,5 @@ def test_tabs_have_outcome_strips():
     """Task 6: Each tab panel should have at least one tab-outcome-strip."""
     import re
     strips = re.findall(r'tab-outcome-strip', HTML)
-    # Expect at least 5 (one per tab: queryflow, chat, lifecycle, unified, proof, whytidb)
-    assert len(strips) >= 5, f"Expected at least 5 outcome strips, found {len(strips)}"
+    # Expect 6 (one per tab: queryflow, chat, lifecycle, unified, proof, whytidb)
+    assert len(strips) >= 6, f"Expected at least 6 outcome strips, found {len(strips)}"
