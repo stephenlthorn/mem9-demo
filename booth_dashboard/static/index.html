@@ -10,7 +10,6 @@
 
   <!-- ── Hero ── -->
   <header class="hero">
-    <div class="hero-eyebrow">mem9 · Persistent Agent Memory on TiDB Cloud Zero</div>
     <div class="hero-headline">TiDB — Unified Data Foundation for the AI Era</div>
     <div class="hero-tagline">
       One set of data simultaneously supports transactions, analytics,
@@ -29,75 +28,56 @@
 
   <!-- ── Customer proof strip ── -->
   <div class="customer-proof-strip">
-    <div class="proof-label">Running agent memory at scale:</div>
+    <div class="proof-label">Running agent memory &amp; data at scale on TiDB:</div>
     <div class="proof-items">
       <div class="proof-item">
-        <div class="proof-name">Manus</div>
-        <div class="proof-stat">10M+ agent DBs · 80% cost reduction</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/pinterest.svg" alt="Pinterest" />
         <div class="proof-name">Pinterest</div>
         <div class="proof-stat">1.3M QPS · 6 systems → 1</div>
       </div>
       <div class="proof-divider"></div>
       <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/uber.svg" alt="Uber" />
+        <div class="proof-name">Uber</div>
+        <div class="proof-stat">Production workloads on TiDB</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/manus.svg" alt="Manus" />
+        <div class="proof-name">Manus</div>
+        <div class="proof-stat">10M+ agent DBs · 80% cost cut</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/deepseek.svg" alt="DeepSeek" />
         <div class="proof-name">DeepSeek</div>
         <div class="proof-stat">AI agent infrastructure on TiDB</div>
       </div>
       <div class="proof-divider"></div>
       <div class="proof-item">
-        <div class="proof-name">Plaud</div>
-        <div class="proof-stat">AI agents on TiDB</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/kimi.svg" alt="Kimi" />
         <div class="proof-name">Kimi</div>
         <div class="proof-stat">AI agents on TiDB</div>
       </div>
       <div class="proof-divider"></div>
       <div class="proof-item">
-        <div class="proof-name">Dify.AI</div>
-        <div class="proof-stat">500K containers → 1 cluster · 90% ops cut</div>
+        <img class="proof-logo" src="/static/logos/plaud.svg" alt="Plaud" />
+        <div class="proof-name">Plaud</div>
+        <div class="proof-stat">AI agents on TiDB</div>
       </div>
       <div class="proof-divider"></div>
       <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/dify.svg" alt="Dify.AI" />
+        <div class="proof-name">Dify.AI</div>
+        <div class="proof-stat">500K containers → 1 · 90% ops cut</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/flipkart.svg" alt="Flipkart" />
         <div class="proof-name">Flipkart</div>
-        <div class="proof-stat">700+ MySQL → 1 · 1M QPS · P95 &lt; 5ms</div>
+        <div class="proof-stat">700+ MySQL → 1 · P95 &lt; 5ms</div>
       </div>
     </div>
-  </div>
-
-  <!-- ── Stat strip ── -->
-  <div class="stat-strip">
-
-    <div class="stat-card">
-      <div class="stat-label">This agent's ID</div>
-      <div class="stat-value" id="tenant-value">loading…</div>
-      <div class="stat-caption">
-        Every agent gets a unique tenant. One TiDB Cloud Zero database,
-        isolated from all others.
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Memories stored</div>
-      <div class="stat-value" id="memories-value">—</div>
-      <div class="stat-caption">
-        50 facts, events, and preferences about a fictional engineer —
-        all in one TiDB table with vector + full-text indexes.
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">Database provisioned in</div>
-      <div class="stat-value" id="provision-value">—</div>
-      <div class="stat-caption">
-        TiDB Cloud Zero auto-created this database from cold.
-        No pre-warming. No shared pool. Just instant isolation.
-      </div>
-    </div>
-
   </div>
 
   <!-- ── Tab bar ── -->
@@ -116,57 +96,77 @@
     <!-- ── Tab 1: Live Recall ── -->
     <section class="tab-panel active" data-tab-panel="queryflow">
 
-      <aside class="query-rail">
-        <div class="rail-heading">Ask the agent a question</div>
-        <div class="rail-subheading">
-          Each query hits <em>all three</em> search engines simultaneously —
-          vector, full-text, and hybrid — and the best result wins.
+      <div class="panel-hero">
+        <div class="panel-title">One TiDB cluster. Three search engines. One SQL query each.</div>
+        <div class="panel-sub">
+          Pick a question below. Watch the actual SQL that TiDB runs under mem9's hood —
+          vector similarity, full-text search, and a hybrid ranking — fire in parallel,
+          then see the ranked results. No vector DB. No search service. One database.
         </div>
+      </div>
 
-        <button class="query" data-q="q1">
-          <span class="q-text">"What does Sam think about TypeScript?"</span>
-          <span class="q-hint">
-            The word "TypeScript" never appears in any memory.
-            Watch vector similarity surface the answer anyway.
-          </span>
+      <div class="recall-query-chips">
+        <button class="recall-chip active" data-q="q1">
+          <span class="chip-q">"What does Sam think about TypeScript?"</span>
+          <span class="chip-hint">Vector-only win — the word "TypeScript" never appears in memory</span>
         </button>
-
-        <button class="query" data-q="q2">
-          <span class="q-text">"Who does Sam report to?"</span>
-          <span class="q-hint">
-            Baseline test. Both keyword search and semantic search
-            agree — the answer is unambiguous.
-          </span>
+        <button class="recall-chip" data-q="q2">
+          <span class="chip-q">"Who does Sam report to?"</span>
+          <span class="chip-hint">Baseline — keyword + semantic both find it</span>
         </button>
-
-        <button class="query" data-q="q3">
-          <span class="q-text">"What slowed down the research pipeline recently?"</span>
-          <span class="q-hint">
-            Hybrid wins here. FTS finds "pipeline"; vector pulls
-            "latency regression". Neither alone gets the full picture.
-          </span>
+        <button class="recall-chip" data-q="q3">
+          <span class="chip-q">"What slowed down the research pipeline recently?"</span>
+          <span class="chip-hint">Hybrid wins — FTS + vector each find half the answer</span>
         </button>
-      </aside>
+      </div>
 
-      <div class="diagram-col">
-        <div class="diagram-label">
-          How a query flows through mem9's unified search engine
+      <div class="sql-cards-row" id="sql-cards">
+        <div class="sql-card sql-vector">
+          <div class="sql-card-head">
+            <span class="sql-badge sql-badge-v">VECTOR</span>
+            <span class="sql-card-desc">Semantic similarity</span>
+          </div>
+          <pre class="sql-block" id="sql-block-vector"><span class="sql-placeholder">Click a question to run all three →</span></pre>
+          <div class="sql-meta">
+            <span class="sql-meta-time" id="sql-time-vector">—</span>
+            <span class="sql-meta-rows" id="sql-rows-vector">—</span>
+          </div>
         </div>
-        <div class="diagram-wrap">
-          <object id="architecture-svg" type="image/svg+xml"
-                  data="/static/diagrams/architecture.svg"
-                  aria-label="mem9 unified engine architecture diagram"></object>
+
+        <div class="sql-card sql-fts">
+          <div class="sql-card-head">
+            <span class="sql-badge sql-badge-f">FULL-TEXT</span>
+            <span class="sql-card-desc">Exact keyword (BM25)</span>
+          </div>
+          <pre class="sql-block" id="sql-block-fts"><span class="sql-placeholder">Click a question to run all three →</span></pre>
+          <div class="sql-meta">
+            <span class="sql-meta-time" id="sql-time-fts">—</span>
+            <span class="sql-meta-rows" id="sql-rows-fts">—</span>
+          </div>
         </div>
-        <div class="diagram-legend">
-          <span class="legend-dot vector"></span> Vector (semantic meaning) &nbsp;
-          <span class="legend-dot fts"></span> Full-text (exact keywords) &nbsp;
-          <span class="legend-dot hybrid"></span> Hybrid (mem9 blends both)
+
+        <div class="sql-card sql-hybrid">
+          <div class="sql-card-head">
+            <span class="sql-badge sql-badge-h">HYBRID</span>
+            <span class="sql-card-desc">Vector + FTS blended</span>
+          </div>
+          <pre class="sql-block" id="sql-block-hybrid"><span class="sql-placeholder">Click a question to run all three →</span></pre>
+          <div class="sql-meta">
+            <span class="sql-meta-time" id="sql-time-hybrid">—</span>
+            <span class="sql-meta-rows" id="sql-rows-hybrid">—</span>
+          </div>
         </div>
+      </div>
+
+      <div class="sql-caption">
+        The SQL above is what TiDB runs under mem9's hybrid retrieval API.
+        <code>VEC_COSINE_DISTANCE()</code> and <code>fts_match_score()</code>
+        are SQL functions — no separate vector service, no separate search index.
       </div>
 
       <section class="results" id="results" aria-live="polite">
         <p class="results-placeholder">
-          ← Click any question to run it against the agent's memory store.
+          ↑ Click any question above to run all three queries against this agent's memory.
         </p>
       </section>
 
@@ -178,7 +178,7 @@
         <div class="outcome-divider"></div>
         <div class="outcome-item">
           <span class="outcome-icon">⚡</span>
-          <span class="outcome-text">Three search engines, one SQL query, one ranked result — no orchestration layer required</span>
+          <span class="outcome-text">Three search engines, one SQL query each, one ranked result — no orchestration layer required</span>
         </div>
       </div>
 
@@ -866,24 +866,40 @@
         <div class="scale-ref">Kimi: AI agents on TiDB</div>
       </div>
     </section>
-  </main>
 
-  <!-- ── Closing CTA strip ── -->
-  <footer class="closing-strip">
-    <div class="closing-tagline">Stop prompting. Start maintaining.</div>
-    <div class="closing-sub">
-      Memory is not a feature you bolt on. It is infrastructure you maintain —
-      write, dedup, reconcile, decay, compact. TiDB runs all five duties in one cluster,
-      from one agent to ten million, with ACID guarantees at every step.
+    <!-- ── Agent context strip (bottom — for the curious) ── -->
+    <div class="stat-strip stat-strip-bottom">
+
+      <div class="stat-card">
+        <div class="stat-label">This agent's ID</div>
+        <div class="stat-value" id="tenant-value">loading…</div>
+        <div class="stat-caption">
+          Every agent gets a unique tenant. One TiDB Cloud Zero database,
+          isolated from all others.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Memories stored</div>
+        <div class="stat-value" id="memories-value">—</div>
+        <div class="stat-caption">
+          50 facts, events, and preferences about a fictional engineer —
+          all in one TiDB table with vector + full-text indexes.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Database provisioned in</div>
+        <div class="stat-value" id="provision-value">—</div>
+        <div class="stat-caption">
+          TiDB Cloud Zero auto-created this database from cold.
+          No pre-warming. No shared pool. Just instant isolation.
+        </div>
+      </div>
+
     </div>
-    <div class="closing-summary">
-      TiDB = Unified Data Foundation for the AI Era
-    </div>
-    <div class="closing-cta-row">
-      <a class="closing-cta-primary" href="https://mem9.ai" target="_blank" rel="noopener">Try mem9 free</a>
-      <a class="closing-cta-secondary" href="https://docs.pingcap.com/ai" target="_blank" rel="noopener">TiDB AI docs</a>
-    </div>
-  </footer>
+
+  </main>
 
   <script src="/static/vendor/anime.min.js"></script>
   <script src="/static/app.js" defer></script>

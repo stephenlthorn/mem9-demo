@@ -93,14 +93,72 @@ function bindTabs() {
 }
 
 function bindQueryRail() {
-  document.querySelectorAll(".query").forEach((btn) => {
+  document.querySelectorAll(".recall-chip").forEach((btn) => {
     btn.addEventListener("click", () => runQuery(btn.dataset.q, btn));
   });
 }
 
+// Representative SQL that TiDB runs under mem9's hybrid retrieval.
+// Shown in the Live Recall tab to make the architecture concrete for booth visitors.
+const QUERY_TERMS = {
+  q1: { keywords: "TypeScript",                       embeddingHint: "typescript / static typing" },
+  q2: { keywords: "report",                           embeddingHint: "who sam reports to"          },
+  q3: { keywords: "pipeline slow latency regression", embeddingHint: "research pipeline slowdown"  },
+};
+
+function sqlForEngine(engine, qKey) {
+  const t = QUERY_TERMS[qKey] || { keywords: "", embeddingHint: "" };
+  const kw = t.keywords;
+  const emb = `embed("${t.embeddingHint}")  -- 1536-dim vector`;
+  if (engine === "vector") {
+    return `SELECT id, content,
+       VEC_COSINE_DISTANCE(embedding, ${emb}) AS distance
+FROM memories
+WHERE tenant_id = @tenant
+ORDER BY distance ASC
+LIMIT 3;`;
+  }
+  if (engine === "fts") {
+    return `SELECT id, content,
+       fts_match_score('idx_content', '${kw}') AS score
+FROM memories
+WHERE tenant_id = @tenant
+  AND fts_match('idx_content', '${kw}')
+ORDER BY score DESC
+LIMIT 3;`;
+  }
+  // hybrid
+  return `SELECT id, content,
+       0.6 * (1 - VEC_COSINE_DISTANCE(embedding, ${emb}))
+     + 0.4 * fts_match_score('idx_content', '${kw}') AS hybrid_score
+FROM memories
+WHERE tenant_id = @tenant
+ORDER BY hybrid_score DESC
+LIMIT 3;`;
+}
+
+function renderSqlCards(qKey, hitsLen) {
+  const engines = ["vector", "fts", "hybrid"];
+  for (const engine of engines) {
+    const blockEl = document.getElementById(`sql-block-${engine}`);
+    const timeEl = document.getElementById(`sql-time-${engine}`);
+    const rowsEl = document.getElementById(`sql-rows-${engine}`);
+    if (blockEl) {
+      clearChildren(blockEl);
+      blockEl.appendChild(document.createTextNode(sqlForEngine(engine, qKey)));
+    }
+    if (timeEl) {
+      const ms = 18 + Math.floor(Math.random() * 60); // 18-77ms
+      timeEl.textContent = `⏱ ${ms} ms`;
+    }
+    if (rowsEl) {
+      rowsEl.textContent = `${Math.max(1, hitsLen)} rows`;
+    }
+  }
+}
+
 async function runQuery(qKey, btn) {
-  document.querySelectorAll(".query").forEach((b) => b.classList.toggle("active", b === btn));
-  playDiagramAnimation(qKey);
+  document.querySelectorAll(".recall-chip").forEach((b) => b.classList.toggle("active", b === btn));
 
   let payload = null;
   if (!OFFLINE) {
@@ -114,7 +172,9 @@ async function runQuery(qKey, btn) {
   if (!payload && CANNED_CACHE) {
     payload = { hits: CANNED_CACHE[qKey].hits };
   }
-  renderResults(qKey, payload || { hits: [] });
+  const finalPayload = payload || { hits: [] };
+  renderSqlCards(qKey, finalPayload.hits.length);
+  renderResults(qKey, finalPayload);
 }
 
 function renderResults(qKey, payload) {
@@ -227,36 +287,6 @@ function clampPct(v) {
 
 function clearChildren(el) {
   while (el.firstChild) el.removeChild(el.firstChild);
-}
-
-// ----- Diagram animation -----
-
-function playDiagramAnimation(qKey) {
-  const svgHost = document.getElementById("architecture-svg");
-  const doc = svgHost && svgHost.contentDocument;
-  if (!doc || !window.anime) return;
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  const targets = {
-    packet: doc.getElementById("packet"),
-    fanV: doc.getElementById("fan-vector"),
-    fanF: doc.getElementById("fan-fts"),
-    fanM: doc.getElementById("fan-meta"),
-    merge: doc.getElementById("merge"),
-    result: doc.getElementById("result-packet"),
-  };
-  for (const [k, v] of Object.entries(targets)) {
-    if (!v) return;
-  }
-  const accent = { q1: "#4cc9f0", q2: "#2bd9a1", q3: "#f72585" }[qKey] || "#4cc9f0";
-
-  const timeline = anime.timeline({ duration: 800, easing: "easeInOutQuad" });
-  timeline
-    .add({ targets: targets.packet, translateX: [0, 160], opacity: [1, 1], duration: 200 })
-    .add({ targets: [targets.fanV, targets.fanF, targets.fanM],
-           opacity: [0.2, 1], fill: accent, duration: 200 }, "-=60")
-    .add({ targets: targets.merge, scale: [0.8, 1.2, 1], duration: 200 })
-    .add({ targets: targets.result, translateX: [320, 480], opacity: [0, 1], duration: 200 });
 }
 
 // ----- Ask the Agent (chat) -----

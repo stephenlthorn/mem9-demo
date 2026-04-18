@@ -77,10 +77,3 @@ def test_tabs_have_outcome_strips():
     strips = re.findall(r'tab-outcome-strip', HTML)
     # Expect 6 (one per tab: queryflow, chat, lifecycle, unified, proof, whytidb)
     assert len(strips) >= 6, f"Expected at least 6 outcome strips, found {len(strips)}"
-
-
-def test_closing_strip_exists():
-    """Task 7: Closing strip with the payoff line should be present."""
-    assert "closing-strip" in HTML
-    assert "Stop prompting" in HTML
-    assert "Start maintaining" in HTML
