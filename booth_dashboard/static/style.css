@@ -1451,7 +1451,7 @@ html, body {
 }
 .closing-cta-primary {
   background: var(--ok);
-  color: #0b1220;
+  color: var(--bg);
   text-decoration: none;
   padding: 12px 28px;
   border-radius: 8px;
