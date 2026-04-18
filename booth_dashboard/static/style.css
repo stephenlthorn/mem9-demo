@@ -72,14 +72,6 @@ html, body {
   line-height: 1.6;
 }
 .hook-body strong { color: var(--fg); }
-.hero-sub {
-  color: var(--muted);
-  font-size: 14px;
-  max-width: 780px;
-  line-height: 1.6;
-}
-.hero-sub strong { color: var(--fg); }
-
 /* ── Customer proof strip ── */
 .customer-proof-strip {
   background: var(--panel);
