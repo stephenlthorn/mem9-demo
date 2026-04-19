@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>mem9 · Persistent Agent Memory on TiDB Cloud Zero</title>
+  <title>TiDB — Unified Data Foundation for the AI Era</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
@@ -82,19 +82,16 @@
 
   <!-- ── Tab bar ── -->
   <nav class="tabs">
-    <button class="tab active" data-tab="queryflow">🔍 Live Recall</button>
-    <button class="tab" data-tab="chat">💬 Ask the Agent</button>
-    <button class="tab" data-tab="lifecycle">🧠 5 Memory Duties</button>
-    <button class="tab" data-tab="unified">🏛️ One Cluster</button>
-    <button class="tab" data-tab="proof">🔬 Cross-Session Proof</button>
-    <button class="tab" data-tab="whytidb">⚡ Why TiDB</button>
-    <button class="tab" data-tab="fleet">🌐 Scale: 10M Agents</button>
+    <button class="tab active" data-tab="demo">💬 Demo</button>
+    <button class="tab" data-tab="how">🏛️ How It Works</button>
+    <button class="tab" data-tab="who">🌐 Who Uses It</button>
+    <button class="tab" data-tab="deepdive">📚 Deep Dive</button>
   </nav>
 
   <main class="stage">
 
-    <!-- ── Tab 1: Live Recall ── -->
-    <section class="tab-panel active" data-tab-panel="queryflow">
+    <!-- ── Deep Dive: Live Recall (SQL cards for engineers) ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
 
       <div class="panel-hero">
         <div class="panel-title">One TiDB cluster. Three search engines. One SQL query each.</div>
@@ -184,8 +181,8 @@
 
     </section>
 
-    <!-- ── Tab: Ask the Agent (chat with MiniMax + mem9) ── -->
-    <section class="tab-panel" data-tab-panel="chat">
+    <!-- ── Demo: Ask the Agent (chat with MiniMax + mem9) ── -->
+    <section class="tab-panel active" data-tab-panel="demo">
       <div class="panel-hero">
         <div class="panel-title">Ask the agent anything</div>
         <div class="panel-sub">
@@ -217,10 +214,11 @@
               class="chat-input"
               id="chat-input"
               type="text"
+              value="Who does Sam report to at Lumos AI and how often does he sync with his skip-level?"
               placeholder="Ask the agent a question…"
               aria-label="Chat message"
             />
-            <button class="chat-send" type="submit" id="chat-send">Send</button>
+            <button class="chat-send" type="submit" id="chat-send">▶ Run demo</button>
           </form>
 
           <div class="chat-mode-strip" id="chat-mode-strip" hidden>
@@ -257,8 +255,8 @@
       </div>
     </section>
 
-    <!-- ── Tab 2: 5 Memory Duties ── -->
-    <section class="tab-panel" data-tab-panel="lifecycle">
+    <!-- ── Deep Dive: 5 Memory Duties ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
       <div class="panel-hero">
         <div class="panel-title">Memory isn't stored. It's maintained.</div>
         <div class="panel-sub">
@@ -416,8 +414,8 @@
 
     </section>
 
-    <!-- ── Tab 3: One Cluster (Before / After) ── -->
-    <section class="tab-panel" data-tab-panel="unified">
+    <!-- ── How It Works: One Cluster (Before / After) ── -->
+    <section class="tab-panel" data-tab-panel="how">
       <div class="panel-hero">
         <div class="panel-title">One cluster. One consistency model.</div>
         <div class="panel-sub">
@@ -491,8 +489,8 @@
       </div>
     </section>
 
-    <!-- ── Tab 4: Cross-Session Proof ── -->
-    <section class="tab-panel" data-tab-panel="proof">
+    <!-- ── Deep Dive: Cross-Session Proof ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
       <div class="panel-hero">
         <div class="panel-title">An agent that learns across sessions</div>
         <div class="panel-sub">
@@ -569,8 +567,8 @@
       </div>
     </section>
 
-    <!-- ── Tab: Why TiDB ── -->
-    <section class="tab-panel" data-tab-panel="whytidb">
+    <!-- ── Deep Dive: Why TiDB ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
       <div class="panel-hero">
         <div class="panel-title">TiDB for AI — built for all five memory duties</div>
         <div class="panel-sub">
@@ -745,8 +743,8 @@
       </div>
     </section>
 
-    <!-- ── Tab: Scale ── -->
-    <section class="tab-panel" data-tab-panel="fleet">
+    <!-- ── Who Uses It: Scale ── -->
+    <section class="tab-panel" data-tab-panel="who">
       <div class="panel-hero">
         <div class="panel-title">One cluster. Unlimited agents.</div>
         <div class="panel-sub">
