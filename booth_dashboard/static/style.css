@@ -1317,7 +1317,7 @@ html, body {
   border-top: 4px solid var(--accent);
 }
 .manus-tile     { border-top-color: var(--ok);         }
-.pinterest-tile { border-top-color: var(--accent);     }
+.kimi-tile      { border-top-color: var(--accent);     }
 .dify-tile      { border-top-color: var(--sql-vector); }
 .spt-customer {
   font-size: 12px;
@@ -1335,7 +1335,7 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 .manus-tile     .spt-stat { color: var(--ok);         }
-.pinterest-tile .spt-stat { color: var(--accent);     }
+.kimi-tile      .spt-stat { color: var(--accent);     }
 .dify-tile      .spt-stat { color: var(--sql-vector); }
 .spt-unit {
   font-size: 14px;
