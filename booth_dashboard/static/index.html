@@ -710,6 +710,7 @@
     <button class="tab" data-tab="chat"><span class="num">03</span>Agent</button>
     <button class="tab" data-tab="scale"><span class="num">04</span>Scale</button>
     <button class="tab" data-tab="tidbai"><span class="num">05</span>TiDB for AI</button>
+    <button class="tab" data-tab="arch"><span class="num">06</span>Architecture</button>
   </nav>
 
   <!-- ─── TAB 01: QUERY ───────────────────────────────────── -->
@@ -1179,6 +1180,208 @@
         <div class="tl">Flipkart</div>
         <div class="tl">Uber</div>
       </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB 06: ARCHITECTURE ─────────────────────────────── -->
+  <section class="panel" data-panel="arch">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">06 · architecture</div>
+        <h2 class="panel-title">One cluster. Two engines. <em>Four jobs.</em></h2>
+        <div class="panel-sub">Every AI workload — agent state, analytics, vector retrieval, and full-text search — served from a single TiDB cluster. No sync glue. No ETL. One consistency model.</div>
+      </div>
+      <div class="panel-num">06</div>
+    </div>
+
+    <style>
+      /* ── Architecture diagram ─────────────────────────────── */
+      .arch-diagram{display:flex;flex-direction:column;gap:0;width:100%;max-width:900px;margin:0 auto}
+
+      /* workload row */
+      .arch-workloads{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:0}
+      .arch-workload{
+        border:1px solid var(--line-2);border-bottom:none;
+        background:var(--bg-1);
+        padding:16px 14px 12px;
+        position:relative;
+      }
+      .arch-workload::after{
+        content:"↓";position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+        color:var(--ink-mute);font-size:13px;z-index:2;
+      }
+      .arch-wl-tag{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+      .arch-wl-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:4px}
+      .arch-wl-desc{font-size:11px;color:var(--ink-mute);line-height:1.4}
+
+      /* connector bar */
+      .arch-connector{
+        height:22px;
+        background:linear-gradient(to bottom, var(--bg-1) 0%, var(--bg-2) 100%);
+        border-left:1px solid var(--line-2);border-right:1px solid var(--line-2);
+        display:flex;align-items:center;justify-content:center;
+        position:relative;
+      }
+      .arch-connector-line{
+        width:calc(100% - 40px);height:1px;background:var(--line-2);
+        position:relative;
+      }
+
+      /* SQL compute layer */
+      .arch-compute{
+        border:1px solid var(--accent);
+        background:color-mix(in srgb, var(--accent) 6%, var(--bg-1));
+        padding:18px 20px;
+        display:flex;align-items:center;gap:20px;
+      }
+      .arch-compute-badge{
+        font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+        color:var(--accent);border:1px solid var(--accent);padding:3px 8px;white-space:nowrap;flex-shrink:0;
+      }
+      .arch-compute-name{font-size:17px;font-weight:700;color:var(--ink)}
+      .arch-compute-desc{font-size:12px;color:var(--ink-dim);margin-top:2px}
+
+      /* storage engines row */
+      .arch-engines{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+      .arch-engine{
+        border:1px solid var(--line-2);background:var(--bg-1);
+        padding:18px 20px;
+      }
+      .arch-engine-header{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+      .arch-engine-name{font-size:16px;font-weight:700;color:var(--ink)}
+      .arch-engine-role{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute)}
+      .arch-engine-desc{font-size:12px;color:var(--ink-dim);line-height:1.5;margin-bottom:12px}
+      .arch-engine-bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+      .arch-engine-bullets li{font-size:11px;color:var(--ink-mute);font-family:var(--mono);display:flex;align-items:flex-start;gap:6px}
+      .arch-engine-bullets li::before{content:"·";color:var(--accent);flex-shrink:0}
+      .arch-engine-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+      .arch-engine-tag{
+        font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+        padding:3px 7px;border:1px solid var(--line-2);color:var(--ink-mute);
+      }
+      .arch-engine-tag.tikv-oltp{border-color:var(--accent);color:var(--accent)}
+      .arch-engine-tag.tf-analytics{border-color:var(--accent-2);color:var(--accent-2)}
+      .arch-engine-tag.tf-vector{border-color:var(--hybrid);color:var(--hybrid)}
+      .arch-engine-tag.tf-fts{border-color:var(--accent-3);color:var(--accent-3)}
+
+      /* S3 layer */
+      .arch-s3{
+        border:1px dashed var(--line-2);border-top:none;
+        background:var(--bg);
+        padding:14px 20px;
+        display:flex;align-items:center;gap:16px;
+      }
+      .arch-s3-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute)}
+      .arch-s3-name{font-size:13px;font-weight:600;color:var(--ink-dim)}
+      .arch-s3-desc{font-size:11px;color:var(--ink-mute);margin-left:auto;font-family:var(--mono)}
+
+      /* proof row */
+      .arch-proof{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:32px}
+      .arch-proof-cell{background:var(--bg-1);padding:16px 18px}
+      .arch-proof-co{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:4px}
+      .arch-proof-stat{font-size:22px;font-weight:700;color:var(--accent);line-height:1}
+      .arch-proof-label{font-size:11px;color:var(--ink-dim);margin-top:4px}
+    </style>
+
+    <div class="arch-diagram">
+
+      <!-- ── 4 workloads ───────────────────────────────────── -->
+      <div class="arch-workloads">
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Agent State</div>
+          <div class="arch-wl-name">Inference job metadata &amp; control plane</div>
+          <div class="arch-wl-desc">Durable ACID writes. Each agent's session, task queue, and tool call history.</div>
+        </div>
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Analytics</div>
+          <div class="arch-wl-name">Live analytics on inference data</div>
+          <div class="arch-wl-desc">HTAP — same rows, columnar engine (TiFlash). No ETL, no lag.</div>
+        </div>
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Retrieval</div>
+          <div class="arch-wl-name">RAG without a separate vector DB</div>
+          <div class="arch-wl-desc">HNSW vector indexes inside TiDB. <code>VEC_COSINE_DISTANCE()</code> is a SQL function.</div>
+        </div>
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Full-Text</div>
+          <div class="arch-wl-name">Keyword · BM25</div>
+          <div class="arch-wl-desc">Built-in BM25 via tantivy. No Elasticsearch sidecar required.</div>
+        </div>
+      </div>
+
+      <!-- ── SQL compute ───────────────────────────────────── -->
+      <div class="arch-connector"><div class="arch-connector-line"></div></div>
+      <div class="arch-compute">
+        <div class="arch-compute-badge">Compute</div>
+        <div>
+          <div class="arch-compute-name">TiDB Server — Stateless SQL Compute</div>
+          <div class="arch-compute-desc">Stateless · horizontally scalable · parses, plans, and routes all four workloads · MySQL-compatible wire protocol</div>
+        </div>
+      </div>
+      <div class="arch-connector"><div class="arch-connector-line"></div></div>
+
+      <!-- ── Storage engines ──────────────────────────────── -->
+      <div class="arch-engines">
+        <div class="arch-engine">
+          <div class="arch-engine-header">
+            <div class="arch-engine-name">TiKV</div>
+            <div class="arch-engine-role">Transactional truth</div>
+          </div>
+          <div class="arch-engine-desc">Raft-replicated KV store built on RocksDB. Source of truth for every write. Distributed ACID via Percolator 2PC.</div>
+          <ul class="arch-engine-bullets">
+            <li>Raft-replicated Regions (~256 MB each)</li>
+            <li>Source of truth for all writes</li>
+            <li>Percolator-style distributed 2PC</li>
+          </ul>
+          <div class="arch-engine-tags">
+            <span class="arch-engine-tag tikv-oltp">OLTP</span>
+          </div>
+        </div>
+        <div class="arch-engine">
+          <div class="arch-engine-header">
+            <div class="arch-engine-name">TiFlash</div>
+            <div class="arch-engine-role">Analytics · Vector · FTS</div>
+          </div>
+          <div class="arch-engine-desc">Columnar extension of TiKV. Same data, three extra indexes. Query optimizer chooses row vs columnar automatically.</div>
+          <ul class="arch-engine-bullets">
+            <li>Async columnar replicas from TiKV</li>
+            <li>HNSW approximate nearest-neighbor vector indexes</li>
+            <li>BM25 full-text indexes via tantivy (TiCI)</li>
+          </ul>
+          <div class="arch-engine-tags">
+            <span class="arch-engine-tag tf-analytics">Analytics</span>
+            <span class="arch-engine-tag tf-vector">Vector</span>
+            <span class="arch-engine-tag tf-fts">Full-text</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── S3 ─────────────────────────────────────────────── -->
+      <div class="arch-s3">
+        <div class="arch-s3-label">Storage</div>
+        <div class="arch-s3-name">Object Storage (S3) — source of truth</div>
+        <div class="arch-s3-desc">TiDB X architecture · compute–storage decoupled · 5–10× faster scaling</div>
+      </div>
+
+      <!-- ── Customer proof ────────────────────────────────── -->
+      <div class="arch-proof">
+        <div class="arch-proof-cell">
+          <div class="arch-proof-co">Manus</div>
+          <div class="arch-proof-stat">10M+</div>
+          <div class="arch-proof-label">agent databases · one cluster · 80% cost reduction</div>
+        </div>
+        <div class="arch-proof-cell">
+          <div class="arch-proof-co">Databricks</div>
+          <div class="arch-proof-stat">10×</div>
+          <div class="arch-proof-label">QPS improvement · 60% TCO reduction vs MySQL</div>
+        </div>
+        <div class="arch-proof-cell">
+          <div class="arch-proof-co">Atlassian</div>
+          <div class="arch-proof-stat">3M+</div>
+          <div class="arch-proof-label">tables · 750 Postgres clusters → 16 TiDB clusters</div>
+        </div>
+      </div>
+
     </div>
   </section>
 
