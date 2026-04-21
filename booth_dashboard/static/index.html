@@ -1,889 +1,2593 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TiDB — Unified Data Foundation for the AI Era</title>
-  <link rel="stylesheet" href="/static/style.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>mem9 · TiDB Cloud Zero — booth dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:         #0b0d10;
+    --bg-1:       #0f1216;
+    --bg-2:       #141820;
+    --line:       #1f2530;
+    --line-2:     #2a3140;
+    --ink:        #e7ebf0;
+    --ink-dim:    #9aa3b2;
+    --ink-mute:   #5c6574;
+    --accent:     oklch(62% 0.22 25);     /* TiDB red */
+    --accent-2:   oklch(72% 0.14 250);    /* TiDB blue */
+    --accent-3:   oklch(80% 0.14 85);     /* amber */
+    --vector:     oklch(62% 0.22 25);     /* red-primary */
+    --fts:        oklch(72% 0.14 250);    /* blue */
+    --hybrid:     oklch(76% 0.17 310);    /* violet */
+    --danger:     oklch(62% 0.22 25);
+    --ok:         oklch(62% 0.22 25);     /* TiDB red (replaces green) */
+    --tidb-red:   oklch(62% 0.22 25);
+    --tidb-red-bright: oklch(70% 0.24 25);
+    --radius:     2px;
+    --mono:       "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --sans:       "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --serif:      "Instrument Serif", "Times New Roman", serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(220,38,38,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(100,120,255,0.05), transparent 60%),
+      var(--bg);
+    min-height:100vh;
+    padding:28px 32px 56px;
+  }
+  a{color:inherit}
+
+  /* ── grain ────────────────────────────────────────────── */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.035 0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+    mix-blend-mode:overlay;
+    opacity:.35;
+  }
+
+  /* ── top bar ───────────────────────────────────────────── */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:22px; border-bottom:1px solid var(--line);
+    position:relative; z-index:2;
+  }
+  .brand{display:flex; align-items:baseline; gap:14px}
+  .mark{
+    width:28px; height:28px; position:relative;
+    display:inline-flex; align-items:center; justify-content:center;
+    border:1px solid var(--accent); color:var(--accent);
+    font-family:var(--mono); font-size:13px; font-weight:600;
+    letter-spacing:.02em;
+  }
+  .mark::after{
+    content:""; position:absolute; inset:-4px; border:1px solid var(--line-2);
+  }
+  .brand-name{font-family:var(--mono); font-size:12px; letter-spacing:.18em; color:var(--ink-dim); text-transform:uppercase}
+  .brand-sep{color:var(--ink-mute)}
+  .brand-sub{font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--ink-mute)}
+
+  .top-stats{display:flex; gap:18px}
+  .top-stat{
+    display:flex; flex-direction:column; gap:2px;
+    padding:2px 14px; border-left:1px solid var(--line);
+  }
+  .top-stat:first-child{border-left:none; padding-left:0}
+  .ts-k{font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--ink-mute); text-transform:uppercase}
+  .ts-v{font-family:var(--mono); font-size:13px; color:var(--ink); letter-spacing:.02em}
+  .ts-v .dim{color:var(--ink-dim)}
+  .ts-pulse{
+    display:inline-block; width:7px; height:7px; border-radius:50%;
+    background:var(--tidb-red); box-shadow:0 0 0 0 var(--tidb-red);
+    margin-right:6px; vertical-align:middle;
+    animation:pulse 2.4s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(220,38,38,.55)}
+    70%{box-shadow:0 0 0 7px rgba(220,38,38,0)}
+    100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}
+  }
+
+  /* ── hero ───────────────────────────────────────────────── */
+  .hero{
+    padding:64px 0 48px;
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:56px;
+    align-items:end;
+    position:relative; z-index:2;
+  }
+  .hero-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em;
+    color:var(--accent); text-transform:uppercase; margin-bottom:20px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .hero-eyebrow::before{
+    content:""; width:32px; height:1px; background:var(--accent);
+  }
+  .hero h1{
+    font-family:var(--serif); font-weight:400; font-style:normal;
+    font-size:clamp(52px, 6.4vw, 96px); line-height:.96;
+    letter-spacing:-0.02em; margin:0;
+    color:var(--ink);
+  }
+  .hero h1 em{font-style:italic; color:var(--accent); font-weight:400}
+  .hero h1 .amp{font-style:italic; color:var(--ink-mute); font-weight:400}
+  .hero-lede{
+    max-width:520px;
+    font-size:16px; line-height:1.6; color:var(--ink-dim);
+    border-left:1px solid var(--line-2); padding-left:20px;
+  }
+  .hero-lede strong{color:var(--ink); font-weight:500}
+  .hero-lede .tag{
+    display:inline-block; font-family:var(--mono); font-size:11px;
+    letter-spacing:.12em; color:var(--accent);
+    border:1px solid var(--line-2); padding:2px 8px; margin-bottom:12px;
+  }
+
+  /* ── proof bar ───────────────────────────────────────── */
+  .proof-bar{
+    display:flex; gap:0; flex-wrap:wrap; margin-top:40px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    position:relative; z-index:2;
+  }
+  .proof-cell{
+    flex:1 1 180px; padding:14px 22px 14px 0;
+    border-right:1px solid var(--line);
+    display:flex; flex-direction:column; gap:2px; min-width:160px;
+  }
+  .proof-cell:last-child{border-right:none}
+  .proof-name{font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase}
+  .proof-stat{font-family:var(--mono); font-size:14px; color:var(--ink)}
+  .proof-stat .hl{color:var(--accent)}
+
+  /* ── tabs ─────────────────────────────────────────────── */
+  .tabs{
+    display:flex; gap:0; margin-top:44px; border-bottom:1px solid var(--line);
+    position:relative; z-index:2;
+  }
+  .tab{
+    background:transparent; border:none; color:var(--ink-mute);
+    font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+    padding:14px 24px; cursor:pointer; position:relative;
+    border-right:1px solid var(--line);
+    transition:color .2s;
+  }
+  .tab:first-child{padding-left:0}
+  .tab:hover{color:var(--ink-dim)}
+  .tab.active{color:var(--ink)}
+  .tab.active::after{
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:1px;
+    background:var(--accent);
+  }
+  .tab .num{color:var(--ink-mute); margin-right:10px; font-size:10px}
+  .tab.active .num{color:var(--accent)}
+
+  /* ── panels ───────────────────────────────────────────── */
+  .panel{display:none; padding:40px 0 0; position:relative; z-index:2}
+  .panel.active{display:block}
+  .panel-head{display:grid; grid-template-columns:1fr auto; gap:24px; align-items:start; margin-bottom:32px}
+  .panel-kicker{font-family:var(--mono); font-size:11px; letter-spacing:.22em; color:var(--ink-mute); text-transform:uppercase; margin-bottom:8px}
+  .panel-title{
+    font-family:var(--serif); font-size:44px; line-height:1; letter-spacing:-0.01em;
+    margin:0 0 12px; color:var(--ink);
+  }
+  .panel-title em{font-style:italic; color:var(--accent)}
+  .panel-sub{max-width:640px; color:var(--ink-dim); font-size:15px}
+
+  .panel-idx{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    color:var(--ink-mute); text-align:right; text-transform:uppercase;
+    padding-top:6px;
+  }
+  .panel-idx b{color:var(--ink); font-weight:500; display:block; font-size:28px; letter-spacing:-0.02em}
+
+  /* ── utility blocks ─────────────────────────────────────── */
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.015), transparent), var(--bg-1);
+    border:1px solid var(--line);
+  }
+  .card-hd{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 16px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    color:var(--ink-mute); text-transform:uppercase;
+  }
+  .card-hd .t{color:var(--ink)}
+  .card-body{padding:18px}
+
+  .mono{font-family:var(--mono)}
+  .dim{color:var(--ink-dim)}
+  .mute{color:var(--ink-mute)}
+  .hl{color:var(--accent)}
+
+  /* ───────────────────────────────────────────────────────── */
+  /*  TAB: QUERY EXPLORER                                      */
+  /* ───────────────────────────────────────────────────────── */
+  .query-grid{
+    display:grid; grid-template-columns: 360px 1fr; gap:0;
+    border:1px solid var(--line); background:var(--bg-1);
+  }
+  .q-sidebar{
+    border-right:1px solid var(--line); padding:22px;
+    display:flex; flex-direction:column; gap:18px;
+  }
+  .q-label{font-family:var(--mono); font-size:11px; letter-spacing:.18em; color:var(--ink-mute); text-transform:uppercase}
+  .q-chips{display:flex; flex-direction:column; gap:8px}
+  .q-chip{
+    background:transparent; border:1px solid var(--line); color:var(--ink-dim);
+    text-align:left; padding:14px 14px; cursor:pointer; font-family:var(--sans); font-size:14px;
+    line-height:1.4; transition:all .18s; position:relative; display:block; width:100%;
+  }
+  .q-chip .q-ix{
+    font-family:var(--mono); font-size:10px; color:var(--ink-mute);
+    letter-spacing:.16em; display:block; margin-bottom:6px;
+  }
+  .q-chip .q-txt{color:var(--ink-dim)}
+  .q-chip .q-hint{
+    display:block; margin-top:8px; font-family:var(--mono); font-size:11px;
+    color:var(--ink-mute); letter-spacing:.02em;
+  }
+  .q-chip:hover{border-color:var(--line-2); color:var(--ink)}
+  .q-chip.active{border-color:var(--accent); background:rgba(56,189,184,.06)}
+  .q-chip.active .q-ix{color:var(--accent)}
+  .q-chip.active .q-txt{color:var(--ink)}
+
+  .q-mode{display:flex; gap:0; border:1px solid var(--line)}
+  .q-mode button{
+    flex:1; background:transparent; border:none; color:var(--ink-mute);
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    padding:10px 6px; cursor:pointer; border-right:1px solid var(--line);
+    transition:all .15s;
+  }
+  .q-mode button:last-child{border-right:none}
+  .q-mode button.active{color:var(--ink); background:var(--bg-2)}
+  .q-mode button.active[data-mode="vector"]{color:var(--vector); box-shadow:inset 0 -2px 0 var(--vector)}
+  .q-mode button.active[data-mode="fts"]{color:var(--fts); box-shadow:inset 0 -2px 0 var(--fts)}
+  .q-mode button.active[data-mode="hybrid"]{color:var(--hybrid); box-shadow:inset 0 -2px 0 var(--hybrid)}
+
+  .q-custom{
+    display:flex; border:1px solid var(--line); background:var(--bg-2);
+  }
+  .q-custom input{
+    flex:1; background:transparent; border:none; outline:none; color:var(--ink);
+    padding:12px 14px; font-family:var(--mono); font-size:13px;
+  }
+  .q-custom input::placeholder{color:var(--ink-mute)}
+  .q-custom button{
+    background:var(--accent); color:#0b0d10; border:none; padding:0 16px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    cursor:pointer; font-weight:600;
+  }
+  .q-custom button:hover{filter:brightness(1.1)}
+
+  .q-main{padding:22px 26px; display:flex; flex-direction:column; gap:24px; min-width:0}
+
+  .q-sql-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px}
+  .q-sql{
+    border:1px solid var(--line); background:var(--bg);
+    display:flex; flex-direction:column;
+  }
+  .q-sql.dim-out{opacity:.28; filter:grayscale(.6)}
+  .q-sql-hd{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px; border-bottom:1px solid var(--line);
+  }
+  .q-badge{
+    font-family:var(--mono); font-size:10px; letter-spacing:.16em;
+    padding:2px 8px; border:1px solid currentColor;
+  }
+  .q-badge.v{color:var(--vector)}
+  .q-badge.f{color:var(--fts)}
+  .q-badge.h{color:var(--hybrid)}
+  .q-sql-meta{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.08em}
+  .q-sql-meta .latency{color:var(--ink-dim)}
+  .q-sql pre{
+    margin:0; padding:14px; font-family:var(--mono); font-size:11.5px;
+    line-height:1.55; color:var(--ink-dim); flex:1; white-space:pre-wrap;
+    overflow-x:auto;
+  }
+  .q-sql pre .kw{color:var(--accent); font-weight:500}
+  .q-sql pre .fn{color:var(--hybrid)}
+  .q-sql pre .str{color:var(--accent-3)}
+  .q-sql pre .num{color:var(--accent-2)}
+  .q-sql pre .cm{color:var(--ink-mute); font-style:italic}
+
+  /* running state */
+  .q-sql.running .q-badge{animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.35}}
+
+  /* results */
+  .q-results{display:flex; flex-direction:column; gap:6px}
+  .q-results-hd{
+    display:flex; align-items:baseline; justify-content:space-between;
+    padding:0 4px 8px; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    color:var(--ink-mute); text-transform:uppercase;
+  }
+  .q-result{
+    display:grid; grid-template-columns: 36px 1fr 280px;
+    gap:18px; align-items:start; padding:14px 4px;
+    border-bottom:1px solid var(--line);
+    transition:all .4s ease;
+  }
+  .q-result.top{background:linear-gradient(90deg, rgba(56,189,184,.04), transparent)}
+  .q-rank{font-family:var(--mono); font-size:11px; color:var(--ink-mute); letter-spacing:.1em; padding-top:2px}
+  .q-result.top .q-rank{color:var(--accent)}
+  .q-body{min-width:0}
+  .q-id{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.14em; text-transform:uppercase; margin-bottom:6px}
+  .q-content{color:var(--ink); font-size:14.5px; line-height:1.5}
+  .q-tags{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap}
+  .q-tag{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.08em; border:1px solid var(--line); padding:1px 6px}
+
+  .q-scores{display:flex; flex-direction:column; gap:6px; padding-top:4px}
+  .q-score-row{display:grid; grid-template-columns:60px 1fr 42px; align-items:center; gap:8px; font-family:var(--mono); font-size:11px}
+  .q-score-label{color:var(--ink-mute); letter-spacing:.1em; font-size:10px}
+  .q-score-label.v{color:var(--vector)}
+  .q-score-label.f{color:var(--fts)}
+  .q-score-label.h{color:var(--hybrid)}
+  .q-score-bar{height:4px; background:var(--bg-2); position:relative; overflow:hidden}
+  .q-score-bar .fill{position:absolute; inset:0; transform-origin:left; width:100%; transform:scaleX(0); transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+  .q-score-bar .fill.v{background:var(--vector)}
+  .q-score-bar .fill.f{background:var(--fts)}
+  .q-score-bar .fill.h{background:var(--hybrid)}
+  .q-score-bar.dim .fill{opacity:.18}
+  .q-score-val{color:var(--ink-dim); font-size:11px; text-align:right}
+
+  .q-insight{
+    padding:14px 16px; border:1px solid var(--line); background:var(--bg-2);
+    display:flex; gap:12px; font-family:var(--mono); font-size:12px; color:var(--ink-dim);
+    letter-spacing:.02em; line-height:1.5;
+  }
+  .q-insight .k{color:var(--accent); text-transform:uppercase; letter-spacing:.16em; font-size:10px; padding:2px 0}
+
+  /* ───────────────────────────────────────────────────────── */
+  /*  TAB: STACK COMPARISON                                    */
+  /* ───────────────────────────────────────────────────────── */
+  .stack-wrap{
+    display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  }
+  .stack-col{
+    border:1px solid var(--line); background:var(--bg-1);
+    min-height:580px;
+    position:relative; display:flex; flex-direction:column;
+  }
+  .stack-col.left{border-color:var(--line)}
+  .stack-col.right{border-color:var(--line-2); box-shadow: 0 0 0 1px rgba(56,189,184,.15) inset}
+
+  .stack-hd{
+    padding:16px 22px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:baseline; gap:20px;
+  }
+  .stack-name{font-family:var(--serif); font-size:26px; letter-spacing:-0.01em}
+  .stack-name em{font-style:italic}
+  .stack-col.left .stack-name em{color:var(--accent-2)}
+  .stack-col.right .stack-name em{color:var(--accent)}
+  .stack-meta{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.16em; text-transform:uppercase}
+
+  .stack-body{flex:1; padding:24px 22px; position:relative}
+
+  /* control row */
+  .stack-control{
+    display:flex; justify-content:space-between; align-items:center;
+    gap:12px; margin-bottom:24px; padding:16px 0;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .stack-control-label{font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase}
+  .stack-actions{display:flex; gap:8px; align-items:center}
+  .stack-btn{
+    background:transparent; color:var(--ink); border:1px solid var(--line-2);
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    padding:9px 14px; cursor:pointer; transition:all .15s;
+  }
+  .stack-btn:hover{border-color:var(--accent); color:var(--accent)}
+  .stack-btn.primary{background:var(--accent); border-color:var(--accent); color:#0b0d10; font-weight:600}
+  .stack-btn.primary:hover{filter:brightness(1.1); color:#0b0d10}
+  .stack-btn:disabled{opacity:.4; cursor:not-allowed}
+
+  .stack-counter{
+    display:flex; gap:16px; font-family:var(--mono); font-size:12px;
+    color:var(--ink-dim); letter-spacing:.04em;
+  }
+  .stack-counter .k{color:var(--ink-mute); font-size:10px; letter-spacing:.16em; text-transform:uppercase; display:block}
+  .stack-counter .v{color:var(--ink); font-size:18px; letter-spacing:-0.01em}
+  .stack-counter .v.bad{color:var(--danger)}
+  .stack-counter .v.good{color:var(--ok)}
+
+  /* agent nodes in each stack */
+  .stack-agent{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px; border:1px dashed var(--line-2); margin-bottom:18px;
+    font-family:var(--mono); font-size:12px; color:var(--ink-dim); letter-spacing:.04em;
+  }
+  .stack-agent .dot{width:6px; height:6px; border-radius:50%; background:var(--ink-mute); display:inline-block; margin-right:8px}
+
+  .stack-services{display:flex; flex-direction:column; gap:10px}
+  .svc{
+    position:relative; padding:14px 16px;
+    border:1px solid var(--line-2); background:var(--bg-2);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    transition:all .3s;
+  }
+  .svc.activated{border-color:var(--accent-2); box-shadow:inset 0 0 0 1px var(--accent-2)}
+  .svc.err{border-color:var(--danger); box-shadow:inset 0 0 0 1px var(--danger)}
+  .svc-name{font-family:var(--mono); font-size:13px; color:var(--ink); letter-spacing:.02em}
+  .svc-sub{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.12em; text-transform:uppercase; margin-top:3px}
+  .svc-state{
+    font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-mute); display:flex; align-items:center; gap:6px;
+  }
+  .svc-state .sd{width:6px; height:6px; border-radius:50%; background:var(--ink-mute)}
+  .svc-state.ok{color:var(--ok)} .svc-state.ok .sd{background:var(--ok)}
+  .svc-state.bad{color:var(--danger)} .svc-state.bad .sd{background:var(--danger); animation:blink 1s infinite}
+  .svc-state.sync{color:var(--accent-3)} .svc-state.sync .sd{background:var(--accent-3); animation:blink .7s infinite}
+
+  /* sync connectors between stack frankenstack services */
+  .svc-conn{
+    height:18px; position:relative; margin-left:30px;
+  }
+  .svc-conn::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:1px; background:var(--line);
+  }
+  .svc-conn.live::before{background:var(--accent-2); box-shadow:0 0 6px var(--accent-2)}
+  .svc-conn .lbl{
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.12em; text-transform:uppercase;
+  }
+  .svc-conn.live .lbl{color:var(--accent-2)}
+
+  /* unified tidb */
+  .tidb-unit{
+    border:1px solid var(--accent); background:linear-gradient(180deg, rgba(56,189,184,.06), transparent);
+    padding:0; margin-top:10px;
+  }
+  .tidb-unit-hd{
+    padding:12px 16px; border-bottom:1px solid rgba(56,189,184,.25);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent);
+  }
+  .tidb-planes{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line)}
+  .plane{padding:12px 14px; background:var(--bg-1)}
+  .plane-name{font-family:var(--mono); font-size:11px; color:var(--ink); letter-spacing:.02em; margin-bottom:3px}
+  .plane-desc{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.08em; text-transform:uppercase}
+  .plane.lit{background:rgba(56,189,184,.1)}
+
+  .stack-log{
+    margin-top:18px; border-top:1px solid var(--line); padding-top:14px;
+    max-height:120px; overflow:hidden; display:flex; flex-direction:column; gap:4px;
+  }
+  .stack-log-line{
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim); letter-spacing:.02em;
+    display:flex; gap:10px; animation: slideIn .3s ease;
+  }
+  @keyframes slideIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
+  .stack-log-line .t{color:var(--ink-mute); flex-shrink:0}
+  .stack-log-line.err{color:var(--danger)}
+  .stack-log-line.ok{color:var(--ok)}
+  .stack-log-line.sync{color:var(--accent-3)}
+
+  /* failure markers */
+  .stack-fails{
+    position:absolute; bottom:16px; left:22px; right:22px;
+    display:flex; gap:16px; justify-content:space-between;
+    font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-mute);
+  }
+  .stack-fails b{color:var(--ink); font-weight:500; font-size:14px; display:block; letter-spacing:-0.01em}
+  .stack-fails b.bad{color:var(--danger)}
+  .stack-fails b.good{color:var(--accent)}
+
+  /* verdict strip */
+  .verdict{
+    margin-top:20px; padding:20px 24px; border:1px solid var(--line);
+    display:grid; grid-template-columns:auto 1fr auto auto 1fr auto; gap:20px;
+    align-items:center; background:var(--bg-1);
+  }
+  .verdict .v-col{display:flex; flex-direction:column; gap:4px}
+  .verdict .v-k{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.16em; text-transform:uppercase}
+  .verdict .v-v{font-family:var(--mono); font-size:28px; letter-spacing:-0.02em; color:var(--ink)}
+  .verdict .v-v.bad{color:var(--danger)}
+  .verdict .v-v.good{color:var(--accent)}
+  .verdict .v-divider{width:1px; background:var(--line); align-self:stretch}
+  .verdict .v-title{font-family:var(--mono); font-size:11px; letter-spacing:.18em; color:var(--ink-mute); text-transform:uppercase}
+  .verdict .v-sub{font-family:var(--mono); font-size:11px; color:var(--ink-dim); letter-spacing:.04em}
+
+  /* ───────────────────────────────────────────────────────── */
+  /*  TAB: CHAT (demo)                                        */
+  /* ───────────────────────────────────────────────────────── */
+  .chat-grid{display:grid; grid-template-columns:1.35fr 1fr; gap:16px}
+  .chat-col{border:1px solid var(--line); background:var(--bg-1); min-height:520px; display:flex; flex-direction:column}
+  .chat-hd{padding:14px 18px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
+  .chat-hd-t{font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase}
+  .chat-hd-t .on{color:var(--ok)}
+  .chat-suggestions{padding:16px 18px; display:flex; flex-direction:column; gap:6px; border-bottom:1px solid var(--line)}
+  .chat-suggestions .lbl{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.16em; text-transform:uppercase; margin-bottom:4px}
+  .chat-sug{
+    text-align:left; background:transparent; border:1px solid var(--line);
+    color:var(--ink-dim); padding:10px 12px; font-family:var(--sans); font-size:13.5px; cursor:pointer;
+    transition:all .15s;
+  }
+  .chat-sug:hover{border-color:var(--accent); color:var(--ink)}
+  .chat-body{flex:1; padding:18px; overflow:auto; display:flex; flex-direction:column; gap:14px}
+  .chat-msg{display:flex; gap:12px}
+  .chat-msg .who{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-mute); width:54px; flex-shrink:0; padding-top:2px}
+  .chat-msg.user .who{color:var(--accent-3)}
+  .chat-msg.agent .who{color:var(--accent)}
+  .chat-msg .bub{color:var(--ink); font-size:14.5px; line-height:1.55; flex:1; min-width:0}
+  .chat-msg .bub .cite{font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.04em; border-bottom:1px dotted var(--accent); cursor:default}
+  .chat-form{padding:14px 18px; border-top:1px solid var(--line); display:flex; gap:0; background:var(--bg-2)}
+  .chat-form input{flex:1; background:transparent; border:none; outline:none; color:var(--ink); font-family:var(--sans); font-size:14px; padding:8px 10px}
+  .chat-form input::placeholder{color:var(--ink-mute)}
+  .chat-form button{background:var(--accent); border:none; color:#0b0d10; font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; padding:0 18px; cursor:pointer; font-weight:600}
+
+  .mem-retrieved{padding:16px 18px; overflow:auto; display:flex; flex-direction:column; gap:8px; flex:1}
+  .mem-empty{color:var(--ink-mute); font-family:var(--mono); font-size:12px; letter-spacing:.04em; padding:24px 0; text-align:center}
+  .mem-item{border:1px solid var(--line); padding:12px 14px; display:flex; flex-direction:column; gap:4px; position:relative; overflow:hidden}
+  .mem-item.new{animation:memSlide .5s ease}
+  @keyframes memSlide{from{opacity:0; transform:translateX(-10px)} to{opacity:1; transform:translateX(0)}}
+  .mem-row1{display:flex; justify-content:space-between; align-items:center}
+  .mem-id{font-family:var(--mono); font-size:10px; color:var(--ink-mute); letter-spacing:.16em; text-transform:uppercase}
+  .mem-score{font-family:var(--mono); font-size:11px; color:var(--hybrid); letter-spacing:.02em}
+  .mem-content{color:var(--ink); font-size:13.5px; line-height:1.45}
+  .mem-tags{display:flex; gap:4px; flex-wrap:wrap; margin-top:6px}
+  .mem-tag{font-family:var(--mono); font-size:9px; color:var(--ink-mute); letter-spacing:.1em; border:1px solid var(--line); padding:1px 5px}
+
+  /* ───────────────────────────────────────────────────────── */
+  /*  TAB: SCALE                                              */
+  /* ───────────────────────────────────────────────────────── */
+  .scale-main{display:grid; grid-template-columns:1fr; gap:18px}
+  .scale-bullets{list-style:none; padding:0; margin:14px 0 0; display:grid; grid-template-columns:repeat(2,1fr); gap:12px 28px; max-width:720px}
+  .scale-bullets li{font-size:15px; color:var(--ink-dim); padding-left:18px; position:relative; line-height:1.4}
+  .scale-bullets li::before{content:""; position:absolute; left:0; top:9px; width:6px; height:6px; background:var(--tidb-red); border-radius:50%}
+  .scale-bullets li b{color:var(--ink); font-weight:600}
+  .scale-tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+  .scale-tile{
+    border:1px solid var(--line); padding:22px; background:var(--bg-1);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .stt-who{font-family:var(--mono); font-size:11px; color:var(--ink-mute); letter-spacing:.18em; text-transform:uppercase}
+  .stt-big{font-family:var(--serif); font-size:64px; line-height:1; color:var(--ink); letter-spacing:-0.03em}
+  .stt-unit{font-family:var(--mono); font-size:12px; color:var(--ink-dim); letter-spacing:.04em}
+  .stt-detail{font-family:var(--sans); font-size:13px; color:var(--ink-dim); margin-top:8px; line-height:1.5}
+
+  .scale-ladder{border:1px solid var(--line); background:var(--bg-1)}
+  .scale-ladder-hd{padding:14px 22px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; display:flex; justify-content:space-between; align-items:center}
+  .rung{display:grid; grid-template-columns:140px 1fr 160px; align-items:center; gap:22px; padding:16px 22px; border-bottom:1px solid var(--line)}
+  .rung:last-child{border-bottom:none}
+  .rung.hi{background:linear-gradient(90deg, rgba(56,189,184,.05), transparent)}
+  .rung-n{font-family:var(--serif); font-size:40px; letter-spacing:-0.02em; color:var(--ink); line-height:1}
+  .rung-n em{font-style:italic; color:var(--accent)}
+  .rung-copy{color:var(--ink-dim); font-size:14px}
+  .rung-copy b{color:var(--ink); font-weight:500}
+  .rung-tech{font-family:var(--mono); font-size:10.5px; color:var(--ink-mute); letter-spacing:.04em; text-transform:uppercase}
+
+  .fleet-strip{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+    border:1px solid var(--line); background:var(--bg-1);
+  }
+  .fleet-strip .cell{
+    padding:22px 26px; border-right:1px solid var(--line);
+    display:flex; flex-direction:column-reverse; gap:6px;
+  }
+  .fleet-strip .cell:last-child{border-right:none}
+  .fleet-strip .k{font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase}
+  .fleet-strip .v{font-family:var(--serif); font-size:36px; line-height:1; color:var(--ink); letter-spacing:-0.02em}
+  .fleet-strip .v.hl{color:var(--accent)}
+
+  /* ── footer strip ─────────────────────────────────────── */
+  footer{
+    margin-top:56px; padding-top:22px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:11px; color:var(--ink-mute); letter-spacing:.14em; text-transform:uppercase;
+  }
+  footer a{color:var(--ink-dim); text-decoration:none}
+  footer a:hover{color:var(--accent)}
+
+  /* ── TAB 05: TiDB for AI ───────────────────────────────── */
+  .ai-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  .ai-card{border:1px solid var(--line); background:var(--bg-1); display:flex; flex-direction:column; min-height:520px}
+  .ai-hd{padding:14px 18px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:12px}
+  .ai-title{font-family:var(--serif); font-size:24px; letter-spacing:-0.01em; color:var(--ink)}
+  .ai-sub{font-family:var(--mono); font-size:10.5px; color:var(--ink-mute); letter-spacing:.1em; text-transform:uppercase; margin-top:4px}
+  .ai-body{flex:1; padding:18px; display:flex; flex-direction:column; gap:12px; min-height:0}
+  .ai-foot{padding:10px 18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--ink-mute); letter-spacing:.04em}
+
+  .vs-query{display:flex; align-items:center; gap:10px; border:1px solid var(--line); background:var(--bg-2); padding:8px 12px}
+  .vs-query span{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--tidb-red)}
+  .vs-query input{flex:1; background:transparent; border:none; outline:none; color:var(--ink); font-family:var(--mono); font-size:12px}
+  .vs-space{flex:1; position:relative; border:1px solid var(--line); background:repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.015) 39px 40px), repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.015) 39px 40px), var(--bg); min-height:220px; overflow:hidden}
+  .vs-dot{position:absolute; width:8px; height:8px; border-radius:50%; background:var(--ink-mute); transform:translate(-50%,-50%); transition:all .7s cubic-bezier(.2,.8,.2,1); opacity:.5}
+  .vs-dot.hit{background:var(--tidb-red); box-shadow:0 0 12px var(--tidb-red); opacity:1; width:10px; height:10px}
+  .vs-dot.query{background:var(--accent-3); box-shadow:0 0 16px var(--accent-3); width:12px; height:12px; opacity:1}
+  .vs-ring{position:absolute; border:1px solid var(--tidb-red); border-radius:50%; transform:translate(-50%,-50%); opacity:0; animation:ring 1.4s ease-out}
+  @keyframes ring{0%{width:0; height:0; opacity:.8} 100%{width:260px; height:260px; opacity:0}}
+  .vs-line{position:absolute; height:1px; background:linear-gradient(90deg, var(--tidb-red), transparent); transform-origin:left center; opacity:0; transition:opacity .4s}
+  .vs-line.on{opacity:.55}
+  .vs-results{display:flex; flex-direction:column; gap:4px; max-height:130px; overflow:auto}
+  .vs-hit{display:grid; grid-template-columns:auto 1fr auto; gap:10px; padding:6px 8px; border:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--ink-dim)}
+  .vs-hit .id{color:var(--tidb-red)}
+  .vs-hit .s{color:var(--ink)}
+  .vs-hit.new{animation:slideIn .3s ease}
+
+  .ai-stage{flex:1; position:relative; border:1px solid var(--line); background:var(--bg); min-height:220px; overflow:hidden}
+  .ai-tree{width:100%; height:100%}
+  .ai-tree .link{stroke:var(--line-2); stroke-width:1; fill:none; opacity:0; transition:opacity .5s}
+  .ai-tree .link.on{stroke:var(--tidb-red); opacity:.6; animation:draw .6s ease forwards}
+  @keyframes draw{from{stroke-dasharray:200; stroke-dashoffset:200} to{stroke-dasharray:200; stroke-dashoffset:0}}
+  .ai-tree .node{fill:var(--bg-2); stroke:var(--line-2); stroke-width:1; transition:all .4s}
+  .ai-tree .node.user{fill:var(--bg-2); stroke:var(--accent-3); stroke-width:1.5}
+  .ai-tree .node.agent{fill:var(--bg-2); stroke:var(--ink-dim)}
+  .ai-tree .node.db{fill:var(--tidb-red); stroke:var(--tidb-red-bright); filter:drop-shadow(0 0 4px rgba(220,38,38,.5))}
+  .ai-tree text{font-family:var(--mono); font-size:8px; fill:var(--ink-mute); letter-spacing:.04em; text-transform:uppercase}
+  .ai-metrics{display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--line)}
+  .ai-m{padding:10px 12px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:2px}
+  .ai-m:last-child{border-right:none}
+  .ai-m .k{font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--ink-mute); text-transform:uppercase}
+  .ai-m .v{font-family:var(--mono); font-size:20px; color:var(--ink); letter-spacing:-0.01em}
+  .ai-m .v.hl{color:var(--tidb-red)}
+
+  .ai-logo-strip{margin-top:16px; border:1px solid var(--line); display:flex; align-items:center; gap:18px; padding:14px 22px; flex-wrap:wrap}
+  .als-lbl{font-size:11px; letter-spacing:.16em; text-transform:uppercase}
+  .als-logos{display:flex; gap:22px; flex-wrap:wrap; align-items:center; flex:1}
+  .tl{font-family:var(--mono); font-size:12px; color:var(--ink-dim); letter-spacing:.06em}
+
+  /* responsive fallback */
+  @media(max-width:1100px){
+    .ai-grid{grid-template-columns:1fr}
+    .hero{grid-template-columns:1fr; gap:28px}
+    .query-grid{grid-template-columns:1fr}
+    .stack-wrap{grid-template-columns:1fr}
+    .chat-grid{grid-template-columns:1fr}
+    .scale-tiles{grid-template-columns:1fr}
+    .q-sql-row{grid-template-columns:1fr}
+    .q-result{grid-template-columns:36px 1fr; gap:10px}
+    .q-scores{grid-column:1/-1}
+  }
+</style>
 </head>
 <body>
 
-  <!-- ── Hero ── -->
-  <header class="hero">
-    <div class="hero-headline">TiDB — Unified Data Foundation for the AI Era</div>
-    <div class="hero-tagline">
-      One set of data simultaneously supports transactions, analytics,
-      vector retrieval, RAG, and long-term memory for Agents.
+  <!-- ─── TOP BAR ─────────────────────────────────────────── -->
+  <div class="topbar">
+    <div class="brand">
+      <img src="/static/logos/tidb-official.png" alt="TiDB" height="32" style="display:block"/>
     </div>
-    <div class="hero-hook">
-      <span class="hook-bang">⚠</span>
-      <div class="hook-body">
-        <strong>The memory wall.</strong>
-        Without persistent memory, agents repeat the same mistakes, cite stale facts,
-        and hallucinate coherence from session to session. Every run is day one.
-        The tabs below show how TiDB solves it — once, at the infrastructure layer.
+    <div class="top-stats">
+      <div class="top-stat">
+        <div class="ts-k">Tenant</div>
+        <div class="ts-v" id="tenantId">t_9f3a04c6</div>
       </div>
-    </div>
-  </header>
-
-  <!-- ── Customer proof strip ── -->
-  <div class="customer-proof-strip">
-    <div class="proof-label">Running agent memory &amp; data at scale on TiDB:</div>
-    <div class="proof-items">
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/pinterest.svg" alt="Pinterest" />
-        <div class="proof-name">Pinterest</div>
-        <div class="proof-stat">1.3M QPS · 6 systems → 1</div>
+      <div class="top-stat">
+        <div class="ts-k">Memories</div>
+        <div class="ts-v"><span id="memCount">50</span><span class="dim"> / indexed</span></div>
       </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/uber.svg" alt="Uber" />
-        <div class="proof-name">Uber</div>
-        <div class="proof-stat">Production workloads on TiDB</div>
+      <div class="top-stat">
+        <div class="ts-k">Provisioned</div>
+        <div class="ts-v">912 <span class="dim">ms cold</span></div>
       </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/manus.svg" alt="Manus" />
-        <div class="proof-name">Manus</div>
-        <div class="proof-stat">10M+ agent DBs · 80% cost cut</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/deepseek.svg" alt="DeepSeek" />
-        <div class="proof-name">DeepSeek</div>
-        <div class="proof-stat">AI agent infrastructure on TiDB</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/kimi.svg" alt="Kimi" />
-        <div class="proof-name">Kimi</div>
-        <div class="proof-stat">AI agents on TiDB</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/plaud.svg" alt="Plaud" />
-        <div class="proof-name">Plaud</div>
-        <div class="proof-stat">AI agents on TiDB</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/dify.svg" alt="Dify.AI" />
-        <div class="proof-name">Dify.AI</div>
-        <div class="proof-stat">500K containers → 1 · 90% ops cut</div>
-      </div>
-      <div class="proof-divider"></div>
-      <div class="proof-item">
-        <img class="proof-logo" src="/static/logos/flipkart.svg" alt="Flipkart" />
-        <div class="proof-name">Flipkart</div>
-        <div class="proof-stat">700+ MySQL → 1 · P95 &lt; 5ms</div>
+      <div class="top-stat">
+        <div class="ts-k">Status</div>
+        <div class="ts-v"><span class="ts-pulse"></span>live</div>
       </div>
     </div>
   </div>
 
-  <!-- ── Tab bar ── -->
-  <nav class="tabs">
-    <button class="tab active" data-tab="demo">💬 Demo</button>
-    <button class="tab" data-tab="how">🏛️ How It Works</button>
-    <button class="tab" data-tab="who">🌐 Who Uses It</button>
-    <button class="tab" data-tab="deepdive">📚 Deep Dive</button>
+  <!-- ─── HERO ────────────────────────────────────────────── -->
+  <section class="hero">
+    <div>
+      <h1 style="font-size:clamp(36px,4.2vw,62px);line-height:1.05">Unlimited&nbsp;Agent<br/>Memory&nbsp;at&nbsp;<em>Scale.</em></h1>
+    </div>
+    <div class="hero-lede">
+      <div class="tag" style="font-size:14px;padding:4px 12px;letter-spacing:.15em;font-weight:700">1 TiDB CLUSTER</div>
+      <ul style="list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:14px;font-size:22px;font-weight:600;line-height:1.2">
+        <li style="color:var(--ink)">Agent memory</li>
+        <li style="color:var(--ink)">Vector</li>
+        <li style="color:var(--ink)">Keyword</li>
+        <li style="color:var(--ink)">Analytics</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── PROOF BAR ───────────────────────────────────────── -->
+  <style>
+    .proof-cell{flex:1 1 120px;padding:18px 20px;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;min-width:100px}
+    .proof-logo{height:88px;width:auto;max-width:160px;object-fit:contain;opacity:0.9}
+  </style>
+  <div class="proof-bar">
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/uber.svg?v=2" alt="Uber"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/meta.svg?v=2" alt="Meta"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/deepseek.svg" alt="DeepSeek"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/kimi.svg" alt="Kimi"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/dify.svg?v=2" alt="Dify.AI"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/plaud.svg" alt="Plaud AI"/></div>
+  </div>
+
+  <!-- ─── TABS ────────────────────────────────────────────── -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="arch"><span class="num">01</span>Architecture</button>
+    <button class="tab" data-tab="chat"><span class="num">02</span>Agent</button>
+    <button class="tab" data-tab="scale"><span class="num">03</span>Scale</button>
+    <button class="tab" data-tab="tidbai"><span class="num">04</span>TiDB for AI</button>
+    <button class="tab" data-tab="stack"><span class="num">05</span>Stack</button>
+    <button class="tab" data-tab="query"><span class="num">06</span>Query</button>
   </nav>
 
-  <main class="stage">
-
-    <!-- ── Deep Dive: Live Recall (SQL cards for engineers) ── -->
-    <section class="tab-panel" data-tab-panel="deepdive">
-
-      <div class="panel-hero">
-        <div class="panel-title">One TiDB cluster. Three search engines. One SQL query each.</div>
+  <!-- ─── TAB 06: QUERY ───────────────────────────────────── -->
+  <section class="panel" data-panel="query">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">06 · hybrid retrieval</div>
+        <h2 class="panel-title">Three engines. <em>One query.</em></h2>
         <div class="panel-sub">
-          Pick a question below. Watch the actual SQL that TiDB runs under mem9's hood —
-          vector similarity, full-text search, and a hybrid ranking — fire in parallel,
-          then see the ranked results. No vector DB. No search service. One database.
+          Pick a question — or type your own. Watch VECTOR, FULL-TEXT, and HYBRID
+          fire against the same TiDB table. No vector DB. No search service.
+          One SQL statement each.
         </div>
       </div>
+      <div class="panel-idx"><b>06</b>query</div>
+    </div>
 
-      <div class="recall-query-chips">
-        <button class="recall-chip active" data-q="q1">
-          <span class="chip-q">"What does Sam think about TypeScript?"</span>
-          <span class="chip-hint">Vector-only win — the word "TypeScript" never appears in memory</span>
-        </button>
-        <button class="recall-chip" data-q="q2">
-          <span class="chip-q">"Who does Sam report to?"</span>
-          <span class="chip-hint">Baseline — keyword + semantic both find it</span>
-        </button>
-        <button class="recall-chip" data-q="q3">
-          <span class="chip-q">"What slowed down the research pipeline recently?"</span>
-          <span class="chip-hint">Hybrid wins — FTS + vector each find half the answer</span>
-        </button>
+    <div class="query-grid">
+      <!-- SIDEBAR -->
+      <aside class="q-sidebar">
+        <div>
+          <div class="q-label">Preset questions</div>
+          <div class="q-chips" id="qChips">
+            <!-- chips -->
+          </div>
+        </div>
+
+        <div>
+          <div class="q-label">Search mode</div>
+          <div class="q-mode" id="qMode">
+            <button data-mode="vector">Vector</button>
+            <button data-mode="fts">FTS</button>
+            <button data-mode="hybrid" class="active">Hybrid</button>
+          </div>
+          <div class="mono mute" style="font-size:11px; margin-top:8px; letter-spacing:.02em; line-height:1.5">
+            switch engines to watch the top hit <span class="dim">re-rank</span> — hybrid
+            beats either alone.
+          </div>
+        </div>
+
+        <div>
+          <div class="q-label">Custom query</div>
+          <div class="q-custom">
+            <input id="qCustom" placeholder="Ask the memory store…" />
+            <button id="qCustomRun">Run</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="q-main">
+        <!-- three SQL cards -->
+        <div class="q-sql-row" id="qSqlRow">
+          <div class="q-sql" data-lane="vector">
+            <div class="q-sql-hd">
+              <span class="q-badge v">VECTOR</span>
+              <span class="q-sql-meta"><span class="latency">—</span> · <span class="rows">—</span></span>
+            </div>
+            <pre data-lane-sql="vector"><span class="cm">-- click a question</span></pre>
+          </div>
+          <div class="q-sql" data-lane="fts">
+            <div class="q-sql-hd">
+              <span class="q-badge f">FULL-TEXT</span>
+              <span class="q-sql-meta"><span class="latency">—</span> · <span class="rows">—</span></span>
+            </div>
+            <pre data-lane-sql="fts"><span class="cm">-- click a question</span></pre>
+          </div>
+          <div class="q-sql" data-lane="hybrid">
+            <div class="q-sql-hd">
+              <span class="q-badge h">HYBRID</span>
+              <span class="q-sql-meta"><span class="latency">—</span> · <span class="rows">—</span></span>
+            </div>
+            <pre data-lane-sql="hybrid"><span class="cm">-- click a question</span></pre>
+          </div>
+        </div>
+
+        <!-- results -->
+        <div class="q-results" id="qResults">
+          <div class="q-results-hd">
+            <span>Ranked memories <span class="dim">· current mode: <em id="curMode" style="color:var(--hybrid); font-style:normal">hybrid</em></span></span>
+            <span id="qStatus" class="dim">ready</span>
+          </div>
+          <div id="qResultsBody">
+            <!-- injected -->
+          </div>
+        </div>
+
+        <div class="q-insight" id="qInsight">
+          <div class="k">insight</div>
+          <div id="qInsightBody" style="flex:1">
+            Pick a preset to begin. Vector-only will miss Q1 entirely — the word
+            <span class="hl">"TypeScript"</span> never appears in the memory.
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
 
-      <div class="sql-cards-row" id="sql-cards">
-        <div class="sql-card sql-vector">
-          <div class="sql-card-head">
-            <span class="sql-badge sql-badge-v">VECTOR</span>
-            <span class="sql-card-desc">Semantic similarity</span>
-          </div>
-          <pre class="sql-block" id="sql-block-vector"><span class="sql-placeholder">Click a question to run all three →</span></pre>
-          <div class="sql-meta">
-            <span class="sql-meta-time" id="sql-time-vector">—</span>
-            <span class="sql-meta-rows" id="sql-rows-vector">—</span>
-          </div>
-        </div>
-
-        <div class="sql-card sql-fts">
-          <div class="sql-card-head">
-            <span class="sql-badge sql-badge-f">FULL-TEXT</span>
-            <span class="sql-card-desc">Exact keyword (BM25)</span>
-          </div>
-          <pre class="sql-block" id="sql-block-fts"><span class="sql-placeholder">Click a question to run all three →</span></pre>
-          <div class="sql-meta">
-            <span class="sql-meta-time" id="sql-time-fts">—</span>
-            <span class="sql-meta-rows" id="sql-rows-fts">—</span>
-          </div>
-        </div>
-
-        <div class="sql-card sql-hybrid">
-          <div class="sql-card-head">
-            <span class="sql-badge sql-badge-h">HYBRID</span>
-            <span class="sql-card-desc">Vector + FTS blended</span>
-          </div>
-          <pre class="sql-block" id="sql-block-hybrid"><span class="sql-placeholder">Click a question to run all three →</span></pre>
-          <div class="sql-meta">
-            <span class="sql-meta-time" id="sql-time-hybrid">—</span>
-            <span class="sql-meta-rows" id="sql-rows-hybrid">—</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="sql-caption">
-        The SQL above is what TiDB runs under mem9's hybrid retrieval API.
-        <code>VEC_COSINE_DISTANCE()</code> and <code>fts_match_score()</code>
-        are SQL functions — no separate vector service, no separate search index.
-      </div>
-
-      <section class="results" id="results" aria-live="polite">
-        <p class="results-placeholder">
-          ↑ Click any question above to run all three queries against this agent's memory.
-        </p>
-      </section>
-
-      <div class="tab-outcome-strip">
-        <div class="outcome-item">
-          <span class="outcome-icon">💡</span>
-          <span class="outcome-text">Hybrid search eliminates the need for a separate vector database — one TiDB table replaces three systems</span>
-        </div>
-        <div class="outcome-divider"></div>
-        <div class="outcome-item">
-          <span class="outcome-icon">⚡</span>
-          <span class="outcome-text">Three search engines, one SQL query each, one ranked result — no orchestration layer required</span>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ── Demo: Ask the Agent (chat with MiniMax + mem9) ── -->
-    <section class="tab-panel active" data-tab-panel="demo">
-      <div class="panel-hero">
-        <div class="panel-title">Ask the agent anything</div>
+  <!-- ─── TAB 02: STACK COMPARISON ────────────────────────── -->
+  <section class="panel" data-panel="stack">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">05 · stack comparison</div>
+        <h2 class="panel-title">Four services <em>or one.</em></h2>
         <div class="panel-sub">
-          Each message triggers a live hybrid search against TiDB, then the
-          agent (MiniMax-M2.7) answers using only the memories it retrieved.
-          Watch the sidebar — that's the <strong>context plane</strong> being
-          assembled in real time, pre-agent. The model is stateless; every
-          fact it cites comes from mem9.
+          Fire an agent write — one memory, with ACID semantics and hybrid retrieval.
+          Watch the frankenstack break things. Watch TiDB not.
         </div>
       </div>
+      <div class="panel-idx"><b>05</b>stack</div>
+    </div>
 
-      <div class="chat-layout">
-        <div class="chat-pane">
-          <div class="chat-suggestions">
-            <div class="suggestion-label">Try one of these — or type your own:</div>
-            <button class="chat-suggestion">Who does Sam report to at Lumos AI and how often does he sync with his skip-level?</button>
-            <button class="chat-suggestion">What is Leading Lantern and what latency targets does the project have?</button>
-            <button class="chat-suggestion">How does Sam structure his focus time and what does he drink during deep work?</button>
+    <!-- control row -->
+    <div class="stack-control">
+      <div class="stack-counter">
+        <div><span class="k">Writes fired</span><span class="v" id="writeCount">0</span></div>
+        <div><span class="k">Frankenstack fails</span><span class="v bad" id="frFails">0</span></div>
+        <div><span class="k">TiDB fails</span><span class="v good" id="tdFails">0</span></div>
+      </div>
+      <div class="stack-actions">
+        <button class="stack-btn" id="resetStack">Reset</button>
+        <button class="stack-btn" id="fire10">Fire 10 writes</button>
+        <button class="stack-btn primary" id="fireWrite">▶ Fire 1 write</button>
+      </div>
+    </div>
+
+    <div class="stack-wrap">
+
+      <!-- LEFT: frankenstack -->
+      <div class="stack-col left">
+        <div class="stack-hd">
+          <div>
+            <div class="stack-name">the <em>Frankenstack</em></div>
+            <div class="stack-meta">4 systems · 4 consistency models</div>
+          </div>
+          <div class="mono mute" style="font-size:11px">before</div>
+        </div>
+        <div class="stack-body">
+          <div class="stack-agent">
+            <span><span class="dot"></span>agent.write("sam reports to priya")</span>
+            <span class="mono mute">1 call</span>
           </div>
 
-          <div class="chat-messages" id="chat-messages" aria-live="polite">
-            <div class="chat-empty">
-              Ask a question — watch the agent retrieve memories and answer.
+          <div class="stack-services" id="frankenSvcs">
+            <div class="svc" data-svc="oltp">
+              <div>
+                <div class="svc-name">OLTP database</div>
+                <div class="svc-sub">Postgres · structured rows</div>
+              </div>
+              <div class="svc-state"><span class="sd"></span>idle</div>
+            </div>
+            <div class="svc-conn"><span class="lbl">sync · kafka</span></div>
+            <div class="svc" data-svc="vec">
+              <div>
+                <div class="svc-name">Vector database</div>
+                <div class="svc-sub">Pinecone · embeddings</div>
+              </div>
+              <div class="svc-state"><span class="sd"></span>idle</div>
+            </div>
+            <div class="svc-conn"><span class="lbl">sync · lambda</span></div>
+            <div class="svc" data-svc="kv">
+              <div>
+                <div class="svc-name">Cache / KV</div>
+                <div class="svc-sub">Redis · recent hits</div>
+              </div>
+              <div class="svc-state"><span class="sd"></span>idle</div>
+            </div>
+            <div class="svc-conn"><span class="lbl">etl · airflow</span></div>
+            <div class="svc" data-svc="dw">
+              <div>
+                <div class="svc-name">Analytics warehouse</div>
+                <div class="svc-sub">Snowflake · retros, audits</div>
+              </div>
+              <div class="svc-state"><span class="sd"></span>idle</div>
             </div>
           </div>
 
-          <form class="chat-form" id="chat-form" autocomplete="off">
-            <input
-              class="chat-input"
-              id="chat-input"
-              type="text"
-              value="Who does Sam report to at Lumos AI and how often does he sync with his skip-level?"
-              placeholder="Ask the agent a question…"
-              aria-label="Chat message"
-            />
-            <button class="chat-send" type="submit" id="chat-send">▶ Run demo</button>
-          </form>
-
-          <div class="chat-mode-strip" id="chat-mode-strip" hidden>
-            <span class="chat-mode-dot"></span>
-            <span class="chat-mode-text">idle</span>
-          </div>
+          <div class="stack-log" id="frankenLog"></div>
         </div>
 
-        <aside class="memory-pane">
-          <div class="memory-pane-header">
-            <div class="memory-pane-title">Memories retrieved</div>
-            <div class="memory-pane-sub">
-              Top 5 from mem9 hybrid search — the context plane for this turn.
+        <div class="stack-fails">
+          <div><b class="bad" id="frLat">—</b>write-to-read lag</div>
+          <div><b class="bad" id="frHops">—</b>network hops</div>
+          <div><b class="bad" id="frSplit">—</b>split writes</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: TiDB -->
+      <div class="stack-col right">
+        <div class="stack-hd">
+          <div>
+            <div class="stack-name">on <em>TiDB</em></div>
+            <div class="stack-meta">1 cluster · 1 consistency model</div>
+          </div>
+          <div class="mono" style="font-size:11px; color:var(--accent)">after</div>
+        </div>
+        <div class="stack-body">
+          <div class="stack-agent">
+            <span><span class="dot" style="background:var(--accent)"></span>agent.write("sam reports to priya")</span>
+            <span class="mono" style="color:var(--accent)">1 call</span>
+          </div>
+
+          <div class="tidb-unit" id="tidbUnit">
+            <div class="tidb-unit-hd">
+              <span>TiDB Cloud cluster · single transaction</span>
+              <span class="mono" id="tdTxState">idle</span>
             </div>
-          </div>
-          <div class="memory-pane-list" id="memory-pane-list">
-            <div class="memory-empty">
-              Memories the agent uses will appear here the moment you ask a question.
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      <div class="tab-outcome-strip">
-        <div class="outcome-item">
-          <span class="outcome-icon">🎯</span>
-          <span class="outcome-text">Agents answer with cited, verifiable memories — hallucinations become auditable</span>
-        </div>
-        <div class="outcome-divider"></div>
-        <div class="outcome-item">
-          <span class="outcome-icon">🔍</span>
-          <span class="outcome-text">Context plane assembled pre-agent — zero prompt engineering, zero context stuffing</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Deep Dive: 5 Memory Duties ── -->
-    <section class="tab-panel" data-tab-panel="deepdive">
-      <div class="panel-hero">
-        <div class="panel-title">Memory isn't stored. It's maintained.</div>
-        <div class="panel-sub">
-          Five maintenance duties run continuously inside your TiDB cluster.
-          If you're not running them, your memory is decaying into noise —
-          and your agent is confidently citing diagnoses contradicted months ago.
-        </div>
-      </div>
-
-      <!-- ── Three Failure Modes ── -->
-      <div class="failure-modes-section">
-        <div class="failure-modes-heading">Three ways agent memory fails in production:</div>
-        <div class="failure-modes-grid">
-          <div class="failure-mode-card">
-            <div class="failure-icon">💸</div>
-            <div class="failure-name">Token Debt</div>
-            <div class="failure-desc">
-              Stuffing all memories into every prompt burns your context window.
-              At scale you are paying to remind the agent what it already knew,
-              every single message.
-            </div>
-            <div class="failure-signal">Signal: context window keeps hitting limits</div>
-          </div>
-          <div class="failure-mode-card">
-            <div class="failure-icon">🫥</div>
-            <div class="failure-name">Context Amnesia</div>
-            <div class="failure-desc">
-              Session ends. Agent forgets everything. The next user gets the same
-              wrong diagnosis the agent gave the last three users.
-              Cross-session learning simply does not exist.
-            </div>
-            <div class="failure-signal">Signal: agents repeat the same mistakes</div>
-          </div>
-          <div class="failure-mode-card">
-            <div class="failure-icon">📉</div>
-            <div class="failure-name">Memory Decay</div>
-            <div class="failure-desc">
-              Old facts do not expire. Contradicted conclusions sit beside newer truths.
-              The agent confidently cites a diagnosis it corrected six months ago.
-            </div>
-            <div class="failure-signal">Signal: agents hallucinate coherence from stale data</div>
-          </div>
-        </div>
-      </div>
-      <div class="failure-to-solution-bridge">
-        ↓ The five maintenance duties below run continuously inside TiDB to prevent all three.
-      </div>
-
-      <div class="duty-grid">
-        <div class="duty-card">
-          <div class="duty-icon">🛡️</div>
-          <div class="duty-name">Write control</div>
-          <div class="duty-desc">
-            Only confirmed outcomes persist. Working reasoning stays ephemeral.
-          </div>
-          <div class="duty-rule"><code>status = 'committed'</code> required</div>
-        </div>
-
-        <div class="duty-card">
-          <div class="duty-icon">📚</div>
-          <div class="duty-name">Deduplication</div>
-          <div class="duty-desc">
-            Cosine distance &lt; 0.15 merges with existing memory.
-            One strong memory, not ten weak ones.
-          </div>
-          <div class="duty-rule"><code>cosine &lt; 0.15 ⇒ merge</code></div>
-        </div>
-
-        <div class="duty-card">
-          <div class="duty-icon">⚙️</div>
-          <div class="duty-name">Reconciliation</div>
-          <div class="duty-desc">
-            New evidence auto-supersedes contradicted conclusions.
-            Stale facts are linked, not lost.
-          </div>
-          <div class="duty-rule"><code>supersedes_id</code> column</div>
-        </div>
-
-        <div class="duty-card">
-          <div class="duty-icon">📉</div>
-          <div class="duty-name">Confidence decay</div>
-          <div class="duty-desc">
-            5% monthly decay without reinforcement.
-            Below 0.30 = auto-deprecated.
-          </div>
-          <div class="duty-rule"><code>confidence *= 0.95 / month</code></div>
-        </div>
-
-        <div class="duty-card">
-          <div class="duty-icon">🗜️</div>
-          <div class="duty-name">Compaction</div>
-          <div class="duty-desc">
-            Weekly re-clustering merges drifted memories.
-            Evidence counts consolidated.
-          </div>
-          <div class="duty-rule"><code>CLUSTER BY embedding</code></div>
-        </div>
-      </div>
-
-      <div class="panel-footer ok">
-        All five duties run inside a <strong>single TiDB cluster</strong>.
-        No external schedulers. No sync jobs. No Kafka, Redis, or Airflow.
-      </div>
-
-      <!-- ── Why TiDB strip ── -->
-      <div class="why-tidb-strip">
-        <div class="why-tidb-heading">Why TiDB makes all five duties possible:</div>
-        <div class="why-tidb-grid">
-          <div class="why-tidb-card">
-            <div class="why-tidb-icon">⚡</div>
-            <div class="why-tidb-title">Unified HTAP + Vector</div>
-            <div class="why-tidb-desc">
-              SQL, analytics, and semantic search in one engine.
-              No ETL pipeline to maintain. No sync lag between systems.
-            </div>
-          </div>
-          <div class="why-tidb-card">
-            <div class="why-tidb-icon">🔗</div>
-            <div class="why-tidb-title">Vector + SQL in one query</div>
-            <div class="why-tidb-desc">
-              JOIN embeddings against transactions in a single statement.
-              <code>VEC_COSINE_DISTANCE()</code> is a SQL function.
-            </div>
-          </div>
-          <div class="why-tidb-card">
-            <div class="why-tidb-icon">🔌</div>
-            <div class="why-tidb-title">MCP integration</div>
-            <div class="why-tidb-desc">
-              Agents provision and query TiDB directly from Claude, Cursor,
-              and GitHub Copilot via the Model Context Protocol.
-            </div>
-          </div>
-          <div class="why-tidb-card">
-            <div class="why-tidb-icon">📡</div>
-            <div class="why-tidb-title">Zero-ETL real-time reasoning</div>
-            <div class="why-tidb-desc">
-              Write to one place. Reason across everything instantly.
-              No batch jobs, no Kafka topics, no Airflow DAGs.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-outcome-strip">
-        <div class="outcome-item">
-          <span class="outcome-icon">🏗️</span>
-          <span class="outcome-text">All five duties run in one TiDB cluster — no Airflow, no Redis, no Kafka, no sync jobs</span>
-        </div>
-        <div class="outcome-divider"></div>
-        <div class="outcome-item">
-          <span class="outcome-icon">📊</span>
-          <span class="outcome-text">Manus: 10M+ agent databases · 80% infrastructure cost reduction · 100% agent-provisioned</span>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ── How It Works: One Cluster (Before / After) ── -->
-    <section class="tab-panel" data-tab-panel="how">
-      <div class="panel-hero">
-        <div class="panel-title">One cluster. One consistency model.</div>
-        <div class="panel-sub">
-          Before mem9 on TiDB, agent memory meant stitching four systems
-          together with custom sync code. After: one query, one transaction
-          boundary, ACID everywhere.
-        </div>
-      </div>
-
-      <div class="split">
-        <div class="split-col before-col">
-          <div class="split-label before">Before — the frankenstack</div>
-          <div class="stack-box">OLTP database</div>
-          <div class="stack-box">Vector database</div>
-          <div class="stack-box">Cache / KV store</div>
-          <div class="stack-box">Analytics warehouse</div>
-          <div class="split-caption before">
-            4 systems · 4 consistency models · custom sync code
-          </div>
-        </div>
-
-        <div class="split-col after-col">
-          <div class="split-label after">After — unified on TiDB</div>
-          <div class="agent-layer">
-            Agent layer
-            <div class="layer-hint">stateless · disposable · reaches in</div>
-          </div>
-          <div class="arrow">↓</div>
-          <div class="tidb-cluster">
-            <div class="tidb-header">TiDB Cloud cluster</div>
-            <div class="plane context-plane">
-              <div class="plane-name">Context plane</div>
-              <div class="plane-desc">Reasoning · fleet memory · session state</div>
-            </div>
-            <div class="plane data-plane">
-              <div class="plane-name">Data plane</div>
-              <div class="plane-desc">Telemetry · windows · outage catalog</div>
-            </div>
-            <div class="plane lifecycle-plane">
-              <div class="plane-name">Memory lifecycle</div>
-              <div class="plane-desc">write · dedup · reconcile · decay · compact</div>
-            </div>
-          </div>
-          <div class="split-caption after">
-            1 cluster · 1 consistency model · ACID everywhere
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-outcome-strip">
-        <div class="outcome-item">
-          <span class="outcome-icon">🔒</span>
-          <span class="outcome-text">ACID everywhere — one consistency model replaces four, eliminating an entire class of sync bugs</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Deep Dive: Cross-Session Proof ── -->
-    <section class="tab-panel" data-tab-panel="deepdive">
-      <div class="panel-hero">
-        <div class="panel-title">An agent that learns across sessions</div>
-        <div class="panel-sub">
-          Stateless model. Stateful platform. Real incident —
-          charger <code>CP-IE-TEST-00176</code> sustained anomaly scores
-          across <strong>4 consecutive windows</strong>.
-          Three layers, one investigation.
-        </div>
-      </div>
-
-      <div class="proof-layers">
-        <div class="proof-band data-band">
-          <div class="band-label">Data plane</div>
-          <div class="band-body">
-            Telemetry windows with anomaly scores fed the trigger.
-            4 consecutive windows flagged.
-          </div>
-        </div>
-        <div class="proof-band context-band">
-          <div class="band-label">Context plane</div>
-          <div class="band-body">
-            Fleet memory recalled <strong>7 prior E-002 diagnoses</strong>
-            from other sessions — written by other agents, months ago.
-          </div>
-        </div>
-        <div class="proof-band agent-band">
-          <div class="band-label">Agent layer</div>
-          <div class="band-body">
-            Stateless Claude matched E-002 and wrote a diagnosis at
-            <strong>0.90 confidence</strong>.
-            Never saw the fault before; didn't need to.
-          </div>
-        </div>
-      </div>
-
-      <div class="proof-novel">
-        <div class="novel-label">Novel observation</div>
-        <div class="novel-body">
-          This charger's temperature (<strong>3.5°C</strong>) was the coldest
-          in the entire E-002 cluster — flagged as highest priority for
-          damp ingress. The agent wrote this conclusion back to the context
-          plane for future agents.
-        </div>
-      </div>
-
-      <div class="panel-footer ok">
-        Stateless model. Stateful platform. Cross-session learning.
-      </div>
-
-      <div class="generic-block">
-        <div class="generic-title">The pattern is generic — charger is a plugin</div>
-        <div class="domain-pills">
-          <div class="domain-pill">HVAC diagnostics</div>
-          <div class="domain-pill">Fleet GPS monitoring</div>
-          <div class="domain-pill">Industrial SCADA</div>
-          <div class="domain-pill">Payment fraud</div>
-        </div>
-        <div class="generic-caption">
-          Streaming data + anomaly detection + agents that learn =
-          the same memory wall, every time.
-        </div>
-      </div>
-
-      <div class="tab-outcome-strip">
-        <div class="outcome-item">
-          <span class="outcome-icon">🧠</span>
-          <span class="outcome-text">Stateless model. Stateful platform. DeepSeek, Plaud, and Kimi build agent memory this way.</span>
-        </div>
-        <div class="outcome-divider"></div>
-        <div class="outcome-item">
-          <span class="outcome-icon">🔄</span>
-          <span class="outcome-text">Cross-session learning without sharing model weights — any agent, any language, any framework</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Deep Dive: Why TiDB ── -->
-    <section class="tab-panel" data-tab-panel="deepdive">
-      <div class="panel-hero">
-        <div class="panel-title">TiDB for AI — built for all five memory duties</div>
-        <div class="panel-sub">
-          Every AI team hits the same four infrastructure walls. Here is why TiDB is the
-          only database that tears them down — and the four patterns that become possible
-          once it does.
-        </div>
-      </div>
-
-      <!-- ── Four AI Pain Points ── -->
-      <div class="pain-section">
-        <div class="pain-section-heading">The four walls AI teams hit</div>
-        <div class="pain-grid">
-
-          <div class="pain-card">
-            <div class="pain-header">
-              <div class="pain-number">01</div>
-              <div class="pain-title">Memory fragmentation</div>
-            </div>
-            <div class="pain-problem">
-              Agent memory scattered across a vector DB, a KV cache, an OLTP database,
-              and an analytics warehouse. Every write hits four systems.
-              Sync lag means the agent sees yesterday's facts today.
-            </div>
-            <div class="pain-solution">
-              <div class="solution-label">TiDB solution</div>
-              <div class="solution-text">
-                One unified engine. SQL + Vector + FTS + JSON + analytics in a single cluster.
-                Zero sync code, zero lag, one consistency model.
+            <div class="tidb-planes">
+              <div class="plane" data-plane="oltp">
+                <div class="plane-name">rows</div>
+                <div class="plane-desc">oltp · structured</div>
+              </div>
+              <div class="plane" data-plane="vec">
+                <div class="plane-name">embeddings</div>
+                <div class="plane-desc">VEC_COSINE · ann</div>
+              </div>
+              <div class="plane" data-plane="fts">
+                <div class="plane-name">fts · bm25</div>
+                <div class="plane-desc">full-text · bm25</div>
+              </div>
+              <div class="plane" data-plane="htap">
+                <div class="plane-name">htap · columnar</div>
+                <div class="plane-desc">analytics · same table</div>
               </div>
             </div>
           </div>
 
-          <div class="pain-card">
-            <div class="pain-header">
-              <div class="pain-number">02</div>
-              <div class="pain-title">Vector + SQL can't join</div>
-            </div>
-            <div class="pain-problem">
-              Semantic search lives in Pinecone. Structured data lives in Postgres.
-              You can't JOIN embeddings against transactions — so agents can't correlate
-              what they remember with what actually happened.
-            </div>
-            <div class="pain-solution">
-              <div class="solution-label">TiDB solution</div>
-              <div class="solution-text">
-                <code>VEC_COSINE_DISTANCE()</code> is a SQL function.
-                Join embeddings against any table in a single statement.
-              </div>
-            </div>
-          </div>
-
-          <div class="pain-card">
-            <div class="pain-header">
-              <div class="pain-number">03</div>
-              <div class="pain-title">Multi-tenant isolation is expensive</div>
-            </div>
-            <div class="pain-problem">
-              Separate databases per agent: ops nightmare and idle capacity everywhere.
-              Shared tables: cross-tenant leakage risk. Neither scales past a few
-              hundred agents without someone writing a lot of plumbing.
-            </div>
-            <div class="pain-solution">
-              <div class="solution-label">TiDB solution</div>
-              <div class="solution-text">
-                Data Branching — millisecond copy-on-write isolation, per agent, pay-per-RU.
-                Manus runs 10M+ agent databases this way.
-              </div>
-            </div>
-          </div>
-
-          <div class="pain-card">
-            <div class="pain-header">
-              <div class="pain-number">04</div>
-              <div class="pain-title">Schema migrations block production</div>
-            </div>
-            <div class="pain-problem">
-              Adding a confidence column to the memories table means a maintenance window.
-              ALTER TABLE locks the entire dataset for hours while your agents sit idle
-              and your on-call engineer watches a progress bar.
-            </div>
-            <div class="pain-solution">
-              <div class="solution-label">TiDB solution</div>
-              <div class="solution-text">
-                Online DDL — add columns, change indexes, alter schemas without blocking
-                a single query in production.
-              </div>
-            </div>
-          </div>
-
+          <div class="stack-log" id="tidbLog"></div>
         </div>
-      </div>
 
-      <!-- ── Four AI Scenarios ── -->
-      <div class="scenarios-section">
-        <div class="scenarios-heading">Four patterns that become possible</div>
-        <div class="scenarios-grid">
-
-          <div class="scenario-card">
-            <div class="scenario-tag">Pattern 1</div>
-            <div class="scenario-title">Agent Long-Term Memory</div>
-            <div class="scenario-desc">
-              Persistent memory across sessions. Hybrid search (vector + BM25) for
-              precise recall. Confidence decay ensures stale facts expire automatically.
-              Write control prevents hallucination persistence.
-            </div>
-            <div class="scenario-customers">
-              <div class="scenario-customer-label">Used by:</div>
-              <div class="scenario-customer-list">Manus · DeepSeek · Plaud · Kimi</div>
-            </div>
-            <div class="scenario-outcome">10M+ agent databases · 80% infrastructure cost reduction</div>
-          </div>
-
-          <div class="scenario-card">
-            <div class="scenario-tag">Pattern 2</div>
-            <div class="scenario-title">RAG Unified Storage</div>
-            <div class="scenario-desc">
-              Documents and embeddings in the same table.
-              BM25 + vector search in one query. No external vector database to
-              sync, scale, or pay for separately.
-            </div>
-            <div class="scenario-customers">
-              <div class="scenario-customer-label">Used by:</div>
-              <div class="scenario-customer-list">Dify.AI · Pinterest</div>
-            </div>
-            <div class="scenario-outcome">500K containers → 1 cluster · 90% ops overhead eliminated</div>
-          </div>
-
-          <div class="scenario-card">
-            <div class="scenario-tag">Pattern 3</div>
-            <div class="scenario-title">AI SaaS Multi-Tenancy</div>
-            <div class="scenario-desc">
-              Database branching gives each customer their own isolated environment
-              in milliseconds. Pay-per-RU means idle tenants cost nothing.
-              Full ACID isolation with zero cross-tenant leakage.
-            </div>
-            <div class="scenario-customers">
-              <div class="scenario-customer-label">Used by:</div>
-              <div class="scenario-customer-list">Manus · Dify.AI</div>
-            </div>
-            <div class="scenario-outcome">Millisecond isolation · zero cross-tenant leakage · scale-to-zero cost</div>
-          </div>
-
-          <div class="scenario-card">
-            <div class="scenario-tag">Pattern 4</div>
-            <div class="scenario-title">Real-time Feature Library</div>
-            <div class="scenario-desc">
-              Streaming telemetry + vector similarity + SQL aggregation in one query.
-              Agents reason over real-time data without a separate feature store
-              or batch pipeline.
-            </div>
-            <div class="scenario-customers">
-              <div class="scenario-customer-label">Used by:</div>
-              <div class="scenario-customer-list">Flipkart · Pinterest</div>
-            </div>
-            <div class="scenario-outcome">1.3M QPS · &lt;5ms P95 · 6 systems → 1</div>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="tab-outcome-strip">
-        <div class="outcome-item">
-          <span class="outcome-icon">🚀</span>
-          <span class="outcome-text">The only database where SQL JOINs embeddings against transactions in a single statement</span>
-        </div>
-        <div class="outcome-divider"></div>
-        <div class="outcome-item">
-          <span class="outcome-icon">✅</span>
-          <span class="outcome-text">Online DDL, Data Branching, HTAP — in production today, not on the roadmap</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── Who Uses It: Scale ── -->
-    <section class="tab-panel" data-tab-panel="who">
-      <div class="panel-hero">
-        <div class="panel-title">One cluster. Unlimited agents.</div>
-        <div class="panel-sub">
-          TiDB Cloud Zero provisions a fully isolated database for every agent in milliseconds
-          using copy-on-write branching — not spinning up new clusters. Manus runs 10M+ this way.
-          Each agent is isolated. None of them share a table. All of them share one TiDB cluster.
-        </div>
-      </div>
-
-      <!-- ── Three customer proof stat tiles ── -->
-      <div class="scale-proof-tiles">
-        <div class="scale-proof-tile manus-tile">
-          <div class="spt-customer">Manus</div>
-          <div class="spt-stat">10M+</div>
-          <div class="spt-unit">agent databases</div>
-          <div class="spt-detail">80% infrastructure cost reduction · 100% provisioned by AI agents · migrated in 2 weeks</div>
-        </div>
-        <div class="scale-proof-tile kimi-tile">
-          <div class="spt-customer">Kimi</div>
-          <div class="spt-stat">Millions</div>
-          <div class="spt-unit">of agents</div>
-          <div class="spt-detail">AI agent infrastructure on TiDB Cloud · persistent memory at Moonshot AI scale</div>
-        </div>
-        <div class="scale-proof-tile dify-tile">
-          <div class="spt-customer">Dify.AI</div>
-          <div class="spt-stat">500K</div>
-          <div class="spt-unit">containers → 1 cluster</div>
-          <div class="spt-detail">90% operations overhead eliminated · same performance, fraction of the cost</div>
-        </div>
-      </div>
-
-      <!-- ── Scale Ladder ── -->
-      <div class="scale-ladder-section">
-        <div class="scale-ladder-heading">From one agent to ten million — same cluster, same provisioning time</div>
-        <div class="scale-ladder">
-
-          <div class="scale-rung">
-            <div class="rung-count">1</div>
-            <div class="rung-body">
-              <div class="rung-track"><div class="rung-fill" style="width:3%"></div></div>
-              <div class="rung-label">One agent. One isolated database. Provisioned in milliseconds from cold.</div>
-              <div class="rung-tech">TiDB Cloud Zero · copy-on-write branch · ~900ms median</div>
-            </div>
-          </div>
-
-          <div class="scale-rung">
-            <div class="rung-count">100</div>
-            <div class="rung-body">
-              <div class="rung-track"><div class="rung-fill" style="width:8%"></div></div>
-              <div class="rung-label">A team of agents. Each isolated. Zero shared state between any of them.</div>
-              <div class="rung-tech">Pay-per-RU · idle agents cost nothing · scale to zero</div>
-            </div>
-          </div>
-
-          <div class="scale-rung">
-            <div class="rung-count">10K</div>
-            <div class="rung-body">
-              <div class="rung-track"><div class="rung-fill" style="width:22%"></div></div>
-              <div class="rung-label">Product launch. Every user gets their own agent memory store.</div>
-              <div class="rung-tech">Resource groups · no noisy neighbors · per-tenant RU caps</div>
-            </div>
-          </div>
-
-          <div class="scale-rung">
-            <div class="rung-count">1M</div>
-            <div class="rung-body">
-              <div class="rung-track"><div class="rung-fill" style="width:55%"></div></div>
-              <div class="rung-label">SaaS scale. Dify.AI runs this with 90% less ops overhead than before TiDB.</div>
-              <div class="rung-tech">Horizontal scale · TiDB X elastic compute/storage · HTAP on the same cluster</div>
-            </div>
-          </div>
-
-          <div class="scale-rung highlight-rung">
-            <div class="rung-count">10M+</div>
-            <div class="rung-body">
-              <div class="rung-track"><div class="rung-fill" style="width:100%"></div></div>
-              <div class="rung-label">Manus scale. 10M+ databases. Billions of events per day. One cluster.</div>
-              <div class="rung-tech">One TiDB cluster · 2-week migration · 80% cost reduction · 100% agent-provisioned</div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ── Context stats row ── -->
-      <div class="fleet-context-strip">
-        <div class="fleet-context-item">
-          <div class="fci-stat">~900ms</div>
-          <div class="fci-label">median provision time</div>
-        </div>
-        <div class="fleet-context-item">
-          <div class="fci-stat">0</div>
-          <div class="fci-label">shared tables · zero cross-tenant leakage</div>
-        </div>
-        <div class="fleet-context-item">
-          <div class="fci-stat">$0</div>
-          <div class="fci-label">cost when idle · pay-per-RU serverless</div>
-        </div>
-        <div class="fleet-context-item">
-          <div class="fci-stat">ACID</div>
-          <div class="fci-label">everywhere · no eventual consistency</div>
-        </div>
-      </div>
-
-      <div class="fleet-band">
-        All agents share <strong>one TiDB cluster</strong> underneath —
-        full isolation, zero shared state, pay for what you use.
-      </div>
-
-      <div class="fleet-scale-refs">
-        <div class="scale-ref">Manus: 10M+ agent DBs</div>
-        <div class="scale-ref">Pinterest: 1.3M QPS</div>
-        <div class="scale-ref">Flipkart: 700+ MySQL → 1</div>
-        <div class="scale-ref">Dify.AI: 500K → 1 cluster</div>
-        <div class="scale-ref">DeepSeek: AI agents on TiDB</div>
-        <div class="scale-ref">Plaud: AI agents on TiDB</div>
-        <div class="scale-ref">Kimi: AI agents on TiDB</div>
-      </div>
-    </section>
-
-    <!-- ── Agent context strip (bottom — for the curious) ── -->
-    <div class="stat-strip stat-strip-bottom">
-
-      <div class="stat-card">
-        <div class="stat-label">This agent's ID</div>
-        <div class="stat-value" id="tenant-value">loading…</div>
-        <div class="stat-caption">
-          Every agent gets a unique tenant. One TiDB Cloud Zero database,
-          isolated from all others.
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Memories stored</div>
-        <div class="stat-value" id="memories-value">—</div>
-        <div class="stat-caption">
-          50 facts, events, and preferences about a fictional engineer —
-          all in one TiDB table with vector + full-text indexes.
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-label">Database provisioned in</div>
-        <div class="stat-value" id="provision-value">—</div>
-        <div class="stat-caption">
-          TiDB Cloud Zero auto-created this database from cold.
-          No pre-warming. No shared pool. Just instant isolation.
+        <div class="stack-fails">
+          <div><b class="good" id="tdLat">—</b>commit latency</div>
+          <div><b class="good">1</b>network hop</div>
+          <div><b class="good">ACID</b>distributed txn</div>
         </div>
       </div>
 
     </div>
 
-  </main>
+    <!-- verdict -->
+    <div class="verdict">
+      <div class="v-col"><div class="v-k">Frankenstack</div><div class="v-v bad" id="vFrSys">4</div></div>
+      <div class="v-col"><div class="v-title">services</div><div class="v-sub">oltp · vector · kv · dw</div></div>
+      <div class="v-divider"></div>
+      <div class="v-col"><div class="v-k">vs.</div><div class="v-sub mono" style="font-size:18px; color:var(--ink-mute)">/</div></div>
+      <div class="v-col"><div class="v-title">services</div><div class="v-sub">1 tidb cluster · 1 sql surface</div></div>
+      <div class="v-col"><div class="v-k">TiDB</div><div class="v-v good">1</div></div>
+    </div>
+  </section>
 
-  <script src="/static/vendor/anime.min.js"></script>
-  <script src="/static/app.js" defer></script>
+  <!-- ─── TAB 03: AGENT CHAT ──────────────────────────────── -->
+  <section class="panel" data-panel="chat">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">02 · ask the agent</div>
+        <h2 class="panel-title">Stateless model. <em>Stateful platform.</em></h2>
+        <div class="panel-sub">
+          Every turn, mem9 runs a hybrid search. The top 5 memories become the
+          context plane. The model answers using only what was retrieved.
+          You can watch it happen in the right pane.
+        </div>
+      </div>
+      <div class="panel-idx"><b>02</b>agent</div>
+    </div>
+
+    <div class="chat-grid">
+      <!-- left: chat -->
+      <div class="chat-col">
+        <div class="chat-hd">
+          <span class="chat-hd-t">conversation · minimax-m2.7 <span class="on">online</span></span>
+          <span class="mono mute" style="font-size:11px">ctx plane: live</span>
+        </div>
+        <div class="chat-suggestions">
+          <div class="lbl">Try one of these</div>
+          <button class="chat-sug">Who does Sam report to and how often does he sync with his skip-level?</button>
+          <button class="chat-sug">What is Leading Lantern and what latency targets does it have?</button>
+          <button class="chat-sug">How does Sam structure deep work — and what does he drink during it?</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+          <div class="mono mute" style="text-align:center; padding:40px 0; font-size:12px">
+            ask a question — watch retrieval, then the answer.
+          </div>
+        </div>
+        <form class="chat-form" id="chatForm">
+          <input id="chatInput" placeholder="ask the agent…" value="Who does Sam report to and how often does he sync with his skip-level?">
+          <button type="submit">▶ Send</button>
+        </form>
+      </div>
+
+      <!-- right: retrieved memories -->
+      <div class="chat-col">
+        <div class="chat-hd">
+          <span class="chat-hd-t">context plane · top 5 memories</span>
+          <span class="mono mute" style="font-size:11px" id="ctxMs">—</span>
+        </div>
+        <div class="mem-retrieved" id="memRetrieved">
+          <div class="mem-empty">memories used will appear here</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB 04: SCALE ───────────────────────────────────── -->
+  <section class="panel" data-panel="scale">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">03 · scale story</div>
+        <h2 class="panel-title">One cluster. <em>Unlimited agents.</em></h2>
+        <ul class="scale-bullets">
+          <li><b>Isolated per agent</b> — one branch each, no shared tables</li>
+          <li><b>Milliseconds to provision</b> — copy-on-write, not new clusters</li>
+          <li><b>One cluster, one to ten million</b> — same architecture scales with you</li>
+          <li><b>Pay-per-RU</b> — idle agents cost zero</li>
+        </ul>
+      </div>
+      <div class="panel-idx"><b>03</b>scale</div>
+    </div>
+
+    <div class="scale-main">
+
+      <div class="scale-tiles">
+        <div class="scale-tile">
+          <div class="stt-who">Meta (Manus)</div>
+          <div class="stt-big">10<span style="font-style:italic; color:var(--accent)">M+</span></div>
+          <div class="stt-unit">agent databases</div>
+          <div class="stt-detail">80% infrastructure cost reduction · 100% provisioned by AI agents · 2-week migration.</div>
+        </div>
+        <div class="scale-tile">
+          <div class="stt-who">Kimi · Moonshot AI</div>
+          <div class="stt-big">Mem0<span style="font-style:italic; color:var(--accent)"> + TiDB</span></div>
+          <div class="stt-unit">persistent memory at scale</div>
+          <div class="stt-detail">Long-context Kimi agents run on TiDB + Mem0 as the memory layer · Alibaba Cloud partnership.</div>
+        </div>
+        <div class="scale-tile">
+          <div class="stt-who">Dify.AI</div>
+          <div class="stt-big">500<span style="font-style:italic; color:var(--accent)">K→1</span></div>
+          <div class="stt-unit">containers → cluster</div>
+          <div class="stt-detail">90% operations overhead eliminated · same performance, fraction of the cost.</div>
+        </div>
+      </div>
+
+      <div class="scale-ladder">
+        <div class="scale-ladder-hd">
+          <span>From one agent to ten million · same cluster, same provisioning time</span>
+          <span>~900ms · median cold provision</span>
+        </div>
+        <div class="rung">
+          <div class="rung-n">1</div>
+          <div class="rung-copy"><b>One agent.</b> One isolated database. Provisioned in milliseconds from cold.</div>
+          <div class="rung-tech">copy-on-write branch · 912ms median</div>
+        </div>
+        <div class="rung">
+          <div class="rung-n">100</div>
+          <div class="rung-copy"><b>A team of agents.</b> Each isolated. Zero shared state between any of them.</div>
+          <div class="rung-tech">pay-per-RU · scale to zero</div>
+        </div>
+        <div class="rung">
+          <div class="rung-n">10<em>K</em></div>
+          <div class="rung-copy"><b>Product launch.</b> Every user gets their own agent memory store.</div>
+          <div class="rung-tech">resource groups · per-tenant RU caps</div>
+        </div>
+        <div class="rung">
+          <div class="rung-n">1<em>M</em></div>
+          <div class="rung-copy"><b>SaaS scale.</b> Dify.AI runs here with 90% less ops overhead than before TiDB.</div>
+          <div class="rung-tech">htap on the same cluster</div>
+        </div>
+        <div class="rung hi">
+          <div class="rung-n">10<em>M+</em></div>
+          <div class="rung-copy"><b>Meta (Manus) scale.</b> 10M+ databases. Billions of events per day. One cluster.</div>
+          <div class="rung-tech">2-week migration · −80% cost · 100% agent-provisioned</div>
+        </div>
+      </div>
+
+      <div class="fleet-strip">
+        <div class="cell"><div class="k">median provision</div><div class="v hl">~900ms</div></div>
+        <div class="cell"><div class="k">shared tables</div><div class="v">0</div></div>
+        <div class="cell"><div class="k">cost when idle</div><div class="v">$0</div></div>
+        <div class="cell"><div class="k">consistency</div><div class="v hl">ACID</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB 05: TIDB FOR AI ─────────────────────────────── -->
+  <section class="panel" data-panel="tidbai">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">04 · tidb for ai</div>
+        <h2 class="panel-title">Hybrid search. <em>Agentic scale.</em></h2>
+        <div class="panel-sub">
+          Two live animations. On the left: hybrid search — vector similarity blended
+          with BM25 keyword ranking, one SQL call. On the right: agentic scale —
+          one spawn seeds a thousand users, each spinning up their own isolated
+          TiDB branch in milliseconds. Scales to tens of millions.
+        </div>
+      </div>
+      <div class="panel-idx"><b>04</b>tidb · ai</div>
+    </div>
+
+    <div class="ai-grid">
+
+      <!-- ── Vector Search panel ── -->
+      <div class="ai-card">
+        <div class="ai-hd">
+          <div>
+            <div class="ai-title">Hybrid Search <span class="mono mute" style="font-size:10px; letter-spacing:.14em; margin-left:8px">VECTOR + BM25</span></div>
+            <div class="ai-sub">vector similarity + keyword ranking, blended in one sql call</div>
+          </div>
+          <button class="stack-btn" id="vsRun">▶ Search</button>
+        </div>
+        <div class="ai-body">
+          <div class="vs-query">
+            <span class="mono mute">query</span>
+            <input id="vsQuery" value="what slowed down the research pipeline" />
+          </div>
+          <div class="vs-space" id="vsSpace"></div>
+          <div class="vs-results" id="vsResults">
+            <div class="mono mute" style="text-align:center; padding:10px 0; font-size:11px">click search to embed + retrieve</div>
+          </div>
+        </div>
+        <div class="ai-foot">
+          <span class="mono mute" style="font-size:10px">one sql · <span style="color:var(--tidb-red)">VEC_COSINE_DISTANCE()</span> + <span style="color:var(--tidb-red)">fts_match_score()</span></span>
+          <span class="mono" id="vsLat" style="font-size:10px; color:var(--ink-dim)">—</span>
+        </div>
+      </div>
+
+      <!-- ── Agentic AI panel ── -->
+      <div class="ai-card">
+        <div class="ai-hd">
+          <div>
+            <div class="ai-title">Agentic AI Scale <span class="mono mute" style="font-size:10px; letter-spacing:.14em; margin-left:8px">BRANCH · FLEET</span></div>
+            <div class="ai-sub">each spawn provisions 1,000 users · ~5K agents · millions of isolated branches</div>
+          </div>
+          <div style="display:flex; gap:6px">
+            <button class="stack-btn" id="aiReset">Reset</button>
+            <button class="stack-btn primary" id="aiSpawn">▶ Spawn 1K Fleet</button>
+          </div>
+        </div>
+        <div class="ai-body">
+          <div class="ai-stage" id="aiStage">
+            <svg class="ai-tree" id="aiTree" viewBox="0 0 520 320" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+          <div class="ai-metrics">
+            <div class="ai-m"><div class="k">users</div><div class="v" id="aiUsers">0</div></div>
+            <div class="ai-m"><div class="k">agents</div><div class="v" id="aiAgents">0</div></div>
+            <div class="ai-m"><div class="k">tidb branches</div><div class="v hl" id="aiBranches">0</div></div>
+            <div class="ai-m"><div class="k">avg provision</div><div class="v" id="aiProv">—</div></div>
+          </div>
+        </div>
+        <div class="ai-foot">
+          <span class="mono mute" style="font-size:10px">copy-on-write branch · pay-per-ru · idle = $0</span>
+          <span class="mono" style="font-size:10px; color:var(--tidb-red)">same cluster · 10m+ ceiling</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- customer strip with logos -->
+    <div class="ai-logo-strip">
+      <div class="als-lbl mono mute">running on tidb</div>
+      <div class="als-logos">
+        <div class="tl"><svg viewBox="0 0 60 20" width="52" height="18"><text x="0" y="15" font-family="'JetBrains Mono',monospace" font-size="15" font-weight="700" fill="var(--tidb-red)">Ti</text><text x="18" y="15" font-family="'JetBrains Mono',monospace" font-size="15" font-weight="700" fill="currentColor">DB</text></svg></div>
+        <div class="tl">Pinterest</div>
+        <div class="tl">Manus</div>
+        <div class="tl">Dify.AI</div>
+        <div class="tl">DeepSeek</div>
+        <div class="tl">Kimi</div>
+        <div class="tl">Plaud</div>
+        <div class="tl">Flipkart</div>
+        <div class="tl">Uber</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TAB 01: ARCHITECTURE ─────────────────────────────── -->
+  <section class="panel active" data-panel="arch">
+    <div class="panel-head">
+      <div>
+        <div class="panel-kicker">01 · architecture</div>
+        <h2 class="panel-title">One cluster. Two engines. <em>Four jobs.</em></h2>
+        <div class="panel-sub">Every AI workload — agent state, analytics, vector retrieval, and full-text search — served from a single TiDB cluster. No sync glue. No ETL. One consistency model.</div>
+      </div>
+      <div class="panel-num">01</div>
+    </div>
+
+    <style>
+      /* ── Architecture diagram ─────────────────────────────── */
+      .arch-diagram{display:flex;flex-direction:column;gap:0;width:100%;max-width:900px;margin:0 auto}
+
+      /* workload row */
+      .arch-workloads{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:0}
+      .arch-workload{
+        border:1px solid var(--line-2);border-bottom:none;
+        background:var(--bg-1);
+        padding:16px 14px 12px;
+        position:relative;
+      }
+      .arch-workload::after{
+        content:"↓";position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+        color:var(--ink-mute);font-size:13px;z-index:2;
+      }
+      .arch-wl-tag{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+      .arch-wl-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:4px}
+      .arch-wl-desc{font-size:11px;color:var(--ink-mute);line-height:1.4}
+
+      /* connector bar */
+      .arch-connector{
+        height:22px;
+        background:linear-gradient(to bottom, var(--bg-1) 0%, var(--bg-2) 100%);
+        border-left:1px solid var(--line-2);border-right:1px solid var(--line-2);
+        display:flex;align-items:center;justify-content:center;
+        position:relative;
+      }
+      .arch-connector-line{
+        width:calc(100% - 40px);height:1px;background:var(--line-2);
+        position:relative;
+      }
+
+      /* SQL compute layer */
+      .arch-compute{
+        border:1px solid var(--accent);
+        background:color-mix(in srgb, var(--accent) 6%, var(--bg-1));
+        padding:18px 20px;
+        display:flex;align-items:center;gap:20px;
+      }
+      .arch-compute-badge{
+        font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+        color:var(--accent);border:1px solid var(--accent);padding:3px 8px;white-space:nowrap;flex-shrink:0;
+      }
+      .arch-compute-name{font-size:17px;font-weight:700;color:var(--ink)}
+      .arch-compute-desc{font-size:12px;color:var(--ink-dim);margin-top:2px}
+
+      /* storage engines row */
+      .arch-engines{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+      .arch-engine{
+        border:1px solid var(--line-2);background:var(--bg-1);
+        padding:18px 20px;
+      }
+      .arch-engine-header{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+      .arch-engine-name{font-size:16px;font-weight:700;color:var(--ink)}
+      .arch-engine-role{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute)}
+      .arch-engine-desc{font-size:12px;color:var(--ink-dim);line-height:1.5;margin-bottom:12px}
+      .arch-engine-bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+      .arch-engine-bullets li{font-size:11px;color:var(--ink-mute);font-family:var(--mono);display:flex;align-items:flex-start;gap:6px}
+      .arch-engine-bullets li::before{content:"·";color:var(--accent);flex-shrink:0}
+      .arch-engine-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+      .arch-engine-tag{
+        font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+        padding:3px 7px;border:1px solid var(--line-2);color:var(--ink-mute);
+      }
+      .arch-engine-tag.tikv-oltp{border-color:var(--accent);color:var(--accent)}
+      .arch-engine-tag.tf-analytics{border-color:var(--accent-2);color:var(--accent-2)}
+      .arch-engine-tag.tf-vector{border-color:var(--hybrid);color:var(--hybrid)}
+      .arch-engine-tag.tf-fts{border-color:var(--accent-3);color:var(--accent-3)}
+
+      /* S3 layer */
+      .arch-s3{
+        border:1px dashed var(--line-2);border-top:none;
+        background:var(--bg);
+        padding:14px 20px;
+        display:flex;align-items:center;gap:16px;
+      }
+      .arch-s3-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute)}
+      .arch-s3-name{font-size:13px;font-weight:600;color:var(--ink-dim)}
+      .arch-s3-desc{font-size:11px;color:var(--ink-mute);margin-left:auto;font-family:var(--mono)}
+
+      /* proof row */
+      .arch-proof{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:32px}
+      .arch-proof-cell{background:var(--bg-1);padding:16px 18px}
+      .arch-proof-co{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:4px}
+      .arch-proof-stat{font-size:22px;font-weight:700;color:var(--accent);line-height:1}
+      .arch-proof-label{font-size:11px;color:var(--ink-dim);margin-top:4px}
+    </style>
+
+    <div class="arch-diagram">
+
+      <!-- ── 4 workloads ───────────────────────────────────── -->
+      <div class="arch-workloads">
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Agent State</div>
+          <div class="arch-wl-name">Inference job metadata &amp; control plane</div>
+        </div>
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Analytics</div>
+          <div class="arch-wl-name">Live analytics on inference data</div>
+        </div>
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Retrieval</div>
+          <div class="arch-wl-name">RAG without a separate vector DB</div>
+        </div>
+        <div class="arch-workload">
+          <div class="arch-wl-tag">Full-Text</div>
+          <div class="arch-wl-name">Keyword · BM25</div>
+        </div>
+      </div>
+
+      <!-- ── SQL compute ───────────────────────────────────── -->
+      <div class="arch-connector"><div class="arch-connector-line"></div></div>
+      <div class="arch-compute">
+        <div class="arch-compute-badge">Compute</div>
+        <div>
+          <div class="arch-compute-name">TiDB Server — Stateless SQL Compute</div>
+        </div>
+      </div>
+      <div class="arch-connector"><div class="arch-connector-line"></div></div>
+
+      <!-- ── Storage engines ──────────────────────────────── -->
+      <div class="arch-engines">
+        <div class="arch-engine">
+          <div class="arch-engine-header">
+            <div class="arch-engine-name">TiKV</div>
+            <div class="arch-engine-role">Transactional truth</div>
+          </div>
+          <div class="arch-engine-tags">
+            <span class="arch-engine-tag tikv-oltp">OLTP</span>
+          </div>
+        </div>
+        <div class="arch-engine">
+          <div class="arch-engine-header">
+            <div class="arch-engine-name">TiFlash</div>
+            <div class="arch-engine-role">Analytics · Vector · FTS</div>
+          </div>
+          <div class="arch-engine-tags">
+            <span class="arch-engine-tag tf-analytics">Analytics</span>
+            <span class="arch-engine-tag tf-vector">Vector</span>
+            <span class="arch-engine-tag tf-fts">Full-text</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── S3 ─────────────────────────────────────────────── -->
+      <div class="arch-s3">
+        <div class="arch-s3-label">Storage</div>
+        <div class="arch-s3-name">Object Storage (S3) — source of truth</div>
+        <div class="arch-s3-desc">TiDB X architecture · compute–storage decoupled · 5–10× faster scaling</div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div>mem9 · tidb cloud zero · booth demo</div>
+    <div>apache-2.0 · <a href="https://mem9.ai">mem9.ai</a></div>
+  </footer>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────
+const QUERIES = {
+  q1: {
+    label: 'What does Sam think about TypeScript?',
+    hint: 'Vector wins · "TypeScript" never appears',
+    insight: {
+      vector:  'Vector finds <span class="hl">mem_006</span> via semantic proximity — "Python for ML" ≈ "what languages does Sam like?" — even though the word <span class="hl">TypeScript</span> appears in zero memories.',
+      fts:     'Full-text scores <span class="hl">0.00</span> across the board. "TypeScript" is simply not in the corpus — a keyword-only store is blind.',
+      hybrid:  'Hybrid correctly surfaces the Python preference at the top. The vector signal carries; FTS contributes nothing but doesn\'t block.'
+    },
+    hits: [
+      { id:'mem_006', content:'Prefers Python for anything ML-related; dynamically typed languages keep iteration fast.', tags:['fact','preference'], scores:{vector:0.87, fts:0.00, hybrid:0.71} },
+      { id:'mem_008', content:'Reaches for Rust when latency or memory safety matters; has shipped two production Rust services.', tags:['fact','rust'], scores:{vector:0.52, fts:0.00, hybrid:0.41} },
+      { id:'mem_009', content:'10 years of backend experience; started career writing PHP for a fintech startup.', tags:['fact','career'], scores:{vector:0.48, fts:0.00, hybrid:0.38} },
+      { id:'mem_036', content:'Writes all design docs in Markdown; strongly prefers docs-as-code over Confluence.', tags:['preference','tooling'], scores:{vector:0.41, fts:0.00, hybrid:0.33} }
+    ]
+  },
+  q2: {
+    label: 'Who does Sam report to?',
+    hint: 'Baseline · keyword + semantic agree',
+    insight: {
+      vector: 'Vector and FTS agree — but the <span class="hl">hybrid</span> score (0.94) is strictly higher than either alone because both signals reinforce the same row.',
+      fts:    'FTS nails it on the word "reports" — <span class="hl">mem_026</span> contains it verbatim. This is the case a keyword store handles fine.',
+      hybrid: 'Both lanes light up. Hybrid ranking promotes <span class="hl">mem_026</span> decisively over the skip-level and peer rows.'
+    },
+    hits: [
+      { id:'mem_026', content:'Reports to Priya Menon, Director of Platform at Lumos AI.', tags:['relation','manager'], scores:{vector:0.91, fts:0.88, hybrid:0.94} },
+      { id:'mem_028', content:'Ana Ruiz is the skip-level VP of Engineering; 1:1 with her happens quarterly.', tags:['relation','skip-level'], scores:{vector:0.62, fts:0.21, hybrid:0.55} },
+      { id:'mem_027', content:'Jordan Vega is a peer staff engineer on the data infra team; they pair on RFC reviews.', tags:['relation','peer'], scores:{vector:0.51, fts:0.12, hybrid:0.44} },
+      { id:'mem_033', content:'Jess Choi is a direct report; joined the team six months ago and is ramping fast.', tags:['relation','direct-report'], scores:{vector:0.44, fts:0.08, hybrid:0.37} }
+    ]
+  },
+  q3: {
+    label: 'What slowed down the research pipeline recently?',
+    hint: 'Hybrid wins · FTS and vector each find half the answer',
+    insight: {
+      vector: 'Vector finds <span class="hl">mem_015</span> (latency regression) via semantic match on "slowed down" ≈ "regression".',
+      fts:    'FTS locks onto the word "pipeline" — correctly surfacing <span class="hl">mem_047</span> and related entries but missing the root cause.',
+      hybrid: 'Hybrid merges both — <span class="hl">mem_015</span> (root cause) jumps to the top, <span class="hl">mem_047</span> (ongoing work) is still surfaced. No keyword-only store does this in one call.'
+    },
+    hits: [
+      { id:'mem_015', content:'Debugged a latency regression in the research pipeline on 2026-04-02 — traced to a missing vector index.', tags:['event','incident'], scores:{vector:0.83, fts:0.77, hybrid:0.89} },
+      { id:'mem_047', content:'Pipeline latency work continues; p99 is 840ms, target sub-500ms by 2026-05-15.', tags:['project','latency'], scores:{vector:0.79, fts:0.81, hybrid:0.87} },
+      { id:'mem_021', content:'Led a Python performance audit of the embedding pipeline in March 2026; cut wall-clock time by 18%.', tags:['event','perf'], scores:{vector:0.58, fts:0.34, hybrid:0.52} },
+      { id:'mem_011', content:'Shipped vector search feature to production on 2026-03-02 after a 6-week sprint.', tags:['event','shipped'], scores:{vector:0.48, fts:0.26, hybrid:0.41} }
+    ]
+  },
+  custom: {
+    label: 'custom',
+    hint: 'live synthetic scores',
+    insight: {
+      vector: 'Synthetic vector scores — in production this calls <span class="hl">VEC_COSINE_DISTANCE()</span> against the embedding column.',
+      fts:    'Synthetic FTS scores — in production this calls <span class="hl">fts_match_score()</span> against the BM25 index.',
+      hybrid: 'Synthetic hybrid — production uses a rank-biased blend of the two lanes in a single SQL statement.'
+    },
+    hits: []
+  }
+};
+
+// corpus snippet for custom search
+const CORPUS = [
+  { id:'mem_002', content:'Staff Engineer at Lumos AI, focused on the ML platform team.', tags:['fact','role'] },
+  { id:'mem_006', content:'Prefers Python for anything ML-related; dynamically typed languages keep iteration fast.', tags:['fact','preference'] },
+  { id:'mem_008', content:'Reaches for Rust when latency or memory safety matters; has shipped two production Rust services.', tags:['fact','rust'] },
+  { id:'mem_015', content:'Debugged a latency regression in the research pipeline on 2026-04-02 — traced to a missing vector index.', tags:['event','incident'] },
+  { id:'mem_021', content:'Led a Python performance audit of the embedding pipeline in March 2026; cut wall-clock time by 18%.', tags:['event','perf'] },
+  { id:'mem_026', content:'Reports to Priya Menon, Director of Platform at Lumos AI.', tags:['relation','manager'] },
+  { id:'mem_028', content:'Ana Ruiz is the skip-level VP of Engineering; 1:1 with her happens quarterly.', tags:['relation','skip-level'] },
+  { id:'mem_033', content:'Drinks loose-leaf green tea during focus blocks; avoids coffee after 14:00.', tags:['preference','personal'] },
+  { id:'mem_034', content:'Protects mornings for deep work; calendar blocks 08:00–11:00 Pacific as focus time.', tags:['preference','schedule'] },
+  { id:'mem_041', content:'Leading Lantern, internal AI memory layer for 800 Lumos employees; targeting 1ms p50 recall.', tags:['project','lantern'] },
+  { id:'mem_047', content:'Pipeline latency work continues; p99 is 840ms, target sub-500ms by 2026-05-15.', tags:['project','latency'] }
+];
+
+// ── TABS ────────────────────────────────────────────────────────────────
+document.querySelectorAll('#tabs .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.tab;
+    document.querySelectorAll('#tabs .tab').forEach(b => b.classList.toggle('active', b===btn));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.panel===t));
+    try{ localStorage.setItem('m9_tab', t); }catch(e){}
+  });
+});
+try{ const saved = localStorage.getItem('m9_tab'); if(saved){ const b = document.querySelector(`[data-tab="${saved}"]`); b && b.click(); } }catch(e){}
+
+// ── QUERY TAB ───────────────────────────────────────────────────────────
+const qChipsEl = document.getElementById('qChips');
+const qResultsBody = document.getElementById('qResultsBody');
+const qStatus = document.getElementById('qStatus');
+const qInsightBody = document.getElementById('qInsightBody');
+const curModeEl = document.getElementById('curMode');
+let currentQ = 'q1';
+let currentMode = 'hybrid';
+
+const CHIP_DATA = [
+  { k:'q1', label:'What does Sam think about TypeScript?', hint:QUERIES.q1.hint },
+  { k:'q2', label:'Who does Sam report to?', hint:QUERIES.q2.hint },
+  { k:'q3', label:'What slowed down the research pipeline recently?', hint:QUERIES.q3.hint }
+];
+CHIP_DATA.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.className = 'q-chip' + (i===0 ? ' active' : '');
+  b.dataset.q = c.k;
+  b.innerHTML = `<span class="q-ix">Q${i+1} · preset</span><span class="q-txt">"${c.label}"</span><span class="q-hint">${c.hint}</span>`;
+  b.addEventListener('click', () => selectQuery(c.k, c.label));
+  qChipsEl.appendChild(b);
+});
+
+document.querySelectorAll('#qMode button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#qMode button').forEach(b => b.classList.toggle('active', b===btn));
+    currentMode = btn.dataset.mode;
+    curModeEl.textContent = currentMode;
+    curModeEl.style.color = currentMode === 'vector' ? 'var(--vector)' : currentMode === 'fts' ? 'var(--fts)' : 'var(--hybrid)';
+    highlightLanes();
+    renderResults();
+    updateInsight();
+  });
+});
+
+// SQL templates
+function sqlFor(lane, query){
+  const q = query.replace(/'/g,"\\'");
+  if(lane === 'vector'){
+    return `<span class="kw">SELECT</span> id, content, tags,
+  <span class="fn">VEC_COSINE_DISTANCE</span>(embedding,
+    <span class="fn">EMBED</span>(<span class="str">'${q}'</span>)) <span class="kw">AS</span> score
+<span class="kw">FROM</span> memories
+<span class="kw">WHERE</span> tenant_id = @tid
+<span class="kw">ORDER BY</span> score <span class="kw">ASC</span>
+<span class="kw">LIMIT</span> <span class="num">5</span>;`;
+  }
+  if(lane === 'fts'){
+    return `<span class="kw">SELECT</span> id, content, tags,
+  <span class="fn">fts_match_score</span>(content,
+    <span class="str">'${q}'</span>) <span class="kw">AS</span> score
+<span class="kw">FROM</span> memories
+<span class="kw">WHERE</span> tenant_id = @tid
+  <span class="kw">AND</span> <span class="fn">MATCH</span>(content) <span class="kw">AGAINST</span>(<span class="str">'${q}'</span>)
+<span class="kw">ORDER BY</span> score <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">5</span>;`;
+  }
+  return `<span class="kw">SELECT</span> id, content, tags,
+  (<span class="num">0.6</span> * (<span class="num">1</span> - <span class="fn">VEC_COSINE_DISTANCE</span>(embedding, e))
+ + <span class="num">0.4</span> * <span class="fn">fts_match_score</span>(content, q)) <span class="kw">AS</span> score
+<span class="kw">FROM</span> memories, <span class="fn">EMBED</span>(<span class="str">'${q}'</span>) <span class="kw">AS</span> e, (<span class="kw">SELECT</span> <span class="str">'${q}'</span> <span class="kw">AS</span> q) p
+<span class="kw">WHERE</span> tenant_id = @tid
+<span class="kw">ORDER BY</span> score <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">5</span>;`;
+}
+
+function highlightLanes(){
+  document.querySelectorAll('#qSqlRow .q-sql').forEach(c => {
+    c.classList.toggle('dim-out', currentMode !== c.dataset.lane);
+  });
+}
+
+function populateSql(label){
+  ['vector','fts','hybrid'].forEach(lane => {
+    const el = document.querySelector(`[data-lane-sql="${lane}"]`);
+    el.innerHTML = sqlFor(lane, label);
+  });
+}
+
+function setLatencies(hits){
+  // fake but plausible timings
+  const lat = { vector: 18 + Math.round(Math.random()*8), fts: 9 + Math.round(Math.random()*5), hybrid: 24 + Math.round(Math.random()*9) };
+  ['vector','fts','hybrid'].forEach(l => {
+    const card = document.querySelector(`.q-sql[data-lane="${l}"]`);
+    card.querySelector('.latency').textContent = lat[l] + ' ms';
+    const rows = hits.filter(h => (h.scores[l] || 0) > 0).length || (l==='fts' ? 0 : hits.length);
+    card.querySelector('.rows').textContent = rows + ' rows';
+  });
+}
+
+function selectQuery(key, label){
+  currentQ = key;
+  qChipsEl.querySelectorAll('.q-chip').forEach(c => c.classList.toggle('active', c.dataset.q === key));
+  qStatus.textContent = 'running…';
+  populateSql(label || QUERIES[key].label);
+  document.querySelectorAll('#qSqlRow .q-sql').forEach(c => c.classList.add('running'));
+  highlightLanes();
+  // simulate delay
+  setTimeout(() => {
+    document.querySelectorAll('#qSqlRow .q-sql').forEach(c => c.classList.remove('running'));
+    setLatencies(QUERIES[key].hits);
+    renderResults();
+    updateInsight();
+    qStatus.innerHTML = `<span class="hl">${QUERIES[key].hits.length}</span> hits · top: <span class="hl">${sortedForMode(QUERIES[key].hits)[0].id}</span>`;
+  }, 420);
+}
+
+function sortedForMode(hits){
+  return [...hits].sort((a,b) => (b.scores[currentMode]||0) - (a.scores[currentMode]||0));
+}
+
+function renderResults(){
+  const hits = QUERIES[currentQ].hits;
+  if(!hits.length){
+    qResultsBody.innerHTML = '<div class="mono mute" style="padding:20px; text-align:center; font-size:12px">no results</div>';
+    return;
+  }
+  const ranked = sortedForMode(hits);
+  qResultsBody.innerHTML = '';
+  ranked.forEach((h, i) => {
+    const row = document.createElement('div');
+    row.className = 'q-result' + (i===0 ? ' top' : '');
+    row.innerHTML = `
+      <div class="q-rank">#${(i+1).toString().padStart(2,'0')}</div>
+      <div class="q-body">
+        <div class="q-id">${h.id}</div>
+        <div class="q-content">${h.content}</div>
+        <div class="q-tags">${h.tags.map(t=>`<span class="q-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="q-scores">
+        ${scoreBar('v','vector', h.scores.vector)}
+        ${scoreBar('f','fts', h.scores.fts)}
+        ${scoreBar('h','hybrid', h.scores.hybrid)}
+      </div>
+    `;
+    qResultsBody.appendChild(row);
+    // animate bars
+    requestAnimationFrame(() => {
+      row.querySelectorAll('.q-score-bar .fill').forEach(el => {
+        const val = parseFloat(el.dataset.val);
+        el.style.transform = `scaleX(${Math.max(0.02, val)})`;
+      });
+    });
+  });
+}
+
+function scoreBar(cls, lane, v){
+  const dim = currentMode !== lane ? ' dim' : '';
+  return `
+    <div class="q-score-row">
+      <span class="q-score-label ${cls}">${lane}</span>
+      <div class="q-score-bar${dim}"><div class="fill ${cls}" data-val="${v}"></div></div>
+      <span class="q-score-val">${v.toFixed(2)}</span>
+    </div>`;
+}
+
+function updateInsight(){
+  const ins = QUERIES[currentQ].insight[currentMode] || '';
+  qInsightBody.innerHTML = ins;
+}
+
+// custom query — synthetic scoring against corpus
+function runCustom(){
+  const qStr = document.getElementById('qCustom').value.trim();
+  if(!qStr) return;
+  const terms = qStr.toLowerCase().split(/\s+/).filter(Boolean);
+  // very simple synthetic: FTS = term overlap, vector = jaccard + a bump for related concepts
+  const hits = CORPUS.map(m => {
+    const c = m.content.toLowerCase();
+    const fts = Math.min(0.95, terms.filter(t => c.includes(t)).length / Math.max(1, terms.length) * (0.7 + Math.random()*0.2));
+    // pseudo-semantic: count of related words via small synonym map
+    const sem = semScore(terms, c);
+    const vector = Math.min(0.95, sem);
+    const hybrid = Math.min(0.97, 0.6 * vector + 0.4 * fts + 0.02);
+    return { ...m, scores:{ vector:+vector.toFixed(2), fts:+fts.toFixed(2), hybrid:+hybrid.toFixed(2) } };
+  }).sort((a,b)=> b.scores.hybrid - a.scores.hybrid).slice(0,5);
+  QUERIES.custom.hits = hits;
+  QUERIES.custom.label = qStr;
+  // update insight
+  QUERIES.custom.insight = {
+    vector: 'Synthetic vector scoring against the 50-memory corpus. In prod, <span class="hl">VEC_COSINE_DISTANCE()</span> runs inside TiDB.',
+    fts:    'Synthetic BM25-style overlap on your terms. In prod, <span class="hl">fts_match_score()</span> handles stemming and stopwords.',
+    hybrid: 'Synthetic blend (0.6 vector · 0.4 fts). In prod this is one SQL statement, one round-trip, same cluster.'
+  };
+  selectQuery('custom', qStr);
+}
+function semScore(terms, c){
+  const SYN = {
+    python:['ml','ml-related','language','prefers','iteration'],
+    ml:['python','research','pipeline','embedding'],
+    manager:['priya','reports','director','lumos','menon','menon'],
+    reports:['priya','manager','lumos'],
+    coffee:['tea','drinks','focus','personal'],
+    tea:['coffee','drinks','focus','personal'],
+    deep:['focus','morning','block','protects'],
+    focus:['deep','morning','block','tea','protects'],
+    slow:['latency','regression','pipeline','p99','slowed'],
+    slowed:['latency','regression','pipeline','p99'],
+    slowdown:['latency','regression','pipeline','p99'],
+    pipeline:['research','latency','regression','embedding'],
+    regression:['latency','pipeline','slow','slowed'],
+    rust:['latency','safety','memory','production'],
+    typescript:['python','language','rust','ml'],
+    report:['priya','manager','reports','lumos']
+  };
+  let score = 0;
+  terms.forEach(t => {
+    if(c.includes(t)) score += 0.35;
+    const syn = SYN[t.replace(/s$/,'')] || SYN[t] || [];
+    syn.forEach(s => { if(c.includes(s)) score += 0.12; });
+  });
+  return Math.min(0.92, score + Math.random()*0.05);
+}
+document.getElementById('qCustomRun').addEventListener('click', runCustom);
+document.getElementById('qCustom').addEventListener('keydown', e => { if(e.key === 'Enter') runCustom(); });
+
+// init query tab
+selectQuery('q1', QUERIES.q1.label);
+
+// ── STACK COMPARISON TAB ─────────────────────────────────────────────────
+const FR_SVCS = ['oltp','vec','kv','dw'];
+const FR_NAMES = { oltp:'OLTP · Postgres', vec:'Vector · Pinecone', kv:'KV · Redis', dw:'DW · Snowflake' };
+const TD_PLANES = ['oltp','vec','fts','htap'];
+let writes = 0, frFails = 0, tdFails = 0;
+
+function logLine(target, cls, text){
+  const el = document.getElementById(target);
+  const line = document.createElement('div');
+  line.className = 'stack-log-line' + (cls ? ' ' + cls : '');
+  const ts = new Date().toISOString().slice(11,19);
+  line.innerHTML = `<span class="t">${ts}</span><span>${text}</span>`;
+  el.prepend(line);
+  while(el.children.length > 6) el.removeChild(el.lastChild);
+}
+
+async function fireFranken(){
+  const delays = [120, 180, 240, 310];
+  // reset states
+  FR_SVCS.forEach((s, i) => {
+    const svc = document.querySelector(`[data-svc="${s}"]`);
+    svc.classList.remove('activated','err');
+    svc.querySelector('.svc-state').className = 'svc-state';
+    svc.querySelector('.svc-state').innerHTML = '<span class="sd"></span>idle';
+  });
+  document.querySelectorAll('#frankenSvcs .svc-conn').forEach(c => c.classList.remove('live'));
+
+  logLine('frankenLog','', `agent.write() → dispatcher (fan-out 4 services)`);
+  // simulate possibly failing sync
+  for(let i = 0; i < FR_SVCS.length; i++){
+    const s = FR_SVCS[i];
+    const svc = document.querySelector(`[data-svc="${s}"]`);
+    const state = svc.querySelector('.svc-state');
+    await sleep(delays[i]);
+    svc.classList.add('activated');
+    state.className = 'svc-state sync';
+    state.innerHTML = '<span class="sd"></span>writing';
+    // connector to next
+    const conn = svc.nextElementSibling;
+    if(conn && conn.classList.contains('svc-conn')){
+      conn.classList.add('live');
+      logLine('frankenLog','sync', `${FR_NAMES[s]} → ${FR_NAMES[FR_SVCS[i+1]]} (sync hop)`);
+    } else {
+      logLine('frankenLog','', `${FR_NAMES[s]} write ok`);
+    }
+  }
+  // 38% chance something drifts out of sync
+  const roll = Math.random();
+  await sleep(300);
+  if(roll < 0.42){
+    // pick vec or kv to fail / drift
+    const failSvc = Math.random() < 0.5 ? 'vec' : 'kv';
+    const svc = document.querySelector(`[data-svc="${failSvc}"]`);
+    svc.classList.remove('activated'); svc.classList.add('err');
+    const state = svc.querySelector('.svc-state');
+    state.className = 'svc-state bad';
+    state.innerHTML = '<span class="sd"></span>drift';
+    logLine('frankenLog','err', `${FR_NAMES[failSvc]} · sync lag 1420ms · read-your-writes BROKEN`);
+    frFails++;
+    document.getElementById('frFails').textContent = frFails;
+  } else {
+    // eventual consistency arrived
+    FR_SVCS.forEach(s => {
+      const svc = document.querySelector(`[data-svc="${s}"]`);
+      const state = svc.querySelector('.svc-state');
+      state.className = 'svc-state ok';
+      state.innerHTML = '<span class="sd"></span>ok';
+    });
+    logLine('frankenLog','ok', `eventual consistency reached · total ~850ms · 4 hops`);
+  }
+  const totalLat = 450 + Math.round(Math.random()*700);
+  document.getElementById('frLat').textContent = totalLat + 'ms';
+  document.getElementById('frHops').textContent = '4';
+  document.getElementById('frSplit').textContent = 'Yes';
+}
+
+async function fireTidb(){
+  TD_PLANES.forEach(p => document.querySelector(`[data-plane="${p}"]`).classList.remove('lit'));
+  const txState = document.getElementById('tdTxState');
+  txState.textContent = 'BEGIN';
+  txState.style.color = 'var(--accent-3)';
+  logLine('tidbLog','', `BEGIN · single distributed txn`);
+  await sleep(80);
+  for(let i = 0; i < TD_PLANES.length; i++){
+    const p = TD_PLANES[i];
+    document.querySelector(`[data-plane="${p}"]`).classList.add('lit');
+    await sleep(45);
+  }
+  txState.textContent = 'COMMIT';
+  txState.style.color = 'var(--ok)';
+  const lat = 18 + Math.round(Math.random()*14);
+  logLine('tidbLog','ok', `COMMIT · ACID across rows · ${lat}ms`);
+  document.getElementById('tdLat').textContent = lat + 'ms';
+  await sleep(400);
+  TD_PLANES.forEach(p => document.querySelector(`[data-plane="${p}"]`).classList.remove('lit'));
+  txState.textContent = 'idle';
+  txState.style.color = 'var(--ink-mute)';
+}
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+document.getElementById('fireWrite').addEventListener('click', async () => {
+  writes++; document.getElementById('writeCount').textContent = writes;
+  fireFranken(); fireTidb();
+});
+document.getElementById('fire10').addEventListener('click', async () => {
+  for(let i = 0; i < 10; i++){
+    writes++; document.getElementById('writeCount').textContent = writes;
+    fireFranken(); fireTidb();
+    await sleep(350);
+  }
+});
+document.getElementById('resetStack').addEventListener('click', () => {
+  writes = 0; frFails = 0; tdFails = 0;
+  document.getElementById('writeCount').textContent = 0;
+  document.getElementById('frFails').textContent = 0;
+  document.getElementById('tdFails').textContent = 0;
+  document.getElementById('frLat').textContent = '—';
+  document.getElementById('frHops').textContent = '—';
+  document.getElementById('frSplit').textContent = '—';
+  document.getElementById('tdLat').textContent = '—';
+  document.getElementById('frankenLog').innerHTML = '';
+  document.getElementById('tidbLog').innerHTML = '';
+  FR_SVCS.forEach(s => {
+    const svc = document.querySelector(`[data-svc="${s}"]`);
+    svc.classList.remove('activated','err');
+    const state = svc.querySelector('.svc-state');
+    state.className = 'svc-state';
+    state.innerHTML = '<span class="sd"></span>idle';
+  });
+  document.querySelectorAll('#frankenSvcs .svc-conn').forEach(c => c.classList.remove('live'));
+  TD_PLANES.forEach(p => document.querySelector(`[data-plane="${p}"]`).classList.remove('lit'));
+});
+
+// ── CHAT TAB ────────────────────────────────────────────────────────────
+const CANNED_CHAT = {
+  'report': {
+    memories: [
+      { id:'mem_026', content:'Reports to Priya Menon, Director of Platform at Lumos AI.', tags:['relation','manager'], score:0.94 },
+      { id:'mem_028', content:'Ana Ruiz is the skip-level VP of Engineering; 1:1 with her happens quarterly.', tags:['relation','skip-level'], score:0.55 },
+      { id:'mem_027', content:'Jordan Vega is a peer staff engineer on the data infra team; they pair on RFC reviews.', tags:['relation','peer'], score:0.44 }
+    ],
+    answer: 'Sam reports to <span class="cite">[mem_026]</span> Priya Menon, Director of Platform at Lumos AI. His skip-level is <span class="cite">[mem_028]</span> Ana Ruiz, VP of Engineering, and they meet quarterly. <span class="cite">[mem_027]</span> Jordan Vega is his closest peer on the data infra team.'
+  },
+  'lantern': {
+    memories: [
+      { id:'mem_041', content:'Leading Lantern, internal AI memory layer for 800 Lumos employees; targeting 1ms p50 recall.', tags:['project','lantern'], score:0.92 },
+      { id:'mem_042', content:'Driving memory-as-a-service: externalising Lantern as a product API for third-party developers.', tags:['project','memory-as-a-service'], score:0.77 },
+      { id:'mem_047', content:'Pipeline latency work continues; p99 is 840ms, target sub-500ms by 2026-05-15.', tags:['project','latency'], score:0.68 }
+    ],
+    answer: 'Lantern is Lumos AI\'s <span class="cite">[mem_041]</span> internal AI memory layer, serving 800 employees with a target of 1 ms p50 recall. It\'s also being <span class="cite">[mem_042]</span> externalised as "memory-as-a-service" — a product API for third-party developers. Related latency work on the backing pipeline targets <span class="cite">[mem_047]</span> sub-500 ms p99 by 2026-05-15.'
+  },
+  'focus|deep|drink|tea|coffee': {
+    memories: [
+      { id:'mem_034', content:'Protects mornings for deep work; calendar blocks 08:00–11:00 Pacific as focus time.', tags:['preference','schedule'], score:0.89 },
+      { id:'mem_033', content:'Drinks loose-leaf green tea during focus blocks; avoids coffee after 14:00.', tags:['preference','personal'], score:0.86 },
+      { id:'mem_039', content:'Closes Slack during 3-hour focus blocks; replies to messages in batches at 11:00 and 16:00.', tags:['preference','focus'], score:0.72 }
+    ],
+    answer: 'Sam <span class="cite">[mem_034]</span> blocks 08:00–11:00 Pacific every morning as protected focus time, <span class="cite">[mem_039]</span> closes Slack during the block and batches replies at 11:00 and 16:00. During focus he <span class="cite">[mem_033]</span> drinks loose-leaf green tea and avoids coffee after 14:00.'
+  }
+};
+
+function pickCanned(msg){
+  const m = msg.toLowerCase();
+  for(const k of Object.keys(CANNED_CHAT)){
+    const re = new RegExp(k, 'i');
+    if(re.test(m)) return CANNED_CHAT[k];
+  }
+  // default
+  return {
+    memories: [
+      { id:'mem_002', content:'Staff Engineer at Lumos AI, focused on the ML platform team.', tags:['fact','role'], score:0.71 },
+      { id:'mem_041', content:'Leading Lantern, internal AI memory layer for 800 Lumos employees; targeting 1ms p50 recall.', tags:['project','lantern'], score:0.68 }
+    ],
+    answer: 'From memory: Sam is a <span class="cite">[mem_002]</span> Staff Engineer at Lumos AI on the ML platform team, currently leading <span class="cite">[mem_041]</span> Lantern. Ask something more specific to see hybrid retrieval in action.'
+  };
+}
+
+const chatBody = document.getElementById('chatBody');
+const memRetrieved = document.getElementById('memRetrieved');
+document.querySelectorAll('.chat-sug').forEach(b => {
+  b.addEventListener('click', () => {
+    document.getElementById('chatInput').value = b.textContent;
+    document.getElementById('chatForm').dispatchEvent(new Event('submit', { cancelable:true }));
+  });
+});
+document.getElementById('chatForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if(!msg) return;
+  // clear empty state
+  const empty = chatBody.querySelector('.mono.mute');
+  if(empty) empty.remove();
+  // user bubble
+  addChat('user', msg);
+  input.value = '';
+  // retrieval
+  memRetrieved.innerHTML = '<div class="mono mute" style="text-align:center; padding:20px; font-size:12px">running hybrid search…</div>';
+  document.getElementById('ctxMs').textContent = '…';
+  await sleep(600);
+  const picked = pickCanned(msg);
+  memRetrieved.innerHTML = '';
+  picked.memories.forEach((m, i) => {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'mem-item new';
+      el.innerHTML = `
+        <div class="mem-row1">
+          <span class="mem-id">${m.id}</span>
+          <span class="mem-score">${m.score.toFixed(2)}</span>
+        </div>
+        <div class="mem-content">${m.content}</div>
+        <div class="mem-tags">${m.tags.map(t=>`<span class="mem-tag">${t}</span>`).join('')}</div>
+      `;
+      memRetrieved.appendChild(el);
+    }, i * 160);
+  });
+  document.getElementById('ctxMs').textContent = (28 + Math.round(Math.random()*12)) + 'ms';
+  // agent thinking
+  await sleep(900);
+  addChat('agent', picked.answer);
+  chatBody.scrollTop = chatBody.scrollHeight;
+});
+function addChat(role, html){
+  const d = document.createElement('div');
+  d.className = 'chat-msg ' + role;
+  d.innerHTML = `<div class="who">${role === 'user' ? 'you' : 'agent'}</div><div class="bub">${html}</div>`;
+  chatBody.appendChild(d);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+/* ════ TAB 05: TIDB FOR AI — Vector Search + Agentic animations ════ */
+const VS_POINTS = [
+  { id:'mem_006', x:0.28, y:0.42, text:'Python for ML — keeps iteration fast' },
+  { id:'mem_015', x:0.68, y:0.38, text:'Latency regression on 2026-04-02 — missing vector index' },
+  { id:'mem_047', x:0.72, y:0.48, text:'Pipeline p99 840ms, target <500ms' },
+  { id:'mem_021', x:0.62, y:0.58, text:'Python perf audit March 2026 — cut 18%' },
+  { id:'mem_026', x:0.18, y:0.72, text:'Reports to Priya Menon' },
+  { id:'mem_041', x:0.48, y:0.22, text:'Lantern — 1ms p50 recall' },
+  { id:'mem_033', x:0.12, y:0.28, text:'Green tea during focus' },
+  { id:'mem_008', x:0.40, y:0.78, text:'Rust for latency-critical paths' },
+  { id:'mem_011', x:0.82, y:0.68, text:'Shipped vector search on 2026-03-02' },
+  { id:'mem_034', x:0.22, y:0.55, text:'Morning 08:00–11:00 focus block' },
+  { id:'mem_028', x:0.08, y:0.82, text:'Ana Ruiz — skip-level VP Eng' },
+  { id:'mem_042', x:0.56, y:0.32, text:'Memory-as-a-service initiative' },
+  { id:'mem_002', x:0.35, y:0.15, text:'Staff Engineer at Lumos AI' },
+  { id:'mem_027', x:0.14, y:0.60, text:'Jordan Vega — peer staff eng' },
+  { id:'mem_048', x:0.78, y:0.28, text:'TiDB migration RFC — replace Pinecone' }
+];
+
+const vsSpace = document.getElementById('vsSpace');
+function renderVsDots(){
+  if(!vsSpace) return;
+  vsSpace.innerHTML = '';
+  VS_POINTS.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'vs-dot';
+    d.dataset.id = p.id;
+    d.style.left = (p.x*100)+'%';
+    d.style.top = (p.y*100)+'%';
+    d.title = p.id + ' · ' + p.text;
+    vsSpace.appendChild(d);
+  });
+}
+renderVsDots();
+
+function runVectorSearch(){
+  const q = (document.getElementById('vsQuery').value || '').toLowerCase();
+  const qPos = queryPos(q);
+  vsSpace.querySelectorAll('.vs-dot').forEach(d => { d.classList.remove('hit','query'); });
+  // query dot
+  const qDot = document.createElement('div');
+  qDot.className = 'vs-dot query';
+  qDot.style.left = (qPos.x*100)+'%';
+  qDot.style.top = (qPos.y*100)+'%';
+  vsSpace.appendChild(qDot);
+  // ring pulse
+  const ring = document.createElement('div');
+  ring.className = 'vs-ring';
+  ring.style.left = (qPos.x*100)+'%';
+  ring.style.top = (qPos.y*100)+'%';
+  vsSpace.appendChild(ring);
+  setTimeout(()=> ring.remove(), 1400);
+  // compute distances
+  const scored = VS_POINTS.map(p => ({ p, d: Math.hypot(p.x-qPos.x, p.y-qPos.y) })).sort((a,b)=> a.d - b.d);
+  const top = scored.slice(0,4);
+  // hit dots
+  setTimeout(() => {
+    top.forEach((t, i) => {
+      setTimeout(() => {
+        const el = vsSpace.querySelector(`[data-id="${t.p.id}"]`);
+        if(el) el.classList.add('hit');
+      }, i*130);
+    });
+  }, 280);
+  // results list
+  const res = document.getElementById('vsResults');
+  res.innerHTML = '';
+  top.forEach((t, i) => {
+    setTimeout(() => {
+      const score = +(1 - t.d).toFixed(2);
+      const row = document.createElement('div');
+      row.className = 'vs-hit new';
+      row.innerHTML = `<span class="id">${t.p.id}</span><span>${t.p.text}</span><span class="s">${score.toFixed(2)}</span>`;
+      res.appendChild(row);
+    }, 300 + i*130);
+  });
+  document.getElementById('vsLat').textContent = (12 + Math.round(Math.random()*10)) + 'ms · 1 sql';
+}
+function queryPos(q){
+  // cluster seeds
+  if(/pipeline|slow|latency|regression|p99/.test(q)) return { x:0.70, y:0.44 };
+  if(/python|ml|language/.test(q)) return { x:0.30, y:0.40 };
+  if(/report|manager|priya|skip/.test(q)) return { x:0.14, y:0.78 };
+  if(/focus|tea|morning|deep/.test(q)) return { x:0.18, y:0.38 };
+  if(/lantern|project|rfc|memory/.test(q)) return { x:0.52, y:0.28 };
+  return { x: 0.3+Math.random()*0.4, y:0.3+Math.random()*0.4 };
+}
+document.getElementById('vsRun')?.addEventListener('click', runVectorSearch);
+document.getElementById('vsQuery')?.addEventListener('keydown', e=> { if(e.key==='Enter') runVectorSearch(); });
+
+// Agentic fleet animation — each click provisions a 1K-user fleet
+let aiUsers=0, aiAgents=0, aiBranches=0, aiSpawnCount=0;
+const aiTree = document.getElementById('aiTree');
+const svgNS = 'http://www.w3.org/2000/svg';
+let aiProvTimes = [];
+
+function aiFmt(n){
+  if(n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+  if(n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'') + 'K';
+  return n.toString();
+}
+
+function aiReset(){
+  aiUsers=0; aiAgents=0; aiBranches=0; aiSpawnCount=0; aiProvTimes=[];
+  aiTree.replaceChildren();
+  document.getElementById('aiUsers').textContent = '0';
+  document.getElementById('aiAgents').textContent = '0';
+  document.getElementById('aiBranches').textContent = '0';
+  document.getElementById('aiProv').textContent = '—';
+}
+
+function aiSpawn(){
+  // each click = 1K users, ~5K agents, ~5K branches
+  const batchUsers = 1000;
+  const batchAgents = 4500 + Math.floor(Math.random()*1500);
+  const batchBranches = batchAgents;
+  aiSpawnCount++;
+
+  // draw root TiDB cluster on first click
+  if(aiUsers === 0){
+    const root = document.createElementNS(svgNS,'rect');
+    root.setAttribute('x', 240); root.setAttribute('y', 8);
+    root.setAttribute('width', 40); root.setAttribute('height', 18);
+    root.setAttribute('rx', 2);
+    root.setAttribute('class','node db');
+    aiTree.appendChild(root);
+    const lbl = document.createElementNS(svgNS,'text');
+    lbl.setAttribute('x', 260); lbl.setAttribute('y', 44);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('fill','var(--tidb-red)');
+    lbl.setAttribute('font-size','9');
+    lbl.textContent = 'TiDB cluster';
+    aiTree.appendChild(lbl);
+  }
+
+  // dense scatter of user dots
+  for(let i=0; i<40; i++){
+    const seed = aiSpawnCount*100 + i;
+    const uX = 20 + ((seed*37) % 480);
+    const uY = 80 + ((seed*19) % 30);
+    setTimeout(() => {
+      const u = document.createElementNS(svgNS,'circle');
+      u.setAttribute('cx', uX); u.setAttribute('cy', uY);
+      u.setAttribute('r', 1.8); u.setAttribute('class','node user');
+      u.setAttribute('opacity','0.7');
+      aiTree.appendChild(u);
+    }, i*4);
+  }
+
+  // denser scatter of agent dots
+  for(let i=0; i<90; i++){
+    const seed = aiSpawnCount*200 + i*3;
+    const aX = 15 + ((seed*53) % 490);
+    const aY = 155 + ((seed*23) % 40);
+    setTimeout(() => {
+      const a = document.createElementNS(svgNS,'circle');
+      a.setAttribute('cx', aX); a.setAttribute('cy', aY);
+      a.setAttribute('r', 1.2); a.setAttribute('class','node agent');
+      a.setAttribute('opacity','0.65');
+      aiTree.appendChild(a);
+    }, 180 + i*3);
+  }
+
+  // branch rects - densest
+  for(let i=0; i<110; i++){
+    const seed = aiSpawnCount*300 + i*7;
+    const bX = 12 + ((seed*71) % 496);
+    const bY = 250 + ((seed*29) % 50);
+    setTimeout(() => {
+      const b = document.createElementNS(svgNS,'rect');
+      b.setAttribute('x', bX); b.setAttribute('y', bY);
+      b.setAttribute('width', 2.5); b.setAttribute('height', 2.5);
+      b.setAttribute('class','node db');
+      b.setAttribute('opacity','0.75');
+      aiTree.appendChild(b);
+    }, 380 + i*2);
+  }
+
+  aiUsers += batchUsers;
+  aiAgents += batchAgents;
+  aiBranches += batchBranches;
+  aiProvTimes.push(800 + Math.random()*400);
+
+  document.getElementById('aiUsers').textContent = aiFmt(aiUsers);
+  setTimeout(()=> { document.getElementById('aiAgents').textContent = aiFmt(aiAgents); }, 250);
+  setTimeout(()=> {
+    document.getElementById('aiBranches').textContent = aiFmt(aiBranches);
+    document.getElementById('aiProv').textContent = Math.round(aiProvTimes.reduce((a,b)=>a+b,0)/aiProvTimes.length) + 'ms';
+  }, 450);
+}
+document.getElementById('aiSpawn')?.addEventListener('click', aiSpawn);
+document.getElementById('aiReset')?.addEventListener('click', aiReset);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TWEAKS PANEL — host protocol + live controls
+   ═══════════════════════════════════════════════════════════════════════ */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "paper",
+  "accentHue": 154,
+  "accentChroma": 0.28,
+  "accentLight": 50,
+  "secondaryHue": 0,
+  "tertiaryHue": 0,
+  "hybridHue": 0,
+  "bgTint": 0,
+  "grainIntensity": 35,
+  "glowIntensity": 8,
+  "fontSans": "Space Grotesk",
+  "fontSerif": "Libre Caslon Text",
+  "fontMono": "IBM Plex Mono",
+  "baseSize": 15,
+  "titleScale": 100,
+  "italicTitles": true,
+  "uppercaseLabels": true,
+  "density": "comfortable",
+  "bodyPad": 32,
+  "radius": 2,
+  "borderWeight": 1,
+  "showGrain": true,
+  "showTopStats": true,
+  "showProofBar": true,
+  "heroStyle": "editorial",
+  "tabStyle": "underline",
+  "showTabNumbers": true,
+  "memoryCount": 50,
+  "provisionTime": 912,
+  "tenantId": "t_9f3a04c6",
+  "personaName": "AI Developer",
+  "personaCompany": "AI Company",
+  "chargerId": "CP-IE-TEST-00176",
+  "frankenFailRate": 42,
+  "frankenLatencyMin": 450,
+  "frankenLatencyMax": 1150,
+  "tidbLatencyMin": 18,
+  "tidbLatencyMax": 32,
+  "writeAnimSpeed": 100,
+  "autoRunQueries": true,
+  "defaultMode": "hybrid",
+  "defaultTab": "query",
+  "showInsights": true,
+  "showScoreBars": true,
+  "animateScores": true,
+  "sqlSyntaxHl": true,
+  "companyScale": "manus",
+  "hypeNumbers": true
+}/*EDITMODE-END*/;
+
+const TWEAKS = Object.assign({}, TWEAK_DEFAULTS);
+try { const saved = JSON.parse(localStorage.getItem('m9_tweaks') || '{}'); Object.assign(TWEAKS, saved); } catch(e){}
+
+const THEMES = {
+  midnight:  { bg:'#0b0d10', bg1:'#0f1216', bg2:'#141820', line:'#1f2530', line2:'#2a3140', ink:'#e7ebf0', inkDim:'#9aa3b2', inkMute:'#5c6574' },
+  paper:     { bg:'#f7f5f0', bg1:'#ffffff', bg2:'#efece4', line:'#d8d3c8', line2:'#b8b1a1', ink:'#1a1a17', inkDim:'#55524a', inkMute:'#8a857a' },
+  slate:     { bg:'#161a20', bg1:'#1b2028', bg2:'#222832', line:'#2e3540', line2:'#3c4453', ink:'#eceff3', inkDim:'#a7b0bc', inkMute:'#6a7280' },
+  ink:       { bg:'#07090c', bg1:'#0a0d11', bg2:'#10141a', line:'#1a2028', line2:'#252c36', ink:'#f5f3ed', inkDim:'#a8a59c', inkMute:'#5a5850' },
+  oxide:     { bg:'#0c0a08', bg1:'#110e0a', bg2:'#17130d', line:'#241e15', line2:'#342c20', ink:'#f2ebdf', inkDim:'#a89c86', inkMute:'#5e5545' },
+  cool:      { bg:'#f0f4f8', bg1:'#ffffff', bg2:'#e4eaf0', line:'#cfd6de', line2:'#adb6c0', ink:'#0d1419', inkDim:'#4d5963', inkMute:'#7f8a93' }
+};
+
+const FONT_SANS_OPTS = { "Geist":"Geist", "Inter Tight":"'Inter Tight'", "Space Grotesk":"'Space Grotesk'", "IBM Plex Sans":"'IBM Plex Sans'", "DM Sans":"'DM Sans'" };
+const FONT_SERIF_OPTS = { "Instrument Serif":"'Instrument Serif'", "Fraunces":"Fraunces", "DM Serif Display":"'DM Serif Display'", "Libre Caslon Text":"'Libre Caslon Text'", "EB Garamond":"'EB Garamond'" };
+const FONT_MONO_OPTS = { "JetBrains Mono":"'JetBrains Mono'", "IBM Plex Mono":"'IBM Plex Mono'", "Space Mono":"'Space Mono'", "Fira Code":"'Fira Code'" };
+
+// inject extra google fonts on demand
+const loadedFonts = new Set(['Geist','Instrument Serif','JetBrains Mono']);
+function loadFont(family){
+  if(loadedFonts.has(family)) return;
+  loadedFonts.add(family);
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=' + family.replace(/ /g,'+') + ':wght@300;400;500;600;700&display=swap';
+  document.head.appendChild(link);
+}
+
+function applyTweaks(){
+  const r = document.documentElement.style;
+  const t = THEMES[TWEAKS.theme] || THEMES.midnight;
+  r.setProperty('--bg', t.bg);
+  r.setProperty('--bg-1', t.bg1);
+  r.setProperty('--bg-2', t.bg2);
+  r.setProperty('--line', t.line);
+  r.setProperty('--line-2', t.line2);
+  r.setProperty('--ink', t.ink);
+  r.setProperty('--ink-dim', t.inkDim);
+  r.setProperty('--ink-mute', t.inkMute);
+  // accents
+  const L = TWEAKS.accentLight, C = TWEAKS.accentChroma;
+  r.setProperty('--accent',   `oklch(${L}% ${C} ${TWEAKS.accentHue})`);
+  r.setProperty('--accent-2', `oklch(${L}% ${C} ${TWEAKS.secondaryHue})`);
+  r.setProperty('--accent-3', `oklch(${L}% ${C} ${TWEAKS.tertiaryHue})`);
+  r.setProperty('--vector',   `oklch(${L}% ${C} ${TWEAKS.accentHue})`);
+  r.setProperty('--fts',      `oklch(${L}% ${C} ${TWEAKS.tertiaryHue})`);
+  r.setProperty('--hybrid',   `oklch(${L-2}% ${C+0.03} ${TWEAKS.hybridHue})`);
+  r.setProperty('--radius', TWEAKS.radius + 'px');
+  // fonts
+  loadFont(TWEAKS.fontSans);
+  loadFont(TWEAKS.fontSerif);
+  loadFont(TWEAKS.fontMono);
+  r.setProperty('--sans', (FONT_SANS_OPTS[TWEAKS.fontSans] || TWEAKS.fontSans) + ', ui-sans-serif, system-ui, sans-serif');
+  r.setProperty('--serif', (FONT_SERIF_OPTS[TWEAKS.fontSerif] || TWEAKS.fontSerif) + ', "Times New Roman", serif');
+  r.setProperty('--mono', (FONT_MONO_OPTS[TWEAKS.fontMono] || TWEAKS.fontMono) + ', ui-monospace, Menlo, monospace');
+  document.body.style.fontSize = TWEAKS.baseSize + 'px';
+  document.body.style.padding = `${TWEAKS.bodyPad - 4}px ${TWEAKS.bodyPad}px 56px`;
+  // density
+  const dens = { compact:.85, comfortable:1, airy:1.2 }[TWEAKS.density] || 1;
+  document.body.style.setProperty('--density', dens);
+  // titles scale
+  document.querySelectorAll('.panel-title, .hero h1').forEach(el => {
+    el.style.fontStyle = ''; // clear; italic is on em only
+  });
+  document.querySelectorAll('.hero h1 em, .panel-title em').forEach(el => {
+    el.style.fontStyle = TWEAKS.italicTitles ? 'italic' : 'normal';
+  });
+  // scale
+  document.querySelectorAll('.panel-title').forEach(el => { el.style.fontSize = (44 * TWEAKS.titleScale/100) + 'px'; });
+  document.documentElement.style.setProperty('--title-scale', TWEAKS.titleScale/100);
+  // borders
+  document.documentElement.style.setProperty('--border-w', TWEAKS.borderWeight + 'px');
+  // uppercase labels
+  document.body.classList.toggle('no-upper', !TWEAKS.uppercaseLabels);
+  // grain
+  document.body.classList.toggle('no-grain', !TWEAKS.showGrain);
+  if(document.body.children && document.body.style){
+    // set grain opacity via CSS var
+    document.documentElement.style.setProperty('--grain-op', (TWEAKS.grainIntensity/100).toString());
+  }
+  // glow
+  document.documentElement.style.setProperty('--glow-op', (TWEAKS.glowIntensity/100).toString());
+  // visibility toggles
+  const topbar = document.querySelector('.topbar'); if(topbar) topbar.style.display = TWEAKS.showTopStats ? '' : 'none';
+  const proof = document.querySelector('.proof-bar'); if(proof) proof.style.display = TWEAKS.showProofBar ? '' : 'none';
+  // tab numbers
+  document.querySelectorAll('.tab .num').forEach(el => el.style.display = TWEAKS.showTabNumbers ? '' : 'none');
+  // tab style
+  document.body.classList.toggle('tabs-pill', TWEAKS.tabStyle === 'pill');
+  // hero style
+  document.body.classList.toggle('hero-centered', TWEAKS.heroStyle === 'centered');
+  document.body.classList.toggle('hero-compact', TWEAKS.heroStyle === 'compact');
+  // persona/data values
+  const tid = document.getElementById('tenantId'); if(tid) tid.textContent = TWEAKS.tenantId;
+  const mc = document.getElementById('memCount'); if(mc) mc.textContent = TWEAKS.memoryCount;
+  const ps = document.querySelectorAll('.ts-v');
+  if(ps[2]) ps[2].innerHTML = `${TWEAKS.provisionTime} <span class="dim">ms cold</span>`;
+  // sql hl
+  document.body.classList.toggle('no-sql-hl', !TWEAKS.sqlSyntaxHl);
+  // score bars
+  document.body.classList.toggle('no-score-bars', !TWEAKS.showScoreBars);
+  // insights
+  document.body.classList.toggle('no-insight', !TWEAKS.showInsights);
+  // persist
+  try{ localStorage.setItem('m9_tweaks', JSON.stringify(TWEAKS)); }catch(e){}
+}
+
+// extra CSS hooks driven by classes/vars set above
+const extraCss = document.createElement('style');
+extraCss.textContent = `
+  body::before{ opacity: var(--grain-op, .35); }
+  body.no-grain::before{ display:none; }
+  body.no-upper .panel-kicker,
+  body.no-upper .ts-k,
+  body.no-upper .proof-name,
+  body.no-upper .q-label,
+  body.no-upper .q-badge,
+  body.no-upper .tab,
+  body.no-upper .chat-hd-t,
+  body.no-upper .stt-who,
+  body.no-upper .chat-msg .who,
+  body.no-upper .panel-idx,
+  body.no-upper .stack-meta,
+  body.no-upper .stack-control-label,
+  body.no-upper .scale-ladder-hd,
+  body.no-upper .rung-tech,
+  body.no-upper .fleet-strip .k,
+  body.no-upper .q-results-hd,
+  body.no-upper .mem-id,
+  body.no-upper .svc-sub,
+  body.no-upper .svc-state,
+  body.no-upper .plane-desc,
+  body.no-upper .q-mode button{ text-transform:none; letter-spacing:.02em; }
+  body.no-sql-hl .q-sql pre .kw,
+  body.no-sql-hl .q-sql pre .fn,
+  body.no-sql-hl .q-sql pre .str,
+  body.no-sql-hl .q-sql pre .num{ color:var(--ink-dim); font-weight:400; }
+  body.no-score-bars .q-score-bar{ display:none; }
+  body.no-insight .q-insight{ display:none; }
+  body.tabs-pill .tabs{ border-bottom:none; gap:8px; }
+  body.tabs-pill .tab{ border:1px solid var(--line); padding:10px 18px; }
+  body.tabs-pill .tab.active{ background:var(--accent); color:#0b0d10; border-color:var(--accent); }
+  body.tabs-pill .tab.active::after{ display:none; }
+  body.tabs-pill .tab.active .num{ color:#0b0d10; }
+  body.tabs-pill .tab:first-child{ padding:10px 18px; }
+  body.hero-centered .hero{ grid-template-columns:1fr; text-align:center; justify-items:center; gap:28px; }
+  body.hero-centered .hero-lede{ border-left:none; border-top:1px solid var(--line-2); padding-left:0; padding-top:16px; max-width:640px; }
+  body.hero-centered .hero-eyebrow::before{ margin:auto; }
+  body.hero-centered .hero-eyebrow{ justify-content:center; }
+  body.hero-compact .hero{ padding:32px 0 24px; }
+  body.hero-compact .hero h1{ font-size:clamp(36px,4vw,64px); }
+  .card, .query-grid, .stack-col, .chat-col, .scale-tile, .scale-ladder, .fleet-strip,
+  .q-sql, .q-chip, .svc, .tidb-unit, .stack-agent, .verdict, .q-custom, .q-mode{
+    border-radius: var(--radius);
+  }
+  /* tweaks panel */
+  .tweaks-panel{
+    position:fixed; right:16px; bottom:16px; z-index:9999;
+    width:360px; max-height:80vh;
+    background:var(--bg-1); border:1px solid var(--line-2);
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    display:none; flex-direction:column;
+    font-family:var(--sans); color:var(--ink);
+  }
+  .tweaks-panel.open{ display:flex; }
+  .tw-hd{
+    padding:12px 14px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--ink);
+  }
+  .tw-hd .close{
+    background:transparent; border:1px solid var(--line); color:var(--ink-dim);
+    font-family:var(--mono); font-size:10px; padding:4px 8px; cursor:pointer; letter-spacing:.1em;
+  }
+  .tw-tabs{ display:flex; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; }
+  .tw-tabs button{ flex:1; background:transparent; border:none; color:var(--ink-mute); padding:9px 4px; cursor:pointer; border-right:1px solid var(--line); }
+  .tw-tabs button:last-child{ border-right:none; }
+  .tw-tabs button.active{ color:var(--accent); background:var(--bg-2); box-shadow:inset 0 -2px 0 var(--accent); }
+  .tw-body{ overflow:auto; padding:14px; flex:1; }
+  .tw-grp{ margin-bottom:16px; }
+  .tw-grp h4{ margin:0 0 8px; font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-mute); font-weight:500; }
+  .tw-row{ display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; padding:6px 0; border-bottom:1px dotted var(--line); }
+  .tw-row:last-child{ border-bottom:none; }
+  .tw-row label{ font-size:12.5px; color:var(--ink-dim); }
+  .tw-row input[type="range"]{ width:130px; }
+  .tw-row input[type="number"], .tw-row input[type="text"], .tw-row select{
+    background:var(--bg-2); border:1px solid var(--line); color:var(--ink);
+    padding:5px 7px; font-family:var(--mono); font-size:11px; width:140px;
+  }
+  .tw-row input[type="checkbox"]{ accent-color:var(--accent); width:16px; height:16px; }
+  .tw-row .sliderbox{ display:flex; align-items:center; gap:8px; }
+  .tw-row .sliderbox .v{ font-family:var(--mono); font-size:10px; color:var(--ink-mute); width:28px; text-align:right; }
+  .tw-row .seg{ display:flex; border:1px solid var(--line); }
+  .tw-row .seg button{ background:transparent; border:none; color:var(--ink-mute); padding:4px 8px; font-family:var(--mono); font-size:10px; letter-spacing:.1em; cursor:pointer; border-right:1px solid var(--line); }
+  .tw-row .seg button:last-child{ border-right:none; }
+  .tw-row .seg button.active{ color:var(--accent); background:var(--bg-2); }
+  .tw-ftr{ padding:10px 14px; border-top:1px solid var(--line); display:flex; justify-content:space-between; gap:8px; }
+  .tw-ftr button{ flex:1; background:transparent; border:1px solid var(--line-2); color:var(--ink); font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; padding:7px; cursor:pointer; }
+  .tw-ftr button.primary{ background:var(--accent); color:#0b0d10; border-color:var(--accent); font-weight:600; }
+  .tw-fab{
+    position:fixed; right:16px; bottom:16px; z-index:9998;
+    background:var(--bg-1); color:var(--accent); border:1px solid var(--accent);
+    font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+    padding:10px 14px; cursor:pointer; display:none;
+  }
+`;
+document.head.appendChild(extraCss);
+
+// Build panel
+const twPanel = document.createElement('div');
+twPanel.className = 'tweaks-panel';
+twPanel.innerHTML = `
+  <div class="tw-hd">
+    <span>Tweaks</span>
+    <button class="close" id="twClose">×</button>
+  </div>
+  <div class="tw-tabs" id="twTabs">
+    <button class="active" data-tab="palette">Palette</button>
+    <button data-tab="type">Type</button>
+    <button data-tab="layout">Layout</button>
+    <button data-tab="content">Content</button>
+    <button data-tab="sim">Sim</button>
+  </div>
+  <div class="tw-body" id="twBody"></div>
+  <div class="tw-ftr">
+    <button id="twRandom">Randomize</button>
+    <button id="twReset">Reset</button>
+    <button class="primary" id="twSave">Save</button>
+  </div>
+`;
+document.body.appendChild(twPanel);
+
+const twFab = document.createElement('button');
+twFab.className = 'tw-fab';
+twFab.textContent = '◐ Tweaks';
+twFab.addEventListener('click', ()=> twPanel.classList.toggle('open'));
+document.body.appendChild(twFab);
+
+// tab definitions
+const TW_TABS = {
+  palette: [
+    { grp:'Theme', rows:[
+      { k:'theme', label:'Base theme', kind:'select', opts:['midnight','paper','slate','ink','oxide','cool'] }
+    ]},
+    { grp:'Primary accent (teal by default)', rows:[
+      { k:'accentHue', label:'Hue', kind:'range', min:0, max:360, step:1 },
+      { k:'accentChroma', label:'Chroma', kind:'range', min:0, max:0.28, step:0.01 },
+      { k:'accentLight', label:'Lightness', kind:'range', min:50, max:92, step:1 }
+    ]},
+    { grp:'Secondary hues', rows:[
+      { k:'secondaryHue', label:'Coral / warning hue', kind:'range', min:0, max:360, step:1 },
+      { k:'tertiaryHue', label:'Amber / fts hue', kind:'range', min:0, max:360, step:1 },
+      { k:'hybridHue', label:'Hybrid-lane hue', kind:'range', min:0, max:360, step:1 }
+    ]},
+    { grp:'Atmosphere', rows:[
+      { k:'grainIntensity', label:'Grain opacity', kind:'range', min:0, max:100, step:1 },
+      { k:'glowIntensity', label:'Radial glow', kind:'range', min:0, max:20, step:1 },
+      { k:'showGrain', label:'Show grain', kind:'bool' }
+    ]}
+  ],
+  type: [
+    { grp:'Fonts', rows:[
+      { k:'fontSerif', label:'Display serif', kind:'select', opts:Object.keys(FONT_SERIF_OPTS) },
+      { k:'fontSans', label:'Body sans', kind:'select', opts:Object.keys(FONT_SANS_OPTS) },
+      { k:'fontMono', label:'Code / labels mono', kind:'select', opts:Object.keys(FONT_MONO_OPTS) }
+    ]},
+    { grp:'Scale', rows:[
+      { k:'baseSize', label:'Base size (px)', kind:'range', min:13, max:18, step:1 },
+      { k:'titleScale', label:'Title scale (%)', kind:'range', min:70, max:140, step:5 }
+    ]},
+    { grp:'Treatment', rows:[
+      { k:'italicTitles', label:'Italicize title em-spans', kind:'bool' },
+      { k:'uppercaseLabels', label:'Uppercase micro-labels', kind:'bool' }
+    ]}
+  ],
+  layout: [
+    { grp:'Canvas', rows:[
+      { k:'bodyPad', label:'Canvas padding', kind:'range', min:16, max:64, step:2 },
+      { k:'radius', label:'Corner radius', kind:'range', min:0, max:14, step:1 },
+      { k:'borderWeight', label:'Border weight', kind:'range', min:1, max:3, step:1 },
+      { k:'density', label:'Density', kind:'seg', opts:['compact','comfortable','airy'] }
+    ]},
+    { grp:'Hero + tabs', rows:[
+      { k:'heroStyle', label:'Hero style', kind:'seg', opts:['editorial','centered','compact'] },
+      { k:'tabStyle', label:'Tab style', kind:'seg', opts:['underline','pill'] },
+      { k:'showTabNumbers', label:'Tab numbers', kind:'bool' },
+      { k:'showTopStats', label:'Top stat strip', kind:'bool' },
+      { k:'showProofBar', label:'Proof bar', kind:'bool' }
+    ]},
+    { grp:'Query tab', rows:[
+      { k:'sqlSyntaxHl', label:'SQL syntax coloring', kind:'bool' },
+      { k:'showScoreBars', label:'Score bars', kind:'bool' },
+      { k:'showInsights', label:'Insight callout', kind:'bool' },
+      { k:'animateScores', label:'Animate score bars', kind:'bool' }
+    ]}
+  ],
+  content: [
+    { grp:'Agent persona', rows:[
+      { k:'personaName', label:'Persona name', kind:'text' },
+      { k:'personaCompany', label:'Company', kind:'text' },
+      { k:'tenantId', label:'Tenant ID', kind:'text' }
+    ]},
+    { grp:'Top strip values', rows:[
+      { k:'memoryCount', label:'Memory count', kind:'range', min:5, max:500, step:5 },
+      { k:'provisionTime', label:'Provision (ms)', kind:'range', min:300, max:2500, step:10 }
+    ]},
+    { grp:'Defaults', rows:[
+      { k:'defaultTab', label:'Default tab', kind:'seg', opts:['query','stack','chat','scale'] },
+      { k:'defaultMode', label:'Default search mode', kind:'seg', opts:['vector','fts','hybrid'] },
+      { k:'autoRunQueries', label:'Auto-run on select', kind:'bool' }
+    ]},
+    { grp:'Customer spotlight', rows:[
+      { k:'companyScale', label:'Hero customer', kind:'seg', opts:['manus','pinterest','dify','kimi'] },
+      { k:'hypeNumbers', label:'Hype the big numbers (2×)', kind:'bool' }
+    ]}
+  ],
+  sim: [
+    { grp:'Frankenstack', rows:[
+      { k:'frankenFailRate', label:'Fail / drift rate (%)', kind:'range', min:0, max:100, step:1 },
+      { k:'frankenLatencyMin', label:'Latency min (ms)', kind:'range', min:100, max:2000, step:10 },
+      { k:'frankenLatencyMax', label:'Latency max (ms)', kind:'range', min:200, max:4000, step:10 }
+    ]},
+    { grp:'TiDB', rows:[
+      { k:'tidbLatencyMin', label:'Commit min (ms)', kind:'range', min:4, max:120, step:1 },
+      { k:'tidbLatencyMax', label:'Commit max (ms)', kind:'range', min:8, max:200, step:1 }
+    ]},
+    { grp:'Animation', rows:[
+      { k:'writeAnimSpeed', label:'Anim speed (%)', kind:'range', min:25, max:200, step:5 }
+    ]},
+    { grp:'Persona details', rows:[
+      { k:'chargerId', label:'Incident charger ID', kind:'text' }
+    ]}
+  ]
+};
+
+function renderTw(tabKey){
+  const body = document.getElementById('twBody');
+  const sections = TW_TABS[tabKey] || [];
+  body.innerHTML = sections.map(sec => {
+    const rows = sec.rows.map(r => rowHtml(r)).join('');
+    return `<div class="tw-grp"><h4>${sec.grp}</h4>${rows}</div>`;
+  }).join('');
+  // wire events
+  body.querySelectorAll('[data-k]').forEach(el => {
+    const k = el.dataset.k;
+    const kind = el.dataset.kind;
+    if(kind === 'bool'){
+      el.addEventListener('change', e => { TWEAKS[k] = e.target.checked; applyTweaks(); });
+    } else if(kind === 'range' || kind === 'number'){
+      el.addEventListener('input', e => {
+        TWEAKS[k] = +e.target.value;
+        const vEl = el.parentElement.querySelector('.v'); if(vEl) vEl.textContent = e.target.value;
+        applyTweaks();
+      });
+    } else if(kind === 'text'){
+      el.addEventListener('input', e => { TWEAKS[k] = e.target.value; applyTweaks(); });
+    } else if(kind === 'select'){
+      el.addEventListener('change', e => { TWEAKS[k] = e.target.value; applyTweaks(); });
+    }
+  });
+  body.querySelectorAll('.seg').forEach(seg => {
+    seg.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const k = seg.dataset.k;
+        TWEAKS[k] = btn.dataset.val;
+        seg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b===btn));
+        applyTweaks();
+      });
+    });
+  });
+}
+
+function rowHtml(r){
+  const v = TWEAKS[r.k];
+  if(r.kind === 'bool'){
+    return `<div class="tw-row"><label>${r.label}</label><input type="checkbox" data-k="${r.k}" data-kind="bool" ${v?'checked':''}></div>`;
+  }
+  if(r.kind === 'range'){
+    return `<div class="tw-row"><label>${r.label}</label><div class="sliderbox"><input type="range" min="${r.min}" max="${r.max}" step="${r.step}" value="${v}" data-k="${r.k}" data-kind="range"><span class="v">${v}</span></div></div>`;
+  }
+  if(r.kind === 'number'){
+    return `<div class="tw-row"><label>${r.label}</label><input type="number" value="${v}" data-k="${r.k}" data-kind="number"></div>`;
+  }
+  if(r.kind === 'text'){
+    return `<div class="tw-row"><label>${r.label}</label><input type="text" value="${v}" data-k="${r.k}" data-kind="text"></div>`;
+  }
+  if(r.kind === 'select'){
+    return `<div class="tw-row"><label>${r.label}</label><select data-k="${r.k}" data-kind="select">${r.opts.map(o => `<option value="${o}" ${o===v?'selected':''}>${o}</option>`).join('')}</select></div>`;
+  }
+  if(r.kind === 'seg'){
+    return `<div class="tw-row"><label>${r.label}</label><div class="seg" data-k="${r.k}">${r.opts.map(o => `<button class="${o===v?'active':''}" data-val="${o}">${o}</button>`).join('')}</div></div>`;
+  }
+  return '';
+}
+
+// wire tw-tabs
+document.getElementById('twTabs').querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('twTabs').querySelectorAll('button').forEach(b => b.classList.toggle('active', b===btn));
+    renderTw(btn.dataset.tab);
+  });
+});
+renderTw('palette');
+
+document.getElementById('twClose').addEventListener('click', ()=> twPanel.classList.remove('open'));
+document.getElementById('twReset').addEventListener('click', () => {
+  Object.assign(TWEAKS, TWEAK_DEFAULTS);
+  applyTweaks();
+  renderTw(document.querySelector('#twTabs button.active').dataset.tab);
+  postEdits(TWEAK_DEFAULTS);
+});
+document.getElementById('twRandom').addEventListener('click', () => {
+  TWEAKS.accentHue = Math.floor(Math.random()*360);
+  TWEAKS.secondaryHue = Math.floor(Math.random()*360);
+  TWEAKS.tertiaryHue = Math.floor(Math.random()*360);
+  TWEAKS.hybridHue = Math.floor(Math.random()*360);
+  TWEAKS.theme = ['midnight','paper','slate','ink','oxide','cool'][Math.floor(Math.random()*6)];
+  TWEAKS.fontSerif = Object.keys(FONT_SERIF_OPTS)[Math.floor(Math.random()*Object.keys(FONT_SERIF_OPTS).length)];
+  TWEAKS.fontSans = Object.keys(FONT_SANS_OPTS)[Math.floor(Math.random()*Object.keys(FONT_SANS_OPTS).length)];
+  TWEAKS.italicTitles = Math.random() < 0.8;
+  TWEAKS.heroStyle = ['editorial','centered','compact'][Math.floor(Math.random()*3)];
+  TWEAKS.tabStyle = Math.random() < 0.5 ? 'underline' : 'pill';
+  applyTweaks();
+  renderTw(document.querySelector('#twTabs button.active').dataset.tab);
+});
+document.getElementById('twSave').addEventListener('click', () => {
+  postEdits(TWEAKS);
+  const btn = document.getElementById('twSave');
+  btn.textContent = 'Saved ✓'; setTimeout(()=> btn.textContent='Save', 1200);
+});
+
+function postEdits(obj){
+  try { window.parent.postMessage({ type:'__edit_mode_set_keys', edits: obj }, '*'); } catch(e){}
+}
+
+// Host protocol
+window.addEventListener('message', (e) => {
+  if(!e.data || !e.data.type) return;
+  if(e.data.type === '__activate_edit_mode'){ twPanel.classList.add('open'); twFab.style.display='none'; }
+  if(e.data.type === '__deactivate_edit_mode'){ twPanel.classList.remove('open'); twFab.style.display='none'; }
+});
+try { window.parent.postMessage({ type:'__edit_mode_available' }, '*'); } catch(e){}
+
+applyTweaks();
+</script>
 </body>
 </html>

@@ -132,6 +132,8 @@ Ask Claude: *"Who does Sam report to?"* — it answers from the seeded memories.
 - Use phone hotspot — conference wifi is unreliable
 - Rehearse with [`talk_track.md`](talk_track.md); queries are in [`queries.md`](queries.md)
 
+Booth dashboard rewritten with editorial UI, interactive Frankenstack vs TiDB comparison, and TiDB-for-AI animations. Legacy UI preserved at `booth_dashboard/static/index_legacy.html`.
+
 ---
 
 ## Modes

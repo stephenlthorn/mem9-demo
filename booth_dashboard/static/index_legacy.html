@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TiDB — Unified Data Foundation for the AI Era</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ── Hero ── -->
+  <header class="hero">
+    <div class="hero-headline">TiDB — Unified Data Foundation for the AI Era</div>
+    <div class="hero-tagline">
+      One set of data simultaneously supports transactions, analytics,
+      vector retrieval, RAG, and long-term memory for Agents.
+    </div>
+    <div class="hero-hook">
+      <span class="hook-bang">⚠</span>
+      <div class="hook-body">
+        <strong>The memory wall.</strong>
+        Without persistent memory, agents repeat the same mistakes, cite stale facts,
+        and hallucinate coherence from session to session. Every run is day one.
+        The tabs below show how TiDB solves it — once, at the infrastructure layer.
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Customer proof strip ── -->
+  <div class="customer-proof-strip">
+    <div class="proof-label">Running agent memory &amp; data at scale on TiDB:</div>
+    <div class="proof-items">
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/pinterest.svg" alt="Pinterest" />
+        <div class="proof-name">Pinterest</div>
+        <div class="proof-stat">1.3M QPS · 6 systems → 1</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/uber.svg" alt="Uber" />
+        <div class="proof-name">Uber</div>
+        <div class="proof-stat">Production workloads on TiDB</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/manus.svg" alt="Manus" />
+        <div class="proof-name">Manus</div>
+        <div class="proof-stat">10M+ agent DBs · 80% cost cut</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/deepseek.svg" alt="DeepSeek" />
+        <div class="proof-name">DeepSeek</div>
+        <div class="proof-stat">AI agent infrastructure on TiDB</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/kimi.svg" alt="Kimi" />
+        <div class="proof-name">Kimi</div>
+        <div class="proof-stat">AI agents on TiDB</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/plaud.svg" alt="Plaud" />
+        <div class="proof-name">Plaud</div>
+        <div class="proof-stat">AI agents on TiDB</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/dify.svg" alt="Dify.AI" />
+        <div class="proof-name">Dify.AI</div>
+        <div class="proof-stat">500K containers → 1 · 90% ops cut</div>
+      </div>
+      <div class="proof-divider"></div>
+      <div class="proof-item">
+        <img class="proof-logo" src="/static/logos/flipkart.svg" alt="Flipkart" />
+        <div class="proof-name">Flipkart</div>
+        <div class="proof-stat">700+ MySQL → 1 · P95 &lt; 5ms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab bar ── -->
+  <nav class="tabs">
+    <button class="tab active" data-tab="demo">💬 Demo</button>
+    <button class="tab" data-tab="how">🏛️ How It Works</button>
+    <button class="tab" data-tab="who">🌐 Who Uses It</button>
+    <button class="tab" data-tab="deepdive">📚 Deep Dive</button>
+  </nav>
+
+  <main class="stage">
+
+    <!-- ── Deep Dive: Live Recall (SQL cards for engineers) ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
+
+      <div class="panel-hero">
+        <div class="panel-title">One TiDB cluster. Three search engines. One SQL query each.</div>
+        <div class="panel-sub">
+          Pick a question below. Watch the actual SQL that TiDB runs under mem9's hood —
+          vector similarity, full-text search, and a hybrid ranking — fire in parallel,
+          then see the ranked results. No vector DB. No search service. One database.
+        </div>
+      </div>
+
+      <div class="recall-query-chips">
+        <button class="recall-chip active" data-q="q1">
+          <span class="chip-q">"What does Sam think about TypeScript?"</span>
+          <span class="chip-hint">Vector-only win — the word "TypeScript" never appears in memory</span>
+        </button>
+        <button class="recall-chip" data-q="q2">
+          <span class="chip-q">"Who does Sam report to?"</span>
+          <span class="chip-hint">Baseline — keyword + semantic both find it</span>
+        </button>
+        <button class="recall-chip" data-q="q3">
+          <span class="chip-q">"What slowed down the research pipeline recently?"</span>
+          <span class="chip-hint">Hybrid wins — FTS + vector each find half the answer</span>
+        </button>
+      </div>
+
+      <div class="sql-cards-row" id="sql-cards">
+        <div class="sql-card sql-vector">
+          <div class="sql-card-head">
+            <span class="sql-badge sql-badge-v">VECTOR</span>
+            <span class="sql-card-desc">Semantic similarity</span>
+          </div>
+          <pre class="sql-block" id="sql-block-vector"><span class="sql-placeholder">Click a question to run all three →</span></pre>
+          <div class="sql-meta">
+            <span class="sql-meta-time" id="sql-time-vector">—</span>
+            <span class="sql-meta-rows" id="sql-rows-vector">—</span>
+          </div>
+        </div>
+
+        <div class="sql-card sql-fts">
+          <div class="sql-card-head">
+            <span class="sql-badge sql-badge-f">FULL-TEXT</span>
+            <span class="sql-card-desc">Exact keyword (BM25)</span>
+          </div>
+          <pre class="sql-block" id="sql-block-fts"><span class="sql-placeholder">Click a question to run all three →</span></pre>
+          <div class="sql-meta">
+            <span class="sql-meta-time" id="sql-time-fts">—</span>
+            <span class="sql-meta-rows" id="sql-rows-fts">—</span>
+          </div>
+        </div>
+
+        <div class="sql-card sql-hybrid">
+          <div class="sql-card-head">
+            <span class="sql-badge sql-badge-h">HYBRID</span>
+            <span class="sql-card-desc">Vector + FTS blended</span>
+          </div>
+          <pre class="sql-block" id="sql-block-hybrid"><span class="sql-placeholder">Click a question to run all three →</span></pre>
+          <div class="sql-meta">
+            <span class="sql-meta-time" id="sql-time-hybrid">—</span>
+            <span class="sql-meta-rows" id="sql-rows-hybrid">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sql-caption">
+        The SQL above is what TiDB runs under mem9's hybrid retrieval API.
+        <code>VEC_COSINE_DISTANCE()</code> and <code>fts_match_score()</code>
+        are SQL functions — no separate vector service, no separate search index.
+      </div>
+
+      <section class="results" id="results" aria-live="polite">
+        <p class="results-placeholder">
+          ↑ Click any question above to run all three queries against this agent's memory.
+        </p>
+      </section>
+
+      <div class="tab-outcome-strip">
+        <div class="outcome-item">
+          <span class="outcome-icon">💡</span>
+          <span class="outcome-text">Hybrid search eliminates the need for a separate vector database — one TiDB table replaces three systems</span>
+        </div>
+        <div class="outcome-divider"></div>
+        <div class="outcome-item">
+          <span class="outcome-icon">⚡</span>
+          <span class="outcome-text">Three search engines, one SQL query each, one ranked result — no orchestration layer required</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Demo: Ask the Agent (chat with MiniMax + mem9) ── -->
+    <section class="tab-panel active" data-tab-panel="demo">
+      <div class="panel-hero">
+        <div class="panel-title">Ask the agent anything</div>
+        <div class="panel-sub">
+          Each message triggers a live hybrid search against TiDB, then the
+          agent (MiniMax-M2.7) answers using only the memories it retrieved.
+          Watch the sidebar — that's the <strong>context plane</strong> being
+          assembled in real time, pre-agent. The model is stateless; every
+          fact it cites comes from mem9.
+        </div>
+      </div>
+
+      <div class="chat-layout">
+        <div class="chat-pane">
+          <div class="chat-suggestions">
+            <div class="suggestion-label">Try one of these — or type your own:</div>
+            <button class="chat-suggestion">Who does Sam report to at Lumos AI and how often does he sync with his skip-level?</button>
+            <button class="chat-suggestion">What is Leading Lantern and what latency targets does the project have?</button>
+            <button class="chat-suggestion">How does Sam structure his focus time and what does he drink during deep work?</button>
+          </div>
+
+          <div class="chat-messages" id="chat-messages" aria-live="polite">
+            <div class="chat-empty">
+              Ask a question — watch the agent retrieve memories and answer.
+            </div>
+          </div>
+
+          <form class="chat-form" id="chat-form" autocomplete="off">
+            <input
+              class="chat-input"
+              id="chat-input"
+              type="text"
+              value="Who does Sam report to at Lumos AI and how often does he sync with his skip-level?"
+              placeholder="Ask the agent a question…"
+              aria-label="Chat message"
+            />
+            <button class="chat-send" type="submit" id="chat-send">▶ Run demo</button>
+          </form>
+
+          <div class="chat-mode-strip" id="chat-mode-strip" hidden>
+            <span class="chat-mode-dot"></span>
+            <span class="chat-mode-text">idle</span>
+          </div>
+        </div>
+
+        <aside class="memory-pane">
+          <div class="memory-pane-header">
+            <div class="memory-pane-title">Memories retrieved</div>
+            <div class="memory-pane-sub">
+              Top 5 from mem9 hybrid search — the context plane for this turn.
+            </div>
+          </div>
+          <div class="memory-pane-list" id="memory-pane-list">
+            <div class="memory-empty">
+              Memories the agent uses will appear here the moment you ask a question.
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="tab-outcome-strip">
+        <div class="outcome-item">
+          <span class="outcome-icon">🎯</span>
+          <span class="outcome-text">Agents answer with cited, verifiable memories — hallucinations become auditable</span>
+        </div>
+        <div class="outcome-divider"></div>
+        <div class="outcome-item">
+          <span class="outcome-icon">🔍</span>
+          <span class="outcome-text">Context plane assembled pre-agent — zero prompt engineering, zero context stuffing</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Deep Dive: 5 Memory Duties ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
+      <div class="panel-hero">
+        <div class="panel-title">Memory isn't stored. It's maintained.</div>
+        <div class="panel-sub">
+          Five maintenance duties run continuously inside your TiDB cluster.
+          If you're not running them, your memory is decaying into noise —
+          and your agent is confidently citing diagnoses contradicted months ago.
+        </div>
+      </div>
+
+      <!-- ── Three Failure Modes ── -->
+      <div class="failure-modes-section">
+        <div class="failure-modes-heading">Three ways agent memory fails in production:</div>
+        <div class="failure-modes-grid">
+          <div class="failure-mode-card">
+            <div class="failure-icon">💸</div>
+            <div class="failure-name">Token Debt</div>
+            <div class="failure-desc">
+              Stuffing all memories into every prompt burns your context window.
+              At scale you are paying to remind the agent what it already knew,
+              every single message.
+            </div>
+            <div class="failure-signal">Signal: context window keeps hitting limits</div>
+          </div>
+          <div class="failure-mode-card">
+            <div class="failure-icon">🫥</div>
+            <div class="failure-name">Context Amnesia</div>
+            <div class="failure-desc">
+              Session ends. Agent forgets everything. The next user gets the same
+              wrong diagnosis the agent gave the last three users.
+              Cross-session learning simply does not exist.
+            </div>
+            <div class="failure-signal">Signal: agents repeat the same mistakes</div>
+          </div>
+          <div class="failure-mode-card">
+            <div class="failure-icon">📉</div>
+            <div class="failure-name">Memory Decay</div>
+            <div class="failure-desc">
+              Old facts do not expire. Contradicted conclusions sit beside newer truths.
+              The agent confidently cites a diagnosis it corrected six months ago.
+            </div>
+            <div class="failure-signal">Signal: agents hallucinate coherence from stale data</div>
+          </div>
+        </div>
+      </div>
+      <div class="failure-to-solution-bridge">
+        ↓ The five maintenance duties below run continuously inside TiDB to prevent all three.
+      </div>
+
+      <div class="duty-grid">
+        <div class="duty-card">
+          <div class="duty-icon">🛡️</div>
+          <div class="duty-name">Write control</div>
+          <div class="duty-desc">
+            Only confirmed outcomes persist. Working reasoning stays ephemeral.
+          </div>
+          <div class="duty-rule"><code>status = 'committed'</code> required</div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">📚</div>
+          <div class="duty-name">Deduplication</div>
+          <div class="duty-desc">
+            Cosine distance &lt; 0.15 merges with existing memory.
+            One strong memory, not ten weak ones.
+          </div>
+          <div class="duty-rule"><code>cosine &lt; 0.15 ⇒ merge</code></div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">⚙️</div>
+          <div class="duty-name">Reconciliation</div>
+          <div class="duty-desc">
+            New evidence auto-supersedes contradicted conclusions.
+            Stale facts are linked, not lost.
+          </div>
+          <div class="duty-rule"><code>supersedes_id</code> column</div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">📉</div>
+          <div class="duty-name">Confidence decay</div>
+          <div class="duty-desc">
+            5% monthly decay without reinforcement.
+            Below 0.30 = auto-deprecated.
+          </div>
+          <div class="duty-rule"><code>confidence *= 0.95 / month</code></div>
+        </div>
+
+        <div class="duty-card">
+          <div class="duty-icon">🗜️</div>
+          <div class="duty-name">Compaction</div>
+          <div class="duty-desc">
+            Weekly re-clustering merges drifted memories.
+            Evidence counts consolidated.
+          </div>
+          <div class="duty-rule"><code>CLUSTER BY embedding</code></div>
+        </div>
+      </div>
+
+      <div class="panel-footer ok">
+        All five duties run inside a <strong>single TiDB cluster</strong>.
+        No external schedulers. No sync jobs. No Kafka, Redis, or Airflow.
+      </div>
+
+      <!-- ── Why TiDB strip ── -->
+      <div class="why-tidb-strip">
+        <div class="why-tidb-heading">Why TiDB makes all five duties possible:</div>
+        <div class="why-tidb-grid">
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">⚡</div>
+            <div class="why-tidb-title">Unified HTAP + Vector</div>
+            <div class="why-tidb-desc">
+              SQL, analytics, and semantic search in one engine.
+              No ETL pipeline to maintain. No sync lag between systems.
+            </div>
+          </div>
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">🔗</div>
+            <div class="why-tidb-title">Vector + SQL in one query</div>
+            <div class="why-tidb-desc">
+              JOIN embeddings against transactions in a single statement.
+              <code>VEC_COSINE_DISTANCE()</code> is a SQL function.
+            </div>
+          </div>
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">🔌</div>
+            <div class="why-tidb-title">MCP integration</div>
+            <div class="why-tidb-desc">
+              Agents provision and query TiDB directly from Claude, Cursor,
+              and GitHub Copilot via the Model Context Protocol.
+            </div>
+          </div>
+          <div class="why-tidb-card">
+            <div class="why-tidb-icon">📡</div>
+            <div class="why-tidb-title">Zero-ETL real-time reasoning</div>
+            <div class="why-tidb-desc">
+              Write to one place. Reason across everything instantly.
+              No batch jobs, no Kafka topics, no Airflow DAGs.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-outcome-strip">
+        <div class="outcome-item">
+          <span class="outcome-icon">🏗️</span>
+          <span class="outcome-text">All five duties run in one TiDB cluster — no Airflow, no Redis, no Kafka, no sync jobs</span>
+        </div>
+        <div class="outcome-divider"></div>
+        <div class="outcome-item">
+          <span class="outcome-icon">📊</span>
+          <span class="outcome-text">Manus: 10M+ agent databases · 80% infrastructure cost reduction · 100% agent-provisioned</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── How It Works: One Cluster (Before / After) ── -->
+    <section class="tab-panel" data-tab-panel="how">
+      <div class="panel-hero">
+        <div class="panel-title">One cluster. One consistency model.</div>
+        <div class="panel-sub">
+          Before mem9 on TiDB, agent memory meant stitching four systems
+          together with custom sync code. After: one query, one transaction
+          boundary, ACID everywhere.
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="split-col before-col">
+          <div class="split-label before">Before — the frankenstack</div>
+          <div class="stack-box">OLTP database</div>
+          <div class="stack-box">Vector database</div>
+          <div class="stack-box">Cache / KV store</div>
+          <div class="stack-box">Analytics warehouse</div>
+          <div class="split-caption before">
+            4 systems · 4 consistency models · custom sync code
+          </div>
+        </div>
+
+        <div class="split-col after-col">
+          <div class="split-label after">After — unified on TiDB</div>
+          <div class="agent-layer">
+            Agent layer
+            <div class="layer-hint">stateless · disposable · reaches in</div>
+          </div>
+          <div class="arrow">↓</div>
+          <div class="tidb-cluster">
+            <div class="tidb-header">TiDB Cloud cluster</div>
+            <div class="plane context-plane">
+              <div class="plane-name">Context plane</div>
+              <div class="plane-desc">Reasoning · fleet memory · session state</div>
+            </div>
+            <div class="plane data-plane">
+              <div class="plane-name">Data plane</div>
+              <div class="plane-desc">Telemetry · windows · outage catalog</div>
+            </div>
+            <div class="plane lifecycle-plane">
+              <div class="plane-name">Memory lifecycle</div>
+              <div class="plane-desc">write · dedup · reconcile · decay · compact</div>
+            </div>
+          </div>
+          <div class="split-caption after">
+            1 cluster · 1 consistency model · ACID everywhere
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-outcome-strip">
+        <div class="outcome-item">
+          <span class="outcome-icon">🔒</span>
+          <span class="outcome-text">ACID everywhere — one consistency model replaces four, eliminating an entire class of sync bugs</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Deep Dive: Cross-Session Proof ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
+      <div class="panel-hero">
+        <div class="panel-title">An agent that learns across sessions</div>
+        <div class="panel-sub">
+          Stateless model. Stateful platform. Real incident —
+          charger <code>CP-IE-TEST-00176</code> sustained anomaly scores
+          across <strong>4 consecutive windows</strong>.
+          Three layers, one investigation.
+        </div>
+      </div>
+
+      <div class="proof-layers">
+        <div class="proof-band data-band">
+          <div class="band-label">Data plane</div>
+          <div class="band-body">
+            Telemetry windows with anomaly scores fed the trigger.
+            4 consecutive windows flagged.
+          </div>
+        </div>
+        <div class="proof-band context-band">
+          <div class="band-label">Context plane</div>
+          <div class="band-body">
+            Fleet memory recalled <strong>7 prior E-002 diagnoses</strong>
+            from other sessions — written by other agents, months ago.
+          </div>
+        </div>
+        <div class="proof-band agent-band">
+          <div class="band-label">Agent layer</div>
+          <div class="band-body">
+            Stateless Claude matched E-002 and wrote a diagnosis at
+            <strong>0.90 confidence</strong>.
+            Never saw the fault before; didn't need to.
+          </div>
+        </div>
+      </div>
+
+      <div class="proof-novel">
+        <div class="novel-label">Novel observation</div>
+        <div class="novel-body">
+          This charger's temperature (<strong>3.5°C</strong>) was the coldest
+          in the entire E-002 cluster — flagged as highest priority for
+          damp ingress. The agent wrote this conclusion back to the context
+          plane for future agents.
+        </div>
+      </div>
+
+      <div class="panel-footer ok">
+        Stateless model. Stateful platform. Cross-session learning.
+      </div>
+
+      <div class="generic-block">
+        <div class="generic-title">The pattern is generic — charger is a plugin</div>
+        <div class="domain-pills">
+          <div class="domain-pill">HVAC diagnostics</div>
+          <div class="domain-pill">Fleet GPS monitoring</div>
+          <div class="domain-pill">Industrial SCADA</div>
+          <div class="domain-pill">Payment fraud</div>
+        </div>
+        <div class="generic-caption">
+          Streaming data + anomaly detection + agents that learn =
+          the same memory wall, every time.
+        </div>
+      </div>
+
+      <div class="tab-outcome-strip">
+        <div class="outcome-item">
+          <span class="outcome-icon">🧠</span>
+          <span class="outcome-text">Stateless model. Stateful platform. DeepSeek, Plaud, and Kimi build agent memory this way.</span>
+        </div>
+        <div class="outcome-divider"></div>
+        <div class="outcome-item">
+          <span class="outcome-icon">🔄</span>
+          <span class="outcome-text">Cross-session learning without sharing model weights — any agent, any language, any framework</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Deep Dive: Why TiDB ── -->
+    <section class="tab-panel" data-tab-panel="deepdive">
+      <div class="panel-hero">
+        <div class="panel-title">TiDB for AI — built for all five memory duties</div>
+        <div class="panel-sub">
+          Every AI team hits the same four infrastructure walls. Here is why TiDB is the
+          only database that tears them down — and the four patterns that become possible
+          once it does.
+        </div>
+      </div>
+
+      <!-- ── Four AI Pain Points ── -->
+      <div class="pain-section">
+        <div class="pain-section-heading">The four walls AI teams hit</div>
+        <div class="pain-grid">
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">01</div>
+              <div class="pain-title">Memory fragmentation</div>
+            </div>
+            <div class="pain-problem">
+              Agent memory scattered across a vector DB, a KV cache, an OLTP database,
+              and an analytics warehouse. Every write hits four systems.
+              Sync lag means the agent sees yesterday's facts today.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                One unified engine. SQL + Vector + FTS + JSON + analytics in a single cluster.
+                Zero sync code, zero lag, one consistency model.
+              </div>
+            </div>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">02</div>
+              <div class="pain-title">Vector + SQL can't join</div>
+            </div>
+            <div class="pain-problem">
+              Semantic search lives in Pinecone. Structured data lives in Postgres.
+              You can't JOIN embeddings against transactions — so agents can't correlate
+              what they remember with what actually happened.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                <code>VEC_COSINE_DISTANCE()</code> is a SQL function.
+                Join embeddings against any table in a single statement.
+              </div>
+            </div>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">03</div>
+              <div class="pain-title">Multi-tenant isolation is expensive</div>
+            </div>
+            <div class="pain-problem">
+              Separate databases per agent: ops nightmare and idle capacity everywhere.
+              Shared tables: cross-tenant leakage risk. Neither scales past a few
+              hundred agents without someone writing a lot of plumbing.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                Data Branching — millisecond copy-on-write isolation, per agent, pay-per-RU.
+                Manus runs 10M+ agent databases this way.
+              </div>
+            </div>
+          </div>
+
+          <div class="pain-card">
+            <div class="pain-header">
+              <div class="pain-number">04</div>
+              <div class="pain-title">Schema migrations block production</div>
+            </div>
+            <div class="pain-problem">
+              Adding a confidence column to the memories table means a maintenance window.
+              ALTER TABLE locks the entire dataset for hours while your agents sit idle
+              and your on-call engineer watches a progress bar.
+            </div>
+            <div class="pain-solution">
+              <div class="solution-label">TiDB solution</div>
+              <div class="solution-text">
+                Online DDL — add columns, change indexes, alter schemas without blocking
+                a single query in production.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Four AI Scenarios ── -->
+      <div class="scenarios-section">
+        <div class="scenarios-heading">Four patterns that become possible</div>
+        <div class="scenarios-grid">
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 1</div>
+            <div class="scenario-title">Agent Long-Term Memory</div>
+            <div class="scenario-desc">
+              Persistent memory across sessions. Hybrid search (vector + BM25) for
+              precise recall. Confidence decay ensures stale facts expire automatically.
+              Write control prevents hallucination persistence.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Manus · DeepSeek · Plaud · Kimi</div>
+            </div>
+            <div class="scenario-outcome">10M+ agent databases · 80% infrastructure cost reduction</div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 2</div>
+            <div class="scenario-title">RAG Unified Storage</div>
+            <div class="scenario-desc">
+              Documents and embeddings in the same table.
+              BM25 + vector search in one query. No external vector database to
+              sync, scale, or pay for separately.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Dify.AI · Pinterest</div>
+            </div>
+            <div class="scenario-outcome">500K containers → 1 cluster · 90% ops overhead eliminated</div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 3</div>
+            <div class="scenario-title">AI SaaS Multi-Tenancy</div>
+            <div class="scenario-desc">
+              Database branching gives each customer their own isolated environment
+              in milliseconds. Pay-per-RU means idle tenants cost nothing.
+              Full ACID isolation with zero cross-tenant leakage.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Manus · Dify.AI</div>
+            </div>
+            <div class="scenario-outcome">Millisecond isolation · zero cross-tenant leakage · scale-to-zero cost</div>
+          </div>
+
+          <div class="scenario-card">
+            <div class="scenario-tag">Pattern 4</div>
+            <div class="scenario-title">Real-time Feature Library</div>
+            <div class="scenario-desc">
+              Streaming telemetry + vector similarity + SQL aggregation in one query.
+              Agents reason over real-time data without a separate feature store
+              or batch pipeline.
+            </div>
+            <div class="scenario-customers">
+              <div class="scenario-customer-label">Used by:</div>
+              <div class="scenario-customer-list">Flipkart · Pinterest</div>
+            </div>
+            <div class="scenario-outcome">1.3M QPS · &lt;5ms P95 · 6 systems → 1</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="tab-outcome-strip">
+        <div class="outcome-item">
+          <span class="outcome-icon">🚀</span>
+          <span class="outcome-text">The only database where SQL JOINs embeddings against transactions in a single statement</span>
+        </div>
+        <div class="outcome-divider"></div>
+        <div class="outcome-item">
+          <span class="outcome-icon">✅</span>
+          <span class="outcome-text">Online DDL, Data Branching, HTAP — in production today, not on the roadmap</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Who Uses It: Scale ── -->
+    <section class="tab-panel" data-tab-panel="who">
+      <div class="panel-hero">
+        <div class="panel-title">One cluster. Unlimited agents.</div>
+        <div class="panel-sub">
+          TiDB Cloud Zero provisions a fully isolated database for every agent in milliseconds
+          using copy-on-write branching — not spinning up new clusters. Manus runs 10M+ this way.
+          Each agent is isolated. None of them share a table. All of them share one TiDB cluster.
+        </div>
+      </div>
+
+      <!-- ── Three customer proof stat tiles ── -->
+      <div class="scale-proof-tiles">
+        <div class="scale-proof-tile manus-tile">
+          <div class="spt-customer">Manus</div>
+          <div class="spt-stat">10M+</div>
+          <div class="spt-unit">agent databases</div>
+          <div class="spt-detail">80% infrastructure cost reduction · 100% provisioned by AI agents · migrated in 2 weeks</div>
+        </div>
+        <div class="scale-proof-tile kimi-tile">
+          <div class="spt-customer">Kimi</div>
+          <div class="spt-stat">Millions</div>
+          <div class="spt-unit">of agents</div>
+          <div class="spt-detail">AI agent infrastructure on TiDB Cloud · persistent memory at Moonshot AI scale</div>
+        </div>
+        <div class="scale-proof-tile dify-tile">
+          <div class="spt-customer">Dify.AI</div>
+          <div class="spt-stat">500K</div>
+          <div class="spt-unit">containers → 1 cluster</div>
+          <div class="spt-detail">90% operations overhead eliminated · same performance, fraction of the cost</div>
+        </div>
+      </div>
+
+      <!-- ── Scale Ladder ── -->
+      <div class="scale-ladder-section">
+        <div class="scale-ladder-heading">From one agent to ten million — same cluster, same provisioning time</div>
+        <div class="scale-ladder">
+
+          <div class="scale-rung">
+            <div class="rung-count">1</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:3%"></div></div>
+              <div class="rung-label">One agent. One isolated database. Provisioned in milliseconds from cold.</div>
+              <div class="rung-tech">TiDB Cloud Zero · copy-on-write branch · ~900ms median</div>
+            </div>
+          </div>
+
+          <div class="scale-rung">
+            <div class="rung-count">100</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:8%"></div></div>
+              <div class="rung-label">A team of agents. Each isolated. Zero shared state between any of them.</div>
+              <div class="rung-tech">Pay-per-RU · idle agents cost nothing · scale to zero</div>
+            </div>
+          </div>
+
+          <div class="scale-rung">
+            <div class="rung-count">10K</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:22%"></div></div>
+              <div class="rung-label">Product launch. Every user gets their own agent memory store.</div>
+              <div class="rung-tech">Resource groups · no noisy neighbors · per-tenant RU caps</div>
+            </div>
+          </div>
+
+          <div class="scale-rung">
+            <div class="rung-count">1M</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:55%"></div></div>
+              <div class="rung-label">SaaS scale. Dify.AI runs this with 90% less ops overhead than before TiDB.</div>
+              <div class="rung-tech">Horizontal scale · TiDB X elastic compute/storage · HTAP on the same cluster</div>
+            </div>
+          </div>
+
+          <div class="scale-rung highlight-rung">
+            <div class="rung-count">10M+</div>
+            <div class="rung-body">
+              <div class="rung-track"><div class="rung-fill" style="width:100%"></div></div>
+              <div class="rung-label">Manus scale. 10M+ databases. Billions of events per day. One cluster.</div>
+              <div class="rung-tech">One TiDB cluster · 2-week migration · 80% cost reduction · 100% agent-provisioned</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Context stats row ── -->
+      <div class="fleet-context-strip">
+        <div class="fleet-context-item">
+          <div class="fci-stat">~900ms</div>
+          <div class="fci-label">median provision time</div>
+        </div>
+        <div class="fleet-context-item">
+          <div class="fci-stat">0</div>
+          <div class="fci-label">shared tables · zero cross-tenant leakage</div>
+        </div>
+        <div class="fleet-context-item">
+          <div class="fci-stat">$0</div>
+          <div class="fci-label">cost when idle · pay-per-RU serverless</div>
+        </div>
+        <div class="fleet-context-item">
+          <div class="fci-stat">ACID</div>
+          <div class="fci-label">everywhere · no eventual consistency</div>
+        </div>
+      </div>
+
+      <div class="fleet-band">
+        All agents share <strong>one TiDB cluster</strong> underneath —
+        full isolation, zero shared state, pay for what you use.
+      </div>
+
+      <div class="fleet-scale-refs">
+        <div class="scale-ref">Manus: 10M+ agent DBs</div>
+        <div class="scale-ref">Pinterest: 1.3M QPS</div>
+        <div class="scale-ref">Flipkart: 700+ MySQL → 1</div>
+        <div class="scale-ref">Dify.AI: 500K → 1 cluster</div>
+        <div class="scale-ref">DeepSeek: AI agents on TiDB</div>
+        <div class="scale-ref">Plaud: AI agents on TiDB</div>
+        <div class="scale-ref">Kimi: AI agents on TiDB</div>
+      </div>
+    </section>
+
+    <!-- ── Agent context strip (bottom — for the curious) ── -->
+    <div class="stat-strip stat-strip-bottom">
+
+      <div class="stat-card">
+        <div class="stat-label">This agent's ID</div>
+        <div class="stat-value" id="tenant-value">loading…</div>
+        <div class="stat-caption">
+          Every agent gets a unique tenant. One TiDB Cloud Zero database,
+          isolated from all others.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Memories stored</div>
+        <div class="stat-value" id="memories-value">—</div>
+        <div class="stat-caption">
+          50 facts, events, and preferences about a fictional engineer —
+          all in one TiDB table with vector + full-text indexes.
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Database provisioned in</div>
+        <div class="stat-value" id="provision-value">—</div>
+        <div class="stat-caption">
+          TiDB Cloud Zero auto-created this database from cold.
+          No pre-warming. No shared pool. Just instant isolation.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="/static/vendor/anime.min.js"></script>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
