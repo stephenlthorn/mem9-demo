@@ -542,6 +542,10 @@
   /*  TAB: SCALE                                              */
   /* ───────────────────────────────────────────────────────── */
   .scale-main{display:grid; grid-template-columns:1fr; gap:18px}
+  .scale-bullets{list-style:none; padding:0; margin:14px 0 0; display:grid; grid-template-columns:repeat(2,1fr); gap:12px 28px; max-width:720px}
+  .scale-bullets li{font-size:15px; color:var(--ink-dim); padding-left:18px; position:relative; line-height:1.4}
+  .scale-bullets li::before{content:""; position:absolute; left:0; top:9px; width:6px; height:6px; background:var(--tidb-red); border-radius:50%}
+  .scale-bullets li b{color:var(--ink); font-weight:600}
   .scale-tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
   .scale-tile{
     border:1px solid var(--line); padding:22px; background:var(--bg-1);
@@ -565,15 +569,15 @@
 
   .fleet-strip{
     display:grid; grid-template-columns:repeat(4,1fr); gap:0;
-    border:1px solid var(--line);
+    border:1px solid var(--line); background:var(--bg-1);
   }
   .fleet-strip .cell{
-    padding:16px 22px; border-right:1px solid var(--line);
-    display:flex; flex-direction:column; gap:2px;
+    padding:22px 26px; border-right:1px solid var(--line);
+    display:flex; flex-direction:column-reverse; gap:6px;
   }
   .fleet-strip .cell:last-child{border-right:none}
   .fleet-strip .k{font-family:var(--mono); font-size:11px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase}
-  .fleet-strip .v{font-family:var(--mono); font-size:22px; color:var(--ink); letter-spacing:-0.01em}
+  .fleet-strip .v{font-family:var(--serif); font-size:36px; line-height:1; color:var(--ink); letter-spacing:-0.02em}
   .fleet-strip .v.hl{color:var(--accent)}
 
   /* ── footer strip ─────────────────────────────────────── */
@@ -706,19 +710,19 @@
 
   <!-- ─── TABS ────────────────────────────────────────────── -->
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-tab="query"><span class="num">01</span>Query</button>
-    <button class="tab" data-tab="stack"><span class="num">02</span>Stack</button>
-    <button class="tab" data-tab="chat"><span class="num">03</span>Agent</button>
-    <button class="tab" data-tab="scale"><span class="num">04</span>Scale</button>
-    <button class="tab" data-tab="tidbai"><span class="num">05</span>TiDB for AI</button>
-    <button class="tab" data-tab="arch"><span class="num">06</span>Architecture</button>
+    <button class="tab active" data-tab="arch"><span class="num">01</span>Architecture</button>
+    <button class="tab" data-tab="chat"><span class="num">02</span>Agent</button>
+    <button class="tab" data-tab="scale"><span class="num">03</span>Scale</button>
+    <button class="tab" data-tab="tidbai"><span class="num">04</span>TiDB for AI</button>
+    <button class="tab" data-tab="stack"><span class="num">05</span>Stack</button>
+    <button class="tab" data-tab="query"><span class="num">06</span>Query</button>
   </nav>
 
-  <!-- ─── TAB 01: QUERY ───────────────────────────────────── -->
-  <section class="panel active" data-panel="query">
+  <!-- ─── TAB 06: QUERY ───────────────────────────────────── -->
+  <section class="panel" data-panel="query">
     <div class="panel-head">
       <div>
-        <div class="panel-kicker">01 · hybrid retrieval</div>
+        <div class="panel-kicker">06 · hybrid retrieval</div>
         <h2 class="panel-title">Three engines. <em>One query.</em></h2>
         <div class="panel-sub">
           Pick a question — or type your own. Watch VECTOR, FULL-TEXT, and HYBRID
@@ -726,7 +730,7 @@
           One SQL statement each.
         </div>
       </div>
-      <div class="panel-idx"><b>01</b>query</div>
+      <div class="panel-idx"><b>06</b>query</div>
     </div>
 
     <div class="query-grid">
@@ -814,14 +818,14 @@
   <section class="panel" data-panel="stack">
     <div class="panel-head">
       <div>
-        <div class="panel-kicker">02 · stack comparison</div>
+        <div class="panel-kicker">05 · stack comparison</div>
         <h2 class="panel-title">Four services <em>or one.</em></h2>
         <div class="panel-sub">
           Fire an agent write — one memory, with ACID semantics and hybrid retrieval.
           Watch the frankenstack break things. Watch TiDB not.
         </div>
       </div>
-      <div class="panel-idx"><b>02</b>stack</div>
+      <div class="panel-idx"><b>05</b>stack</div>
     </div>
 
     <!-- control row -->
@@ -966,7 +970,7 @@
   <section class="panel" data-panel="chat">
     <div class="panel-head">
       <div>
-        <div class="panel-kicker">03 · ask the agent</div>
+        <div class="panel-kicker">02 · ask the agent</div>
         <h2 class="panel-title">Stateless model. <em>Stateful platform.</em></h2>
         <div class="panel-sub">
           Every turn, mem9 runs a hybrid search. The top 5 memories become the
@@ -974,7 +978,7 @@
           You can watch it happen in the right pane.
         </div>
       </div>
-      <div class="panel-idx"><b>03</b>agent</div>
+      <div class="panel-idx"><b>02</b>agent</div>
     </div>
 
     <div class="chat-grid">
@@ -1018,31 +1022,32 @@
   <section class="panel" data-panel="scale">
     <div class="panel-head">
       <div>
-        <div class="panel-kicker">04 · scale story</div>
+        <div class="panel-kicker">03 · scale story</div>
         <h2 class="panel-title">One cluster. <em>Unlimited agents.</em></h2>
-        <div class="panel-sub">
-          TiDB Cloud Zero provisions an isolated database per agent in milliseconds —
-          copy-on-write branching, not new clusters. Same cluster scales from one
-          agent to ten million.
-        </div>
+        <ul class="scale-bullets">
+          <li><b>Isolated per agent</b> — one branch each, no shared tables</li>
+          <li><b>Milliseconds to provision</b> — copy-on-write, not new clusters</li>
+          <li><b>One cluster, one to ten million</b> — same architecture scales with you</li>
+          <li><b>Pay-per-RU</b> — idle agents cost zero</li>
+        </ul>
       </div>
-      <div class="panel-idx"><b>04</b>scale</div>
+      <div class="panel-idx"><b>03</b>scale</div>
     </div>
 
     <div class="scale-main">
 
       <div class="scale-tiles">
         <div class="scale-tile">
-          <div class="stt-who">Manus</div>
+          <div class="stt-who">Meta (Manus)</div>
           <div class="stt-big">10<span style="font-style:italic; color:var(--accent)">M+</span></div>
           <div class="stt-unit">agent databases</div>
           <div class="stt-detail">80% infrastructure cost reduction · 100% provisioned by AI agents · 2-week migration.</div>
         </div>
         <div class="scale-tile">
-          <div class="stt-who">Pinterest</div>
-          <div class="stt-big">1.3<span style="font-style:italic; color:var(--accent)">M</span></div>
-          <div class="stt-unit">qps sustained</div>
-          <div class="stt-detail">6 systems collapsed to 1 · p95 < 5ms · HTAP on the same cluster.</div>
+          <div class="stt-who">Kimi · Moonshot AI</div>
+          <div class="stt-big">Mem0<span style="font-style:italic; color:var(--accent)"> + TiDB</span></div>
+          <div class="stt-unit">persistent memory at scale</div>
+          <div class="stt-detail">Long-context Kimi agents run on TiDB + Mem0 as the memory layer · Alibaba Cloud partnership.</div>
         </div>
         <div class="scale-tile">
           <div class="stt-who">Dify.AI</div>
@@ -1079,7 +1084,7 @@
         </div>
         <div class="rung hi">
           <div class="rung-n">10<em>M+</em></div>
-          <div class="rung-copy"><b>Manus scale.</b> 10M+ databases. Billions of events per day. One cluster.</div>
+          <div class="rung-copy"><b>Meta (Manus) scale.</b> 10M+ databases. Billions of events per day. One cluster.</div>
           <div class="rung-tech">2-week migration · −80% cost · 100% agent-provisioned</div>
         </div>
       </div>
@@ -1097,16 +1102,16 @@
   <section class="panel" data-panel="tidbai">
     <div class="panel-head">
       <div>
-        <div class="panel-kicker">05 · tidb for ai</div>
-        <h2 class="panel-title">Vector search. <em>Agentic scale.</em></h2>
+        <div class="panel-kicker">04 · tidb for ai</div>
+        <h2 class="panel-title">Hybrid search. <em>Agentic scale.</em></h2>
         <div class="panel-sub">
-          Two live animations. On the left: semantic vector search — embeddings in
-          2D space, nearest-neighbor retrieval, hybrid SQL. On the right: agentic
-          branching — one agent becomes a thousand, each with its own database,
-          provisioned in milliseconds.
+          Two live animations. On the left: hybrid search — vector similarity blended
+          with BM25 keyword ranking, one SQL call. On the right: agentic scale —
+          one spawn seeds a thousand users, each spinning up their own isolated
+          TiDB branch in milliseconds. Scales to tens of millions.
         </div>
       </div>
-      <div class="panel-idx"><b>05</b>tidb · ai</div>
+      <div class="panel-idx"><b>04</b>tidb · ai</div>
     </div>
 
     <div class="ai-grid">
@@ -1115,8 +1120,8 @@
       <div class="ai-card">
         <div class="ai-hd">
           <div>
-            <div class="ai-title">Vector Search <span class="mono mute" style="font-size:10px; letter-spacing:.14em; margin-left:8px">SEMANTIC · RAG</span></div>
-            <div class="ai-sub">embed query → k-nearest neighbors in one sql call</div>
+            <div class="ai-title">Hybrid Search <span class="mono mute" style="font-size:10px; letter-spacing:.14em; margin-left:8px">VECTOR + BM25</span></div>
+            <div class="ai-sub">vector similarity + keyword ranking, blended in one sql call</div>
           </div>
           <button class="stack-btn" id="vsRun">▶ Search</button>
         </div>
@@ -1131,7 +1136,7 @@
           </div>
         </div>
         <div class="ai-foot">
-          <span class="mono mute" style="font-size:10px">one sql · <span style="color:var(--tidb-red)">VEC_COSINE_DISTANCE()</span> · no vector db</span>
+          <span class="mono mute" style="font-size:10px">one sql · <span style="color:var(--tidb-red)">VEC_COSINE_DISTANCE()</span> + <span style="color:var(--tidb-red)">fts_match_score()</span></span>
           <span class="mono" id="vsLat" style="font-size:10px; color:var(--ink-dim)">—</span>
         </div>
       </div>
@@ -1140,12 +1145,12 @@
       <div class="ai-card">
         <div class="ai-hd">
           <div>
-            <div class="ai-title">Agentic AI <span class="mono mute" style="font-size:10px; letter-spacing:.14em; margin-left:8px">BRANCH · SCALE</span></div>
-            <div class="ai-sub">each user spawns agents, each agent gets an isolated db</div>
+            <div class="ai-title">Agentic AI Scale <span class="mono mute" style="font-size:10px; letter-spacing:.14em; margin-left:8px">BRANCH · FLEET</span></div>
+            <div class="ai-sub">each spawn provisions 1,000 users · ~5K agents · millions of isolated branches</div>
           </div>
           <div style="display:flex; gap:6px">
             <button class="stack-btn" id="aiReset">Reset</button>
-            <button class="stack-btn primary" id="aiSpawn">▶ Spawn</button>
+            <button class="stack-btn primary" id="aiSpawn">▶ Spawn 1K Fleet</button>
           </div>
         </div>
         <div class="ai-body">
@@ -1184,15 +1189,15 @@
     </div>
   </section>
 
-  <!-- ─── TAB 06: ARCHITECTURE ─────────────────────────────── -->
-  <section class="panel" data-panel="arch">
+  <!-- ─── TAB 01: ARCHITECTURE ─────────────────────────────── -->
+  <section class="panel active" data-panel="arch">
     <div class="panel-head">
       <div>
-        <div class="panel-kicker">06 · architecture</div>
+        <div class="panel-kicker">01 · architecture</div>
         <h2 class="panel-title">One cluster. Two engines. <em>Four jobs.</em></h2>
         <div class="panel-sub">Every AI workload — agent state, analytics, vector retrieval, and full-text search — served from a single TiDB cluster. No sync glue. No ETL. One consistency model.</div>
       </div>
-      <div class="panel-num">06</div>
+      <div class="panel-num">01</div>
     </div>
 
     <style>
@@ -1291,22 +1296,18 @@
         <div class="arch-workload">
           <div class="arch-wl-tag">Agent State</div>
           <div class="arch-wl-name">Inference job metadata &amp; control plane</div>
-          <div class="arch-wl-desc">Durable ACID writes. Each agent's session, task queue, and tool call history.</div>
         </div>
         <div class="arch-workload">
           <div class="arch-wl-tag">Analytics</div>
           <div class="arch-wl-name">Live analytics on inference data</div>
-          <div class="arch-wl-desc">HTAP — same rows, columnar engine (TiFlash). No ETL, no lag.</div>
         </div>
         <div class="arch-workload">
           <div class="arch-wl-tag">Retrieval</div>
           <div class="arch-wl-name">RAG without a separate vector DB</div>
-          <div class="arch-wl-desc">HNSW vector indexes inside TiDB. <code>VEC_COSINE_DISTANCE()</code> is a SQL function.</div>
         </div>
         <div class="arch-workload">
           <div class="arch-wl-tag">Full-Text</div>
           <div class="arch-wl-name">Keyword · BM25</div>
-          <div class="arch-wl-desc">Built-in BM25 via tantivy. No Elasticsearch sidecar required.</div>
         </div>
       </div>
 
@@ -1316,7 +1317,6 @@
         <div class="arch-compute-badge">Compute</div>
         <div>
           <div class="arch-compute-name">TiDB Server — Stateless SQL Compute</div>
-          <div class="arch-compute-desc">Stateless · horizontally scalable · parses, plans, and routes all four workloads · MySQL-compatible wire protocol</div>
         </div>
       </div>
       <div class="arch-connector"><div class="arch-connector-line"></div></div>
@@ -1328,12 +1328,6 @@
             <div class="arch-engine-name">TiKV</div>
             <div class="arch-engine-role">Transactional truth</div>
           </div>
-          <div class="arch-engine-desc">Raft-replicated KV store built on RocksDB. Source of truth for every write. Distributed ACID via Percolator 2PC.</div>
-          <ul class="arch-engine-bullets">
-            <li>Raft-replicated Regions (~256 MB each)</li>
-            <li>Source of truth for all writes</li>
-            <li>Percolator-style distributed 2PC</li>
-          </ul>
           <div class="arch-engine-tags">
             <span class="arch-engine-tag tikv-oltp">OLTP</span>
           </div>
@@ -1343,12 +1337,6 @@
             <div class="arch-engine-name">TiFlash</div>
             <div class="arch-engine-role">Analytics · Vector · FTS</div>
           </div>
-          <div class="arch-engine-desc">Columnar extension of TiKV. Same data, three extra indexes. Query optimizer chooses row vs columnar automatically.</div>
-          <ul class="arch-engine-bullets">
-            <li>Async columnar replicas from TiKV</li>
-            <li>HNSW approximate nearest-neighbor vector indexes</li>
-            <li>BM25 full-text indexes via tantivy (TiCI)</li>
-          </ul>
           <div class="arch-engine-tags">
             <span class="arch-engine-tag tf-analytics">Analytics</span>
             <span class="arch-engine-tag tf-vector">Vector</span>
@@ -1362,25 +1350,6 @@
         <div class="arch-s3-label">Storage</div>
         <div class="arch-s3-name">Object Storage (S3) — source of truth</div>
         <div class="arch-s3-desc">TiDB X architecture · compute–storage decoupled · 5–10× faster scaling</div>
-      </div>
-
-      <!-- ── Customer proof ────────────────────────────────── -->
-      <div class="arch-proof">
-        <div class="arch-proof-cell">
-          <div class="arch-proof-co">Manus</div>
-          <div class="arch-proof-stat">10M+</div>
-          <div class="arch-proof-label">agent databases · one cluster · 80% cost reduction</div>
-        </div>
-        <div class="arch-proof-cell">
-          <div class="arch-proof-co">Databricks</div>
-          <div class="arch-proof-stat">10×</div>
-          <div class="arch-proof-label">QPS improvement · 60% TCO reduction vs MySQL</div>
-        </div>
-        <div class="arch-proof-cell">
-          <div class="arch-proof-co">Atlassian</div>
-          <div class="arch-proof-stat">3M+</div>
-          <div class="arch-proof-label">tables · 750 Postgres clusters → 16 TiDB clusters</div>
-        </div>
       </div>
 
     </div>
@@ -2018,85 +1987,105 @@ function queryPos(q){
 document.getElementById('vsRun')?.addEventListener('click', runVectorSearch);
 document.getElementById('vsQuery')?.addEventListener('keydown', e=> { if(e.key==='Enter') runVectorSearch(); });
 
-// Agentic tree animation
-let aiUsers=0, aiAgents=0, aiBranches=0;
+// Agentic fleet animation — each click provisions a 1K-user fleet
+let aiUsers=0, aiAgents=0, aiBranches=0, aiSpawnCount=0;
 const aiTree = document.getElementById('aiTree');
 const svgNS = 'http://www.w3.org/2000/svg';
 let aiProvTimes = [];
 
+function aiFmt(n){
+  if(n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
+  if(n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'') + 'K';
+  return n.toString();
+}
+
 function aiReset(){
-  aiUsers=0; aiAgents=0; aiBranches=0; aiProvTimes=[];
-  aiTree.innerHTML = '';
+  aiUsers=0; aiAgents=0; aiBranches=0; aiSpawnCount=0; aiProvTimes=[];
+  aiTree.replaceChildren();
   document.getElementById('aiUsers').textContent = '0';
   document.getElementById('aiAgents').textContent = '0';
   document.getElementById('aiBranches').textContent = '0';
   document.getElementById('aiProv').textContent = '—';
 }
+
 function aiSpawn(){
-  // one user with N agents, each with 1 db
-  const baseX = 260, baseY = 20;
-  // root cluster
+  // each click = 1K users, ~5K agents, ~5K branches
+  const batchUsers = 1000;
+  const batchAgents = 4500 + Math.floor(Math.random()*1500);
+  const batchBranches = batchAgents;
+  aiSpawnCount++;
+
+  // draw root TiDB cluster on first click
   if(aiUsers === 0){
-    const root = document.createElementNS(svgNS,'circle');
-    root.setAttribute('cx', baseX); root.setAttribute('cy', baseY);
-    root.setAttribute('r', 8); root.setAttribute('class','node db');
+    const root = document.createElementNS(svgNS,'rect');
+    root.setAttribute('x', 240); root.setAttribute('y', 8);
+    root.setAttribute('width', 40); root.setAttribute('height', 18);
+    root.setAttribute('rx', 2);
+    root.setAttribute('class','node db');
     aiTree.appendChild(root);
     const lbl = document.createElementNS(svgNS,'text');
-    lbl.setAttribute('x', baseX+14); lbl.setAttribute('y', baseY+3);
-    lbl.setAttribute('fill','var(--tidb-red)'); lbl.textContent = 'TiDB cluster';
+    lbl.setAttribute('x', 260); lbl.setAttribute('y', 44);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('fill','var(--tidb-red)');
+    lbl.setAttribute('font-size','9');
+    lbl.textContent = 'TiDB cluster';
     aiTree.appendChild(lbl);
   }
-  aiUsers++;
-  const uIdx = aiUsers - 1;
-  const uCount = Math.min(aiUsers, 8);
-  // layout: users along y ~80
-  const uX = 60 + (uIdx % uCount) * ((520-120)/Math.max(1,uCount-1 || 1));
-  const uY = 80;
-  // user node
-  const u = document.createElementNS(svgNS,'circle');
-  u.setAttribute('cx', uX); u.setAttribute('cy', uY);
-  u.setAttribute('r', 5); u.setAttribute('class','node user');
-  aiTree.appendChild(u);
-  // link from root
-  const l0 = document.createElementNS(svgNS,'path');
-  l0.setAttribute('d', `M${baseX},${baseY+8} C${baseX},${(baseY+uY)/2} ${uX},${(baseY+uY)/2} ${uX},${uY-5}`);
-  l0.setAttribute('class','link on');
-  aiTree.appendChild(l0);
-  // 3-5 agents per user
-  const nAgents = 2 + Math.floor(Math.random()*4);
-  for(let i=0; i<nAgents; i++){
-    aiAgents++;
-    const aX = uX - 30 + i*(60/Math.max(1,nAgents-1 || 1));
-    const aY = 180;
+
+  // dense scatter of user dots
+  for(let i=0; i<40; i++){
+    const seed = aiSpawnCount*100 + i;
+    const uX = 20 + ((seed*37) % 480);
+    const uY = 80 + ((seed*19) % 30);
+    setTimeout(() => {
+      const u = document.createElementNS(svgNS,'circle');
+      u.setAttribute('cx', uX); u.setAttribute('cy', uY);
+      u.setAttribute('r', 1.8); u.setAttribute('class','node user');
+      u.setAttribute('opacity','0.7');
+      aiTree.appendChild(u);
+    }, i*4);
+  }
+
+  // denser scatter of agent dots
+  for(let i=0; i<90; i++){
+    const seed = aiSpawnCount*200 + i*3;
+    const aX = 15 + ((seed*53) % 490);
+    const aY = 155 + ((seed*23) % 40);
     setTimeout(() => {
       const a = document.createElementNS(svgNS,'circle');
       a.setAttribute('cx', aX); a.setAttribute('cy', aY);
-      a.setAttribute('r', 3.5); a.setAttribute('class','node agent');
+      a.setAttribute('r', 1.2); a.setAttribute('class','node agent');
+      a.setAttribute('opacity','0.65');
       aiTree.appendChild(a);
-      const l = document.createElementNS(svgNS,'path');
-      l.setAttribute('d', `M${uX},${uY+5} C${uX},${(uY+aY)/2} ${aX},${(uY+aY)/2} ${aX},${aY-4}`);
-      l.setAttribute('class','link on');
-      aiTree.appendChild(l);
-      // db
-      setTimeout(() => {
-        aiBranches++;
-        const db = document.createElementNS(svgNS,'rect');
-        db.setAttribute('x', aX-3); db.setAttribute('y', 280);
-        db.setAttribute('width', 6); db.setAttribute('height', 6);
-        db.setAttribute('class','node db');
-        aiTree.appendChild(db);
-        const l2 = document.createElementNS(svgNS,'path');
-        l2.setAttribute('d', `M${aX},${aY+4} L${aX},${280}`);
-        l2.setAttribute('class','link on');
-        aiTree.appendChild(l2);
-        aiProvTimes.push(800 + Math.random()*300);
-        document.getElementById('aiBranches').textContent = aiBranches;
-        document.getElementById('aiProv').textContent = Math.round(aiProvTimes.reduce((a,b)=>a+b,0)/aiProvTimes.length) + 'ms';
-      }, 180 + i*40);
-    }, i*60);
+    }, 180 + i*3);
   }
-  document.getElementById('aiUsers').textContent = aiUsers;
-  setTimeout(()=> { document.getElementById('aiAgents').textContent = aiAgents; }, 300);
+
+  // branch rects - densest
+  for(let i=0; i<110; i++){
+    const seed = aiSpawnCount*300 + i*7;
+    const bX = 12 + ((seed*71) % 496);
+    const bY = 250 + ((seed*29) % 50);
+    setTimeout(() => {
+      const b = document.createElementNS(svgNS,'rect');
+      b.setAttribute('x', bX); b.setAttribute('y', bY);
+      b.setAttribute('width', 2.5); b.setAttribute('height', 2.5);
+      b.setAttribute('class','node db');
+      b.setAttribute('opacity','0.75');
+      aiTree.appendChild(b);
+    }, 380 + i*2);
+  }
+
+  aiUsers += batchUsers;
+  aiAgents += batchAgents;
+  aiBranches += batchBranches;
+  aiProvTimes.push(800 + Math.random()*400);
+
+  document.getElementById('aiUsers').textContent = aiFmt(aiUsers);
+  setTimeout(()=> { document.getElementById('aiAgents').textContent = aiFmt(aiAgents); }, 250);
+  setTimeout(()=> {
+    document.getElementById('aiBranches').textContent = aiFmt(aiBranches);
+    document.getElementById('aiProv').textContent = Math.round(aiProvTimes.reduce((a,b)=>a+b,0)/aiProvTimes.length) + 'ms';
+  }, 450);
 }
 document.getElementById('aiSpawn')?.addEventListener('click', aiSpawn);
 document.getElementById('aiReset')?.addEventListener('click', aiReset);
