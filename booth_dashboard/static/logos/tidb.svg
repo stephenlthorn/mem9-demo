@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 28" width="96" height="28">
+  <!-- TiDB icon: stacked diamond layers -->
+  <polygon points="11,2 20,7 11,12 2,7" fill="#DC1509"/>
+  <polygon points="11,13 20,18 11,23 2,18" fill="#DC1509" opacity="0.55"/>
+  <!-- TiDB wordmark -->
+  <text x="26" y="20" font-family="Geist,ui-sans-serif,system-ui,sans-serif" font-weight="700" font-size="18" letter-spacing="-0.3" fill="#DC1509">Ti</text>
+  <text x="47" y="20" font-family="Geist,ui-sans-serif,system-ui,sans-serif" font-weight="700" font-size="18" letter-spacing="-0.3" fill="currentColor">DB</text>
+</svg>

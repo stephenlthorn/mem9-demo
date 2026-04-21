@@ -652,11 +652,7 @@
   <!-- ─── TOP BAR ─────────────────────────────────────────── -->
   <div class="topbar">
     <div class="brand">
-      <div class="mark">m9</div>
-      <div>
-        <div class="brand-name">mem9 <span style="color:var(--ink-mute)">×</span> <svg class="tidb-wm" viewBox="0 0 52 14" width="44" height="12" aria-label="TiDB" style="vertical-align:-2px"><text x="0" y="11" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" fill="var(--tidb-red)" letter-spacing="0.5">Ti</text><text x="14" y="11" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" fill="currentColor" letter-spacing="0.5">DB</text></svg></div>
-        <div class="brand-sub">tidb cloud zero · gcp next 2026</div>
-      </div>
+      <img src="/static/logos/tidb-official.png" alt="TiDB" height="32" style="display:block"/>
     </div>
     <div class="top-stats">
       <div class="top-stat">
@@ -681,26 +677,31 @@
   <!-- ─── HERO ────────────────────────────────────────────── -->
   <section class="hero">
     <div>
-      <div class="hero-eyebrow">Persistent agent memory · one SQL surface</div>
-      <h1>Every&nbsp;agent<br/>forgets&nbsp;you.<br/><em>We&nbsp;fixed&nbsp;that.</em></h1>
+      <h1 style="font-size:clamp(36px,4.2vw,62px);line-height:1.05">Unlimited&nbsp;Agent<br/>Memory&nbsp;at&nbsp;<em>Scale.</em></h1>
     </div>
     <div class="hero-lede">
-      <div class="tag">THE MEMORY WALL</div>
-      <strong>Vector, keyword, ACID writes, and analytics</strong> — served from a single
-      TiDB cluster. No sync glue, no four-headed consistency model, no vector-DB tax.
-      The tabs below prove it three ways: a live hybrid query, a side-by-side stack
-      comparison, and the scale story.
+      <div class="tag" style="font-size:14px;padding:4px 12px;letter-spacing:.15em;font-weight:700">1 TiDB CLUSTER</div>
+      <ul style="list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:14px;font-size:22px;font-weight:600;line-height:1.2">
+        <li style="color:var(--ink)">Agent memory</li>
+        <li style="color:var(--ink)">Vector</li>
+        <li style="color:var(--ink)">Keyword</li>
+        <li style="color:var(--ink)">Analytics</li>
+      </ul>
     </div>
   </section>
 
   <!-- ─── PROOF BAR ───────────────────────────────────────── -->
+  <style>
+    .proof-cell{flex:1 1 120px;padding:18px 20px;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:center;min-width:100px}
+    .proof-logo{height:88px;width:auto;max-width:160px;object-fit:contain;opacity:0.9}
+  </style>
   <div class="proof-bar">
-    <div class="proof-cell"><div class="proof-name">Manus</div><div class="proof-stat"><span class="hl">10M+</span> agent dbs · −80% cost</div></div>
-    <div class="proof-cell"><div class="proof-name">Pinterest</div><div class="proof-stat"><span class="hl">1.3M</span> qps · 6 → 1 systems</div></div>
-    <div class="proof-cell"><div class="proof-name">Flipkart</div><div class="proof-stat"><span class="hl">700 → 1</span> · p95 &lt; 5ms</div></div>
-    <div class="proof-cell"><div class="proof-name">Dify.AI</div><div class="proof-stat"><span class="hl">500K → 1</span> · −90% ops</div></div>
-    <div class="proof-cell"><div class="proof-name">DeepSeek</div><div class="proof-stat">agent infra on tidb</div></div>
-    <div class="proof-cell"><div class="proof-name">Kimi · Plaud · Uber</div><div class="proof-stat">production agent workloads</div></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/uber.svg?v=2" alt="Uber"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/meta.svg?v=2" alt="Meta"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/deepseek.svg" alt="DeepSeek"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/kimi.svg" alt="Kimi"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/dify.svg?v=2" alt="Dify.AI"/></div>
+    <div class="proof-cell"><img class="proof-logo" src="/static/logos/plaud.svg" alt="Plaud AI"/></div>
   </div>
 
   <!-- ─── TABS ────────────────────────────────────────────── -->
